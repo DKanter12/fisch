@@ -1,0 +1,14 @@
+{
+	"required": true,
+	"package": "com.fisch.mixin",
+	"compatibilityLevel": "JAVA_17",
+	"mixins": [
+      "FischMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	},
+	"overwrites": {
+		"requireAnnotations": true
+	}
+}

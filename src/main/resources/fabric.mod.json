@@ -1,0 +1,38 @@
+{
+	"schemaVersion": 1,
+	"id": "fisch",
+	"version": "${version}",
+	"name": "Fisch Mod",
+	"description": "Features the authentic keeping-the-bar minigame, unique rod progression, custom baits, and hundreds of rare fish mutations to collect. Grab your tackle box and become the ultimate blocky angler!",
+	"authors": [
+		"DKanter12, BEPMAKC1, Greek6712"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/DKanter12/fisch"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/fisch/icon.png",
+	"environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.fisch.FischMod"
+    ],
+    "client": [
+      "com.fisch.client.FischModClient"
+    ]
+  },
+	"mixins": [
+      "fisch.mixins.json",
+		{
+			"config": "fisch.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.19.3",
+		"minecraft": "~1.20.1",
+		"java": ">=17",
+		"fabric-api": "*"
+	}
+}
