@@ -3,7 +3,8 @@
 	"package": "com.fisch.mixin",
 	"compatibilityLevel": "JAVA_17",
 	"mixins": [
-      "FischMixin"
+      "FischMixin",
+      "FishingHookMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
