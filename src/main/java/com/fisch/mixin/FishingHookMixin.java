@@ -1,9 +1,14 @@
 package com.fisch.mixin;
 
+import com.fisch.FischMod;
 import com.fisch.FishingHookDuck;
 import com.fisch.RodMechanics;
 import com.fisch.fish.NewFish;
 import com.fisch.fish.ModFish;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.FishingHook;
 import net.minecraft.world.item.ItemStack;
@@ -159,17 +164,18 @@ public abstract class FishingHookMixin implements FishingHookDuck {
 
     @Unique
     private NewFish[] getActiveBestiary() {
-        // Теперь здесь возвращается ваш реальный список всех рыб из класса ModFish
         return ModFish.ALL_FISH;
     }
 
     @Unique
     private void giveCustomFishToPlayer(Player player, NewFish fish) {
-        // Используем стандартный SLF4J LOGGER для вывода информации в консоль сервера
         fisch$LOGGER.info("Игрок " + player.getName().getString() + " выловил кастомную рыбу: " + fish.name);
 
-        // Тут вы можете выдать предмет игроку, например:
-        // ItemStack stack = new ItemStack(YourItems.CUSTOM_FISH_ITEM);
-        // player.getInventory().add(stack);
+        if (player instanceof ServerPlayer serverPlayer) {
+
+            FriendlyByteBuf buf = PacketByteBufs.create();
+            buf.writeUtf(fish.name);
+            ServerPlayNetworking.send(serverPlayer, FischMod.FISH_GUI_PACKET_ID, buf);
+        }
     }
 }

@@ -82,4 +82,12 @@ public class RodMechanics {
 
         return fishPercentage + fish.rarity;
     }
+
+    public static boolean checkProgress(int x1, int x2, int fishX1, int fishX2){
+        return x1 <= fishX1 && x2 >= fishX2 || x1 == fishX2 && x2 == fishX1;
+    }
+
+    public static int getFishX(int maxMovement){
+        return RANDOM.nextInt(maxMovement - (-maxMovement) + 1) + (-maxMovement);
+    }
 }
