@@ -2,7 +2,7 @@ package com.fisch.mixin;
 
 import com.fisch.FischMod;
 import com.fisch.FishingHookDuck;
-import com.fisch.RodMechanics;
+import com.fisch.rod.RodMechanics;
 import com.fisch.fish.NewFish;
 import com.fisch.fish.ModFish;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -81,7 +81,7 @@ public abstract class FishingHookMixin implements FishingHookDuck {
                     NewFish[] bestiary = getActiveBestiary();
 
                     // 3. Вызываем ваш кастомный метод для генерации улова
-                    this.fisch$customCatch = RodMechanics.determineCatch(level, bestiary, bait);
+                    this.fisch$customCatch = RodMechanics.determineCatch(level, bestiary, bait, 1);
 
                     if (this.fisch$customCatch != null) {
                         fisch$LOGGER.info("[Fisch] Рыба успешно выбрана в tick(): {}", this.fisch$customCatch.name);
@@ -124,7 +124,7 @@ public abstract class FishingHookMixin implements FishingHookDuck {
                         fisch$LOGGER.warn("[Fisch] Обнаружена поклёвка без улова в retrieve. Запуск экстренной генерации.");
                         String bait = getBaitFromPlayer(player);
                         NewFish[] bestiary = getActiveBestiary();
-                        this.fisch$customCatch = RodMechanics.determineCatch(level, bestiary, bait);
+                        this.fisch$customCatch = RodMechanics.determineCatch(level, bestiary, bait, 0);
                     }
 
                     if (this.fisch$customCatch != null) {
@@ -175,6 +175,7 @@ public abstract class FishingHookMixin implements FishingHookDuck {
 
             FriendlyByteBuf buf = PacketByteBufs.create();
             buf.writeUtf(fish.name);
+            buf.writeInt(fish.rarity);
             ServerPlayNetworking.send(serverPlayer, FischMod.FISH_GUI_PACKET_ID, buf);
         }
     }

@@ -1,4 +1,4 @@
-package com.fisch;
+package com.fisch.rod;
 
 import com.fisch.fish.NewFish;
 import net.minecraft.world.level.Level;
@@ -8,7 +8,7 @@ public class RodMechanics {
 
     private static final Random RANDOM = new Random();
 
-    public static NewFish determineCatch(Level world, NewFish[] bestiary, String bait) {
+    public static NewFish determineCatch(Level world, NewFish[] bestiary, String bait, float luck) {
         if (bestiary == null || bestiary.length == 0) {
             return null;
         }
@@ -19,7 +19,7 @@ public class RodMechanics {
         float initialPercentage = 100.0f / bestiary.length;
 
         for (int i = 0; i < bestiary.length; i++) {
-            float percentage = fishDropPercentage(initialPercentage, bestiary[i], world, bait);
+            float percentage = fishDropPercentage(initialPercentage, bestiary[i], world, bait, luck);
             fishPercentages[i] = percentage;
             totalSum += percentage;
         }
@@ -67,7 +67,7 @@ public class RodMechanics {
         return bestTime.equals(time);
     }
 
-    public static float fishDropPercentage(float initialPercentage, NewFish fish, Level world, String bait){
+    public static float fishDropPercentage(float initialPercentage, NewFish fish, Level world, String bait, float luck){
         float fishPercentage = initialPercentage;
 
         if (checkWeather(world, fish.bestWeather)){
@@ -80,7 +80,7 @@ public class RodMechanics {
             fishPercentage += 1;
         }
 
-        return fishPercentage + fish.rarity;
+        return fishPercentage + fish.rarity + getLuckBonus(luck, fish.rarity);
     }
 
     public static boolean checkProgress(int x1, int x2, int fishX1, int fishX2){
@@ -89,5 +89,51 @@ public class RodMechanics {
 
     public static int getFishX(int maxMovement){
         return RANDOM.nextInt(maxMovement - (-maxMovement) + 1) + (-maxMovement);
+    }
+    public static float getLuckBonus(float luckPercent, int fishRare){
+      if (fishRare >= 5){
+          return fishRare * -(luckPercent / 1000);
+      }
+      if (fishRare == 4){
+          return fishRare * (luckPercent / 1000);
+      }
+      if (fishRare == 3){
+          return fishRare * (luckPercent / 1000) + 0.5f;
+      }
+      if (fishRare == 2){
+          return fishRare * (luckPercent / 1000) + 1f;
+      }
+      if (fishRare == 1) {
+          return fishRare * (luckPercent / 1000) + 2f;
+      }
+      return 0;
+    }
+
+    public static float getFishSpeedMultiplier(int rarity) {
+        return switch (rarity) {
+            case 8 -> 0.7f;
+            case 7 -> 0.9f;
+            case 6 -> 1.1f;
+            case 5 -> 1.4f;
+            case 4 -> 1.8f;
+            case 3 -> 2.3f;
+            case 2 -> 3.0f;
+            case 1 -> 3.5f;
+            default -> 1.0f;
+        };
+    }
+
+    public static int getFishMovement(int rarity) {
+        return switch (rarity) {
+            case 8 -> 8;
+            case 7 -> 12;
+            case 6 -> 16;
+            case 5 -> 22;
+            case 4 -> 30;
+            case 3 -> 40;
+            case 2 -> 55;
+            case 1 -> 60;
+            default -> 15;
+        };
     }
 }
