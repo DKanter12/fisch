@@ -12,8 +12,9 @@ public class FischModClient implements ClientModInitializer {
 		ClientPlayNetworking.registerGlobalReceiver(FischMod.FISH_GUI_PACKET_ID, (client, handler, buf, responseSender) -> {
 			String fishName = buf.readUtf();
             int fishRarity = buf.readInt();
+			float control = buf.readFloat();
 			client.execute(() -> {
-				Minecraft.getInstance().setScreen(new FishCatchScreen(fishName, fishRarity));
+				Minecraft.getInstance().setScreen(new FishCatchScreen(fishName, fishRarity, control));
 			});
 		});
 	}

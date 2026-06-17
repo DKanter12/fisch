@@ -2,16 +2,22 @@ package com.fisch.mixin;
 
 import com.fisch.FischMod;
 import com.fisch.FishingHookDuck;
+import com.fisch.rod.NewRod;
 import com.fisch.rod.RodMechanics;
 import com.fisch.fish.NewFish;
 import com.fisch.fish.ModFish;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.FishingHook;
+import net.minecraft.world.item.FishingRodItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,8 +26,12 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import static com.fisch.FischMod.LOGGER;
+import static com.fisch.FischMod.MODID;
 
 @Mixin(FishingHook.class)
 public abstract class FishingHookMixin implements FishingHookDuck {
@@ -50,10 +60,22 @@ public abstract class FishingHookMixin implements FishingHookDuck {
         this.fisch$customCatch = fish;
     }
 
-    /**
-     * Инъекция в метод tick(). Срабатывает в момент, когда сервер рассчитывает поклёвку.
-     * Ванильный Майнкрафт устанавливает nibble > 0, когда рыба «кусает» крючок.
-     */
+    @Redirect(
+            method = "shouldStopFishing",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/item/ItemStack;is(Lnet/minecraft/world/item/Item;)Z"
+            )
+    )
+    private boolean fischAllowCustomRod(ItemStack stack, Item item) {
+
+        if (item == Items.FISHING_ROD) {
+            return stack.getItem() instanceof FishingRodItem;
+        }
+
+        return stack.is(item);
+    }
+
     @Inject(
             method = "tick",
             at = @At(
@@ -171,12 +193,25 @@ public abstract class FishingHookMixin implements FishingHookDuck {
     private void giveCustomFishToPlayer(Player player, NewFish fish) {
         fisch$LOGGER.info("Игрок " + player.getName().getString() + " выловил кастомную рыбу: " + fish.name);
 
-        if (player instanceof ServerPlayer serverPlayer) {
+        ItemStack rod = player.getMainHandItem();
+        Item rodItem = rod.getItem();
 
-            FriendlyByteBuf buf = PacketByteBufs.create();
-            buf.writeUtf(fish.name);
-            buf.writeInt(fish.rarity);
-            ServerPlayNetworking.send(serverPlayer, FischMod.FISH_GUI_PACKET_ID, buf);
+        if (player instanceof ServerPlayer serverPlayer) {
+                FriendlyByteBuf buf = PacketByteBufs.create();
+                buf.writeUtf(fish.name);
+                buf.writeInt(fish.rarity);
+            if (rodItem instanceof NewRod) {
+                buf.writeFloat(((NewRod) rodItem).getControl());
+            }
+            else {
+                buf.writeFloat(0.01f);
+            }
+                ServerPlayNetworking.send(serverPlayer, FischMod.FISH_GUI_PACKET_ID, buf);
+
+                Item item = BuiltInRegistries.ITEM.get(
+                        ResourceLocation.tryParse(MODID + ":" + fish.name)
+                );
+                player.addItem(new ItemStack(item));
         }
     }
 }

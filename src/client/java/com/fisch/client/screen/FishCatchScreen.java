@@ -6,34 +6,33 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.logging.Logger;
+
 public class  FishCatchScreen extends Screen {
 
-    private static final ResourceLocation BG =
-            new ResourceLocation("fisch", "textures/gui/fish_catch_bg.png");
+    private static final ResourceLocation FISH_CATCH_BAR =
+            new ResourceLocation("fisch", "textures/screen/fish_catch_bar.png");
 
     private final String fishName;
     private final int rarity;
-    // Прогресс поимки
+    private final float control;
     private float progress = 50f;
+    int PLAYER_BAR_WIDTH;
 
     // Скорость изменения прогресса
     private static final float PROGRESS_GAIN = 0.5f;
     private static final float PROGRESS_LOSS = 0.5f;
 
-    private static final int PLAYER_BAR_WIDTH = 25;
-
     private static final float PLAYER_MOVE_SPEED = 4.0f;
     private static final float PLAYER_FALL_SPEED = 3.0f;
 
     private static final int FISH_WIDTH = 4;
-
-    private static final float FISH_SPEED = 0.8f;
     private static final float FISH_ACCELERATION = 0.03f;
     private static final float FISH_FRICTION = 0.90f;
 
     private float marker = 0;
 
-    private final int barWidth = 275;
+    private final int barWidth = 225;
     private final int barX = 125;
     private final int barY = 200;
 
@@ -46,10 +45,11 @@ public class  FishCatchScreen extends Screen {
 
     private int tickCounter = 0;
 
-    public FishCatchScreen(String fishName, int rarity) {
+    public FishCatchScreen(String fishName, int rarity, float control) {
         super(Component.literal("Улов!"));
         this.fishName = fishName;
         this.rarity = rarity;
+        this.control = control;
     }
 
     @Override
@@ -65,10 +65,6 @@ public class  FishCatchScreen extends Screen {
 
     @Override
     public void tick() {
-
-        // =========================
-        // РЫБА
-        // =========================
 
         fishTargetX += RodMechanics.getFishX(
                 RodMechanics.getFishMovement(rarity)
@@ -96,10 +92,6 @@ public class  FishCatchScreen extends Screen {
             fishVelocity = 0;
         }
 
-        // =========================
-        // ИГРОК
-        // =========================
-
         if (leftMouseHeld) {
             marker += PLAYER_MOVE_SPEED;
         } else {
@@ -118,9 +110,6 @@ public class  FishCatchScreen extends Screen {
         if (marker + PLAYER_BAR_WIDTH > barWidth) {
             marker = barWidth - PLAYER_BAR_WIDTH;
         }
-        // =========================
-// ПРОГРЕСС ПОИМКИ
-// =========================
 
         int playerX1 = (int) marker;
         int playerX2 = (int) marker + PLAYER_BAR_WIDTH;
@@ -141,15 +130,11 @@ public class  FishCatchScreen extends Screen {
 
         if (progress > 100) {
             progress = 100;
-
-            // Поймал рыбу
             onClose();
         }
 
         if (progress < 0) {
             progress = 0;
-
-            // Упустил рыбу
             onClose();
         }
     }
@@ -157,26 +142,25 @@ public class  FishCatchScreen extends Screen {
     @Override
     public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
         super.render(g, mouseX, mouseY, partialTick);
+        PLAYER_BAR_WIDTH = getPlayerBarWidth();
+        g.blit(FISH_CATCH_BAR, barX, barY, 0, 0, barWidth, 10, barWidth, 10);
 
-        // Фон
-        g.blit(BG, barX, barY, 0, 0, barWidth, 10, barWidth, 10);
-
-        // Игрок
+        //игрок
         g.fill(
                 (int)(barX + marker),
                 barY,
                 (int)(barX + marker + PLAYER_BAR_WIDTH),
                 barY + 10,
-                0xFFFF0000
+                0xFFFFFFFF
         );
 
-        // Рыба
+        // рыба
         g.fill(
                 (int)(barX + fishX),
                 barY,
                 (int)(barX + fishX + FISH_WIDTH),
                 barY + 10,
-                0xFF00FF00
+                0xFF808080
         );
 
         g.drawString(
@@ -186,9 +170,6 @@ public class  FishCatchScreen extends Screen {
                 barY - 15,
                 0xFFFFFF
         );
-        // =========================
-// ПОЛОСА ПРОГРЕССА
-// =========================
 
         int progressWidth = 200;
         int progressHeight = 8;
@@ -240,5 +221,26 @@ public class  FishCatchScreen extends Screen {
         return false;
     }
 
+    private int getPlayerBarWidth() {
+
+        float minControl = 0.01f;
+        float maxControl = 1f;
+
+        float clamped = Math.max(minControl,
+                Math.min(control, maxControl));
+
+        float normalized =
+                (float)(
+                        Math.log(clamped / minControl)
+                                / Math.log(maxControl / minControl)
+                );
+
+        return (int)(25 + normalized * 150);
+    }
+
+    @Override
+    public boolean shouldCloseOnEsc() {
+        return false;
+    }
 
 }

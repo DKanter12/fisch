@@ -1,5 +1,6 @@
 package com.fisch;
 
+import com.fisch.item.ModItem;
 import net.fabricmc.api.ModInitializer;
 
 import net.minecraft.resources.ResourceLocation;
@@ -13,6 +14,7 @@ public class FischMod implements ModInitializer {
 	public static final ResourceLocation FISH_GUI_PACKET_ID = new ResourceLocation("fisch", "open_fish_gui");
     @Override
 	public void onInitialize() {
+		ModItem.register();
 		LOGGER.info("Hello Fabric world!");
 
 	}
