@@ -136,4 +136,14 @@ public class RodMechanics {
             default -> 15;
         };
     }
+
+    public static float getResilienceMultiplier(float resilience) {
+
+        float min = 0.01f;
+        float max = 1.0f;
+
+        resilience = Math.max(min, Math.min(max, resilience));
+
+        return 1.0f - resilience * 0.5f;
+    }
 }

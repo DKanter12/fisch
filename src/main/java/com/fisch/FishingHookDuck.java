@@ -3,6 +3,10 @@ package com.fisch;
 import com.fisch.fish.NewFish;
 
 public interface FishingHookDuck {
-    NewFish fisch$getCustomCatch();
-    void fisch$setCustomCatch(NewFish fish);
+
+    NewFish getCustomCatch();
+
+    void setCustomCatch(NewFish fish);
+
+    void finishMiniGame(boolean success);
 }

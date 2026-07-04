@@ -39,8 +39,11 @@ public abstract class FishingHookMixin implements FishingHookDuck {
     @Unique
     private static final Logger fisch$LOGGER = LoggerFactory.getLogger("FischMod");
 
-    @Shadow public abstract Player getPlayerOwner();
-    @Shadow private int nibble; // Ванильный таймер поклёвки (сколько тиков рыба будет на крючке)
+    @Shadow
+    public abstract Player getPlayerOwner();
+
+    @Shadow
+    private int nibble; // Ванильный таймер поклёвки (сколько тиков рыба будет на крючке)
 
     // Наше кастомное поле для хранения определенной рыбы
     @Unique
@@ -51,12 +54,12 @@ public abstract class FishingHookMixin implements FishingHookDuck {
     private boolean fisch$isBiting = false;
 
     @Override
-    public NewFish fisch$getCustomCatch() {
+    public NewFish getCustomCatch() {
         return this.fisch$customCatch;
     }
 
     @Override
-    public void fisch$setCustomCatch(NewFish fish) {
+    public void setCustomCatch(NewFish fish) {
         this.fisch$customCatch = fish;
     }
 
@@ -85,42 +88,61 @@ public abstract class FishingHookMixin implements FishingHookDuck {
             )
     )
     private void onBiteStart(CallbackInfo ci) {
+
         FishingHook hook = (FishingHook) (Object) this;
-        Level level = hook.level();
 
-        if (!level.isClientSide()) {
-            // Если игра установила таймер поклёвки (> 0) и мы еще не перешли в режим поклёвки
-            if (this.nibble > 0 && !this.fisch$isBiting) {
-                Player player = this.getPlayerOwner();
-                if (player != null) {
-                    this.fisch$isBiting = true;
-                    fisch$LOGGER.info("[Fisch] Зафиксирован старт поклёвки! nibble={}", this.nibble);
+        if (hook.level().isClientSide()) {
+            return;
+        }
 
-                    // 1. Получаем наживку из NBT удочки в руке игрока
-                    String bait = getBaitFromPlayer(player);
+        if (this.nibble > 0 && !this.fisch$isBiting) {
 
-                    // 2. Получаем ваш список рыб (бестиарий) напрямую из класса ModFish
-                    NewFish[] bestiary = getActiveBestiary();
+            Player player = this.getPlayerOwner();
 
-                    // 3. Вызываем ваш кастомный метод для генерации улова
-                    this.fisch$customCatch = RodMechanics.determineCatch(level, bestiary, bait, 1);
-
-                    if (this.fisch$customCatch != null) {
-                        fisch$LOGGER.info("[Fisch] Рыба успешно выбрана в tick(): {}", this.fisch$customCatch.name);
-                    } else {
-                        fisch$LOGGER.warn("[Fisch] Не удалось выбрать рыбу в tick() (метод вернул null)! Проверьте наполнение бестиария.");
-                    }
-                }
+            if (player == null) {
+                return;
             }
 
-            // Если поклёвка упущена естественным образом (время вышло, а игрок не нажал ПКМ)
-            if (this.nibble <= 0 && this.fisch$isBiting) {
-                if (this.fisch$customCatch != null) {
-                    fisch$LOGGER.info("[Fisch] Игрок упустил рыбу {}", this.fisch$customCatch.name);
-                }
-                this.fisch$isBiting = false;
-                this.fisch$customCatch = null;
+            this.fisch$isBiting = true;
+
+            String bait = getBaitFromPlayer(player);
+
+            this.fisch$customCatch = RodMechanics.determineCatch(
+                    hook.level(),
+                    getActiveBestiary(),
+                    bait,
+                    1
+            );
+
+            if (this.fisch$customCatch == null) {
+                return;
             }
+
+            if (player instanceof ServerPlayer serverPlayer) {
+
+                FriendlyByteBuf buf = PacketByteBufs.create();
+
+                buf.writeUtf(this.fisch$customCatch.name);
+                buf.writeInt(this.fisch$customCatch.rarity);
+
+                ItemStack rod = player.getMainHandItem();
+
+                if (rod.getItem() instanceof NewRod newRod) {
+                    buf.writeFloat(newRod.getControl());
+                    buf.writeFloat(newRod.getResilience());
+                } else {
+                    buf.writeFloat(0.001F);
+                    buf.writeFloat(0.001f);
+                }
+
+                ServerPlayNetworking.send(
+                        serverPlayer,
+                        FischMod.FISH_GUI_PACKET_ID,
+                        buf
+                );
+            }
+
+            LOGGER.info("Миниигра началась.");
         }
     }
 
@@ -128,50 +150,7 @@ public abstract class FishingHookMixin implements FishingHookDuck {
      * Перехват вылавливания рыбы (нажатие ПКМ игроком).
      * Мы перехватываем HEAD метода retrieve.
      */
-    @Inject(method = "retrieve", at = @At("HEAD"), cancellable = true)
-    private void onHookRetrieve(ItemStack stack, CallbackInfoReturnable<Integer> cir) {
-        FishingHook hook = (FishingHook) (Object) this;
-        Level level = hook.level();
 
-        if (!level.isClientSide()) {
-            Player player = this.getPlayerOwner();
-            fisch$LOGGER.info("[Fisch] Игрок пытается смотать удочку. Состояние: fisch$isBiting={}, nibble={}", this.fisch$isBiting, this.nibble);
-
-            if (player != null) {
-                // ПРОВЕРКА: Была ли зафиксирована поклёвка
-                if (this.fisch$isBiting) {
-
-                    // Если вдруг по какой-то причине объект рыбы не сгенерировался ранее, делаем экстренную генерацию
-                    if (this.fisch$customCatch == null) {
-                        fisch$LOGGER.warn("[Fisch] Обнаружена поклёвка без улова в retrieve. Запуск экстренной генерации.");
-                        String bait = getBaitFromPlayer(player);
-                        NewFish[] bestiary = getActiveBestiary();
-                        this.fisch$customCatch = RodMechanics.determineCatch(level, bestiary, bait, 0);
-                    }
-
-                    if (this.fisch$customCatch != null) {
-                        // Выдаем игроку кастомный улов
-                        giveCustomFishToPlayer(player, this.fisch$customCatch);
-
-                        // Сбрасываем состояния
-                        this.fisch$isBiting = false;
-                        this.fisch$customCatch = null;
-
-                        // Заставляем поплавок исчезнуть
-                        hook.discard();
-
-                        // Возвращаем 1 (урон удочке) и полностью отменяем ванильный retrieve
-                        cir.setReturnValue(1);
-                        return;
-                    } else {
-                        fisch$LOGGER.error("[Fisch] Ошибка: улов равен null даже после экстренной генерации. Возвращаем стандартное поведение.");
-                    }
-                } else {
-                    fisch$LOGGER.info("[Fisch] Удочка смотана без улова (поклёвки не было).");
-                }
-            }
-        }
-    }
 
     @Unique
     private String getBaitFromPlayer(Player player) {
@@ -182,6 +161,33 @@ public abstract class FishingHookMixin implements FishingHookDuck {
             }
         }
         return "none";
+    }
+
+    @Override
+    public void finishMiniGame(boolean success) {
+
+        FishingHook hook = (FishingHook) (Object) this;
+
+        if (hook.level().isClientSide()) {
+            return;
+        }
+
+        Player player = getPlayerOwner();
+
+        if (player == null) {
+            hook.discard();
+            return;
+        }
+
+        if (success && this.fisch$customCatch != null) {
+            giveCustomFishToPlayer(player, this.fisch$customCatch);
+        }
+
+        this.fisch$isBiting = false;
+        this.fisch$customCatch = null;
+
+        player.fishing = null;
+        hook.discard();
     }
 
     @Unique
@@ -195,23 +201,11 @@ public abstract class FishingHookMixin implements FishingHookDuck {
 
         ItemStack rod = player.getMainHandItem();
         Item rodItem = rod.getItem();
+        Item item = BuiltInRegistries.ITEM.get(
+                ResourceLocation.tryParse(MODID + ":" + fish.name)
+        );
+        player.addItem(new ItemStack(item));
 
-        if (player instanceof ServerPlayer serverPlayer) {
-                FriendlyByteBuf buf = PacketByteBufs.create();
-                buf.writeUtf(fish.name);
-                buf.writeInt(fish.rarity);
-            if (rodItem instanceof NewRod) {
-                buf.writeFloat(((NewRod) rodItem).getControl());
-            }
-            else {
-                buf.writeFloat(0.01f);
-            }
-                ServerPlayNetworking.send(serverPlayer, FischMod.FISH_GUI_PACKET_ID, buf);
-
-                Item item = BuiltInRegistries.ITEM.get(
-                        ResourceLocation.tryParse(MODID + ":" + fish.name)
-                );
-                player.addItem(new ItemStack(item));
-        }
     }
+
 }

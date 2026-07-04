@@ -1,8 +1,12 @@
 package com.fisch.client.screen;
 
+import com.fisch.FischMod;
 import com.fisch.rod.RodMechanics;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -17,6 +21,7 @@ public class  FishCatchScreen extends Screen {
     private final int rarity;
     private final float control;
     private float progress = 50f;
+    private final float resilience;
     int PLAYER_BAR_WIDTH;
 
     // Скорость изменения прогресса
@@ -45,11 +50,13 @@ public class  FishCatchScreen extends Screen {
 
     private int tickCounter = 0;
 
-    public FishCatchScreen(String fishName, int rarity, float control) {
+
+    public FishCatchScreen(String fishName, int rarity, float control, float resilience) {
         super(Component.literal("Улов!"));
         this.fishName = fishName;
         this.rarity = rarity;
         this.control = control;
+        this.resilience = resilience;
     }
 
     @Override
@@ -66,9 +73,13 @@ public class  FishCatchScreen extends Screen {
     @Override
     public void tick() {
 
+        float speedMultiplier =
+                RodMechanics.getFishSpeedMultiplier(rarity) *
+                        RodMechanics.getResilienceMultiplier(resilience);
+
         fishTargetX += RodMechanics.getFishX(
                 RodMechanics.getFishMovement(rarity)
-        ) * RodMechanics.getFishSpeedMultiplier(rarity);
+        ) * speedMultiplier;
 
         if (fishTargetX < 0) {
             fishTargetX = 0;
@@ -117,24 +128,36 @@ public class  FishCatchScreen extends Screen {
         int fishX1 = (int) fishX;
         int fishX2 = (int) fishX + FISH_WIDTH;
 
-        if (RodMechanics.checkProgress(
-                playerX1,
-                playerX2,
-                fishX1,
-                fishX2
-        )) {
+        if (RodMechanics.checkProgress(playerX1, playerX2, fishX1, fishX2)) {
             progress += PROGRESS_GAIN;
         } else {
             progress -= PROGRESS_LOSS;
         }
 
-        if (progress > 100) {
-            progress = 100;
+        if (progress >= 100) {
+
+            FriendlyByteBuf buf = PacketByteBufs.create();
+            buf.writeBoolean(true);
+
+            ClientPlayNetworking.send(
+                    FischMod.FINISH_MINIGAME_PACKET_ID,
+                    buf
+            );
+
             onClose();
+            return;
         }
 
-        if (progress < 0) {
-            progress = 0;
+        if (progress <= 0) {
+
+            FriendlyByteBuf buf = PacketByteBufs.create();
+            buf.writeBoolean(false);
+
+            ClientPlayNetworking.send(
+                    FischMod.FINISH_MINIGAME_PACKET_ID,
+                    buf
+            );
+
             onClose();
         }
     }
@@ -143,7 +166,7 @@ public class  FishCatchScreen extends Screen {
     public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
         super.render(g, mouseX, mouseY, partialTick);
         PLAYER_BAR_WIDTH = getPlayerBarWidth();
-        g.blit(FISH_CATCH_BAR, barX, barY, 0, 0, barWidth, 10, barWidth, 10);
+        g.blit(FISH_CATCH_BAR, barX, barY, 1f, 0, barWidth - 2, 10, barWidth , 10);
 
         //игрок
         g.fill(
@@ -165,34 +188,35 @@ public class  FishCatchScreen extends Screen {
 
         g.drawString(
                 this.font,
-                "Fish: " + fishName,
+                "Catch: " + fishName.replace("_",  " "),
                 barX,
                 barY - 15,
                 0xFFFFFF
         );
 
-        int progressWidth = 200;
-        int progressHeight = 8;
+        int progressWidth = 100;
+        int progressHeight = 4;
 
         int progressX = barX + (barWidth - progressWidth) / 2;
         int progressY = barY - 20;
 
 // Фон
-        g.fill(
+        g.blit(FISH_CATCH_BAR,
                 progressX,
-                progressY,
-                progressX + progressWidth,
-                progressY + progressHeight,
-                0xFF444444
-        );
+                progressY, 0, 0,
+                 progressWidth,
+                 progressHeight,
+                 progressWidth,
+                progressHeight
+                );
 
 // Заполнение
         g.fill(
-                progressX,
-                progressY,
+                progressX ,
+                progressY ,
                 progressX + (int)(progressWidth * (progress / 100f)),
                 progressY + progressHeight,
-                0xFF00FF00
+                0xFFFFFFFF
         );
     }
 
