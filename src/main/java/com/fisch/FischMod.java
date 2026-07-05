@@ -1,10 +1,9 @@
 package com.fisch;
 
-import com.fisch.item.ModItem;
+import com.fisch.item.ModItems;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +22,7 @@ public class FischMod implements ModInitializer {
     @Override
     public void onInitialize() {
 
-        ModItem.register();
+        ModItems.register();
 
         ServerPlayNetworking.registerGlobalReceiver(
                 FINISH_MINIGAME_PACKET_ID,

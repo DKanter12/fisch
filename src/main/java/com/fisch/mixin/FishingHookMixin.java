@@ -2,10 +2,10 @@ package com.fisch.mixin;
 
 import com.fisch.FischMod;
 import com.fisch.FishingHookDuck;
+import com.fisch.item.ModItems;
 import com.fisch.rod.NewRod;
 import com.fisch.rod.RodMechanics;
 import com.fisch.fish.NewFish;
-import com.fisch.fish.ModFish;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -18,7 +18,6 @@ import net.minecraft.world.item.FishingRodItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.asm.mixin.Mixin;
@@ -28,7 +27,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import static com.fisch.FischMod.LOGGER;
 import static com.fisch.FischMod.MODID;
@@ -106,13 +104,27 @@ public abstract class FishingHookMixin implements FishingHookDuck {
             this.fisch$isBiting = true;
 
             String bait = getBaitFromPlayer(player);
+            ItemStack itemStack = player.getMainHandItem();
 
-            this.fisch$customCatch = RodMechanics.determineCatch(
-                    hook.level(),
-                    getActiveBestiary(),
-                    bait,
-                    1
-            );
+            if (itemStack.getItem() instanceof NewRod newRod) {
+                NewRod rod = (NewRod) itemStack.getItem();
+                this.fisch$customCatch = RodMechanics.determineCatch(
+                        hook.level(),
+                        getActiveBestiary(),
+                        bait,
+                        rod.getLuck()
+                );
+            }
+
+            if (itemStack.getItem() instanceof FishingRodItem){
+                this.fisch$customCatch = RodMechanics.determineCatch(
+                        hook.level(),
+                        getActiveBestiary(),
+                        bait,
+                        1f
+                );
+            }
+
 
             if (this.fisch$customCatch == null) {
                 return;
@@ -125,13 +137,13 @@ public abstract class FishingHookMixin implements FishingHookDuck {
                 buf.writeUtf(this.fisch$customCatch.name);
                 buf.writeInt(this.fisch$customCatch.rarity);
 
-                ItemStack rod = player.getMainHandItem();
-
-                if (rod.getItem() instanceof NewRod newRod) {
+                if (itemStack.getItem() instanceof NewRod newRod) {
                     buf.writeFloat(newRod.getControl());
                     buf.writeFloat(newRod.getResilience());
+                    buf.writeFloat(newRod.getLuck());
                 } else {
                     buf.writeFloat(0.001F);
+                    buf.writeFloat(0.001f);
                     buf.writeFloat(0.001f);
                 }
 
@@ -192,7 +204,7 @@ public abstract class FishingHookMixin implements FishingHookDuck {
 
     @Unique
     private NewFish[] getActiveBestiary() {
-        return ModFish.ALL_FISH;
+        return ModItems.ALL_FISH;
     }
 
     @Unique

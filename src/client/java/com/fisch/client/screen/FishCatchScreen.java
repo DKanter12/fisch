@@ -22,6 +22,7 @@ public class  FishCatchScreen extends Screen {
     private final float control;
     private float progress = 50f;
     private final float resilience;
+
     int PLAYER_BAR_WIDTH;
 
     // Скорость изменения прогресса
@@ -57,6 +58,7 @@ public class  FishCatchScreen extends Screen {
         this.rarity = rarity;
         this.control = control;
         this.resilience = resilience;
+
     }
 
     @Override

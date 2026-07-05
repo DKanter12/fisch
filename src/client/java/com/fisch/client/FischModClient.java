@@ -24,7 +24,6 @@ public class FischModClient implements ClientModInitializer {
                     int fishRarity = buf.readInt();
                     float control = buf.readFloat();
                     float resilience = buf.readFloat();
-
                     client.execute(() ->
                             Minecraft.getInstance().setScreen(
                                     new FishCatchScreen(

@@ -2,7 +2,7 @@ package com.fisch.rod;
 
 import com.fisch.fish.NewFish;
 import net.minecraft.world.level.Level;
-import java.util.Random; // Или net.minecraft.util.math.random.Random
+import java.util.Random;
 
 public class RodMechanics {
 
