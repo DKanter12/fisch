@@ -1,17 +1,23 @@
 package com.fisch.fish;
 
-public class NewFish {
-    String name;
-    int rarity;
-    long weight;
-    String bestBait;
-    String bestWeather;
-    String bestTime;
+import net.minecraft.world.item.Item;
 
-    public NewFish(String name,int rarity, long weight, String bestBait, String bestWeather, String bestTime) {
+public class NewFish extends Item {
+    public String name;
+    public int rarity;
+    long minWeight;
+    long maxWeight;
+    public String bestBait;
+    public String bestWeather;
+    public String bestTime;
+
+
+    public NewFish(Properties properties,String name,int rarity, long minWeight, long maxWeight, String bestBait, String bestWeather, String bestTime) {
+        super(properties);
         this.name = name;
         this.rarity = rarity;
-        this.weight = weight;
+        this.minWeight = minWeight;
+        this.maxWeight = maxWeight;
         this.bestBait = bestBait;
         this.bestWeather = bestWeather;
         this.bestTime = bestTime;
