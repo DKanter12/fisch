@@ -188,12 +188,14 @@ public class  FishCatchScreen extends Screen {
                 0xFF808080
         );
 
+
+
         g.drawString(
                 this.font,
                 "Catch: " + fishName.replace("_",  " "),
                 barX,
                 barY - 15,
-                0xFFFFFF
+                getRarityColor(rarity)
         );
 
         int progressWidth = 100;
@@ -267,6 +269,20 @@ public class  FishCatchScreen extends Screen {
     @Override
     public boolean shouldCloseOnEsc() {
         return false;
+    }
+
+    private int getRarityColor(int rarity) {
+        return switch (rarity) {
+            case 8 -> 0xFFFFFFFF; // Common
+            case 7 -> 0xFFA8E61D; // Uncommon
+            case 6 -> 0xFF7D3FA6; // Unusual
+            case 5 -> 0xFF2B0047; // Rare
+            case 4 -> 0xFFFCCA00; // Legendary
+            case 3 -> 0xFFFA0C1C; // Mythical
+            case 2 -> 0xFF2200FF; // Exotic
+            case 1 -> 0x080808; // Secret
+            default -> 0xFFFFFFFF;
+        };
     }
 
 }

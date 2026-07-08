@@ -33,7 +33,7 @@ import static com.fisch.FischMod.MODID;
 
 @Mixin(FishingHook.class)
 public abstract class FishingHookMixin implements FishingHookDuck {
-
+    FriendlyByteBuf buf = PacketByteBufs.create();
     @Unique
     private static final Logger fisch$LOGGER = LoggerFactory.getLogger("FischMod");
 
@@ -132,10 +132,9 @@ public abstract class FishingHookMixin implements FishingHookDuck {
 
             if (player instanceof ServerPlayer serverPlayer) {
 
-                FriendlyByteBuf buf = PacketByteBufs.create();
-
                 buf.writeUtf(this.fisch$customCatch.name);
                 buf.writeInt(this.fisch$customCatch.rarity);
+
 
                 if (itemStack.getItem() instanceof NewRod newRod) {
                     buf.writeFloat(newRod.getControl());
@@ -210,13 +209,7 @@ public abstract class FishingHookMixin implements FishingHookDuck {
     @Unique
     private void giveCustomFishToPlayer(Player player, NewFish fish) {
         fisch$LOGGER.info("Игрок " + player.getName().getString() + " выловил кастомную рыбу: " + fish.name);
-
-        ItemStack rod = player.getMainHandItem();
-        Item rodItem = rod.getItem();
-        Item item = BuiltInRegistries.ITEM.get(
-                ResourceLocation.tryParse(MODID + ":" + fish.name)
-        );
-        player.addItem(new ItemStack(item));
+        player.addItem(new ItemStack(fish));
 
     }
 

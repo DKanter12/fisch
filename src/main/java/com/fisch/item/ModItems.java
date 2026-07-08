@@ -11,7 +11,7 @@ import static com.fisch.FischMod.MODID;
 
 public class ModItems {
     private static final NewRod TEST_FISHING_ROD = (NewRod) registerItem("test_rod", new NewRod(new Item.Properties(), 10f, 0.3f, 1f));
-    public static final NewFish TEST_FISH = new NewFish("test", 8, 1,1,"dwd", "dwwd", "Ddw");
+    public static final NewFish TEST_FISH = (NewFish) registerItem("test_fish", new NewFish(new Item.Properties(),"test fish", 1, 1,1,"dwd", "dwwd", "Ddw"));
     public static final NewFish[] ALL_FISH = {TEST_FISH};
 
     private static Item registerItem(String name, Item item) {
