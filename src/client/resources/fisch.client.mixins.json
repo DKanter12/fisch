@@ -1,14 +1,18 @@
 {
 	"required": true,
-	"package": "com.fisch.client.mixin",
+	"package": "com.fisch.mixin",
 	"compatibilityLevel": "JAVA_17",
+	"mixins": [
+		"PlayerMixin",
+		"FischMixin",
+		"FishingHookMixin"
+	],
 	"client": [
-      "FischClientMixin"
+		"VillagerModelMixin",
+		"VillagerProfessionLayerMixin",
+		"VillagerRendererMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
-	},
-	"overwrites": {
-		"requireAnnotations": true
 	}
 }
