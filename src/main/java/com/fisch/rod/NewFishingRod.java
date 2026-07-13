@@ -13,13 +13,13 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
 
-public class NewRod extends FishingRodItem {
+public class NewFishingRod extends FishingRodItem {
 
     private final float luck;
     private final float control;
     private final float resilience;
 
-    public NewRod(
+    public NewFishingRod(
             Properties properties,
             float luck,
             float control,
@@ -44,16 +44,12 @@ public class NewRod extends FishingRodItem {
         return resilience;
     }
 
-    @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand interactionHand) {
         ItemStack itemStack = player.getItemInHand(interactionHand);
-        int i;
         if (player.fishing != null) {
             if (!level.isClientSide) {
-                i = player.fishing.retrieve(itemStack);
-                itemStack.hurtAndBreak(i, player, (playerx) -> {
-                    playerx.broadcastBreakEvent(interactionHand);
-                });
+                int i = player.fishing.retrieve(itemStack);
+                itemStack.hurtAndBreak(i, player, (playerx) -> playerx.broadcastBreakEvent(interactionHand));
             }
 
             level.playSound((Player)null, player.getX(), player.getY(), player.getZ(), SoundEvents.FISHING_BOBBER_RETRIEVE, SoundSource.NEUTRAL, 1.0F, 0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F));
@@ -61,7 +57,7 @@ public class NewRod extends FishingRodItem {
         } else {
             level.playSound((Player)null, player.getX(), player.getY(), player.getZ(), SoundEvents.FISHING_BOBBER_THROW, SoundSource.NEUTRAL, 0.5F, 0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F));
             if (!level.isClientSide) {
-                i = EnchantmentHelper.getFishingSpeedBonus(itemStack);
+                int i = EnchantmentHelper.getFishingSpeedBonus(itemStack);
                 int j = EnchantmentHelper.getFishingLuckBonus(itemStack);
                 level.addFreshEntity(new FishingHook(player, level, j, i));
             }

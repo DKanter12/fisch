@@ -7,6 +7,7 @@ import com.fisch.client.renderer.CustomVillagerRenderer;
 import com.fisch.client.screen.FishCatchScreen;
 import com.fisch.client.screen.FishMerchantScreen;
 import com.fisch.command.ModCommands;
+import com.fisch.item.ModItems;
 import com.fisch.registry.ModMenuTypes;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
@@ -18,11 +19,17 @@ import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRe
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.entity.VillagerRenderer;
+import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.FishingRodItem;
+import net.minecraft.client.renderer.entity.FishingHookRenderer;
+
 
 import static com.fisch.FischMod.MODID;
+import net.minecraft.client.renderer.entity.FishingHookRenderer;
 
 public class FischModClient implements ClientModInitializer {
 
@@ -30,6 +37,9 @@ public class FischModClient implements ClientModInitializer {
             new ResourceLocation(MODID, "finish_minigame");
     @Override
     public void onInitializeClient() {
+        registerCast(ModItems.ICE_ROD);
+        registerCast(ModItems.SAND_ROD);
+        registerCast(ModItems.JUNGLE_ROD);
 
         ClientPlayNetworking.registerGlobalReceiver(
                 FischMod.FISH_GUI_PACKET_ID,
@@ -92,5 +102,28 @@ public class FischModClient implements ClientModInitializer {
                 lines.add(Component.literal("§eЦена продажи: " + price + " C$"));
             }
         });
+    }
+    public static void registerCast(FishingRodItem rod){
+        ItemProperties.register(
+                rod,
+                new ResourceLocation("cast"),
+                (stack, level, entity, seed) -> {
+                    if (entity == null) {
+                        return 0.0F;
+                    }
+
+                    boolean mainHand = entity.getMainHandItem() == stack;
+                    boolean offHand = entity.getOffhandItem() == stack;
+
+                    if (entity.getMainHandItem().getItem() instanceof FishingRodItem) {
+                        offHand = false;
+                    }
+
+                    return (mainHand || offHand) && entity instanceof Player player && player.fishing != null
+                            ? 1.0F
+                            : 0.0F;
+                }
+        );
+
     }
 }

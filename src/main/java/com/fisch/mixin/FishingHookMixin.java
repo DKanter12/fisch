@@ -3,14 +3,12 @@ package com.fisch.mixin;
 import com.fisch.FischMod;
 import com.fisch.FishingHookDuck;
 import com.fisch.item.ModItems;
-import com.fisch.rod.NewRod;
+import com.fisch.rod.NewFishingRod;
 import com.fisch.rod.RodMechanics;
 import com.fisch.fish.NewFish;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.FishingHook;
@@ -29,7 +27,6 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import static com.fisch.FischMod.LOGGER;
-import static com.fisch.FischMod.MODID;
 
 @Mixin(FishingHook.class)
 public abstract class FishingHookMixin implements FishingHookDuck {
@@ -106,8 +103,8 @@ public abstract class FishingHookMixin implements FishingHookDuck {
             String bait = getBaitFromPlayer(player);
             ItemStack itemStack = player.getMainHandItem();
 
-            if (itemStack.getItem() instanceof NewRod newRod) {
-                NewRod rod = (NewRod) itemStack.getItem();
+            if (itemStack.getItem() instanceof NewFishingRod newRod) {
+                NewFishingRod rod = (NewFishingRod) itemStack.getItem();
                 this.fisch$customCatch = RodMechanics.determineCatch(
                         hook.level(),
                         getActiveBestiary(),
@@ -136,7 +133,7 @@ public abstract class FishingHookMixin implements FishingHookDuck {
                 buf.writeInt(this.fisch$customCatch.rarity);
 
 
-                if (itemStack.getItem() instanceof NewRod newRod) {
+                if (itemStack.getItem() instanceof NewFishingRod newRod) {
                     buf.writeFloat(newRod.getControl());
                     buf.writeFloat(newRod.getResilience());
                     buf.writeFloat(newRod.getLuck());

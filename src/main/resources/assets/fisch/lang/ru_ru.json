@@ -2,7 +2,13 @@
   "entity.fisch.fish_merchant": "Рыботорговец",
   "item.fisch.bug_net": "Сачок",
   "item.fisch.fishing_bug": "Жук для рыбалки",
-  "item.fisch.worm_bait": "Червяк приманка"
+  "item.fisch.worm_bait": "Червяк приманка",
+  "item.fisch.ice_rod": "Ледяная удочка",
+  "item.fisch.sand_rod": "Песчанная удочка",
+  "item.fisch.jungle_rod": "Джунглевая удочка"
+
+
+
 
 
 }

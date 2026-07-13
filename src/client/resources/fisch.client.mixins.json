@@ -8,9 +8,11 @@
 		"FishingHookMixin"
 	],
 	"client": [
+        "FischClientMixin",
 		"VillagerModelMixin",
 		"VillagerProfessionLayerMixin",
-		"VillagerRendererMixin"
+		"VillagerRendererMixin",
+        "FishingHookRendererMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

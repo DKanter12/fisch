@@ -2,5 +2,8 @@
   "entity.fisch.fish_merchant": "Fish Merchant",
   "item.fisch.bug_net": "Bug Net",
   "item.fisch.fishing_bug": "Fishing Bug",
-  "item.fisch.worm_bait": "Worm bait"
+  "item.fisch.worm_bait": "Worm Bait",
+  "item.fisch.ice_rod": "Ice Rod",
+  "item.fisch.sand_rod": "Sand Rod",
+  "item.fisch.jungle_rod": "Jungle Rod"
 }
