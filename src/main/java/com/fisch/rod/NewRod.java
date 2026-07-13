@@ -1,5 +1,6 @@
 package com.fisch.rod;
 
+import com.fisch.item.Bait;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
@@ -48,18 +49,35 @@ public class NewRod extends FishingRodItem {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand interactionHand) {
         ItemStack itemStack = player.getItemInHand(interactionHand);
         int i;
+
         if (player.fishing != null) {
             if (!level.isClientSide) {
                 i = player.fishing.retrieve(itemStack);
-                itemStack.hurtAndBreak(i, player, (playerx) -> {
-                    playerx.broadcastBreakEvent(interactionHand);
-                });
+                itemStack.hurtAndBreak(i, player, p -> p.broadcastBreakEvent(interactionHand));
             }
 
-            level.playSound((Player)null, player.getX(), player.getY(), player.getZ(), SoundEvents.FISHING_BOBBER_RETRIEVE, SoundSource.NEUTRAL, 1.0F, 0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F));
+            level.playSound(null, player.getX(), player.getY(), player.getZ(),
+                    SoundEvents.FISHING_BOBBER_RETRIEVE,
+                    SoundSource.NEUTRAL,
+                    1.0F,
+                    0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F));
+
             player.gameEvent(GameEvent.ITEM_INTERACT_FINISH);
         } else {
-            level.playSound((Player)null, player.getX(), player.getY(), player.getZ(), SoundEvents.FISHING_BOBBER_THROW, SoundSource.NEUTRAL, 0.5F, 0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F));
+
+            // Проверяем правую руку
+            ItemStack rightHand = player.getMainHandItem();
+
+            if (!(rightHand.getItem() instanceof Bait)) {
+                return InteractionResultHolder.fail(itemStack);
+            }
+
+            level.playSound(null, player.getX(), player.getY(), player.getZ(),
+                    SoundEvents.FISHING_BOBBER_THROW,
+                    SoundSource.NEUTRAL,
+                    0.5F,
+                    0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F));
+
             if (!level.isClientSide) {
                 i = EnchantmentHelper.getFishingSpeedBonus(itemStack);
                 int j = EnchantmentHelper.getFishingLuckBonus(itemStack);

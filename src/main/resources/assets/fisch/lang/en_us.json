@@ -2,5 +2,6 @@
   "entity.fisch.fish_merchant": "Fish Merchant",
   "item.fisch.bug_net": "Bug Net",
   "item.fisch.fishing_bug": "Fishing Bug",
-  "item.fisch.worm_bait": "Worm bait"
+  "item.fisch.worm_bait": "Worm bait",
+  "message.fisch.need_bait": "You need bait!"
 }

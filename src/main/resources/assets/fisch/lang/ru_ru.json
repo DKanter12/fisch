@@ -2,7 +2,6 @@
   "entity.fisch.fish_merchant": "Рыботорговец",
   "item.fisch.bug_net": "Сачок",
   "item.fisch.fishing_bug": "Жук для рыбалки",
-  "item.fisch.worm_bait": "Червяк приманка"
-
-
+  "item.fisch.worm_bait": "Червяк приманка",
+  "message.fisch.need_bait": "Нужна приманка!"
 }
