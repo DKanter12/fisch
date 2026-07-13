@@ -1,5 +1,7 @@
 package com.fisch.rod;
 
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
@@ -9,9 +11,13 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.FishingHook;
 import net.minecraft.world.item.FishingRodItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public class NewFishingRod extends FishingRodItem {
 
@@ -77,5 +83,26 @@ public class NewFishingRod extends FishingRodItem {
         resilience = Math.max(min, Math.min(max, resilience));
 
         return 1.0f - resilience * 0.5f;
+    }
+
+    @Override
+    public void appendHoverText(
+            ItemStack stack,
+            @Nullable Level level,
+            List<Component> tooltip,
+            TooltipFlag flag
+    ) {
+        tooltip.add(Component.literal(""));
+
+        tooltip.add(Component.literal("Luck: " + (int) this.luck + "%")
+                .withStyle(ChatFormatting.GOLD));
+
+        tooltip.add(Component.literal("Control: " + this.control)
+                .withStyle(ChatFormatting.AQUA));
+
+        tooltip.add(Component.literal("Resilience: " + (int) (this.resilience * 100)  + "%")
+                .withStyle(ChatFormatting.GREEN));
+
+        super.appendHoverText(stack, level, tooltip, flag);
     }
 }

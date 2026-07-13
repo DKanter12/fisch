@@ -8,12 +8,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 
 public class ModItems {
-    private static final NewFishingRod TEST_FISHING_ROD = (NewFishingRod) registerItem("test_rod", new NewFishingRod(new Item.Properties(), 10f, 0.3f, 1f));
-    public static final NewFishingRod ICE_ROD = (NewFishingRod) registerItem("ice_rod", new NewFishingRod(new Item.Properties(), 15f, 0.001f, 0.10f));
-    public static final NewFishingRod SAND_ROD = (NewFishingRod) registerItem("sand_rod", new NewFishingRod(new Item.Properties(), 25f, 0.05f, 0.10f));
-    public static final NewFishingRod JUNGLE_ROD = (NewFishingRod) registerItem("jungle_rod", new NewFishingRod(new Item.Properties(), 35f, 0.05f, 0.30f));
-
-
+    public static final NewFishingRod ICE_ROD = (NewFishingRod) registerItem("ice_rod", new NewFishingRod(new Item.Properties().stacksTo(1), 15f, 0.01f, 0.10f));
+    public static final NewFishingRod SAND_ROD = (NewFishingRod) registerItem("sand_rod", new NewFishingRod(new Item.Properties().stacksTo(1), 25f, 0.05f, 0.10f));
+    public static final NewFishingRod JUNGLE_ROD = (NewFishingRod) registerItem("jungle_rod", new NewFishingRod(new Item.Properties().stacksTo(1), 35f, 0.05f, 0.3f));
 
     public static final NewFish TEST_FISH = (NewFish) registerItem("test_fish", new NewFish(new Item.Properties(),"test fish", 8, 1,1,"dwd", "dwwd", "Ddw"));
     public static final NewFish[] ALL_FISH = {TEST_FISH};
