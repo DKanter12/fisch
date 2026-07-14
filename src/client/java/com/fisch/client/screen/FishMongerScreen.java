@@ -91,17 +91,18 @@ public class FishMongerScreen extends AbstractContainerScreen<FishMongerMenu> {
 
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        // Заголовок (Желтым цветом, по центру)
+        // Заголовок
         Component shopTitle = Component.literal("Магазин удочек");
         int titleWidth = this.font.width(shopTitle);
         guiGraphics.drawString(this.font, shopTitle, (this.imageWidth - titleWidth) / 2, 8, 0xFFD700, true);
 
-        // Баланс - СИНХРОНИЗИРОВАНО (Зеленым цветом, по центру)
+        // Баланс
         Component balanceText = Component.literal("Баланс: " + ClientMoneyStorage.getBalance() + " C$");
         int balanceWidth = this.font.width(balanceText);
         guiGraphics.drawString(this.font, balanceText, (this.imageWidth - balanceWidth) / 2, 20, 0x55FF55, true);
 
-        // Цена под монеткой (Желтым цветом)
-        guiGraphics.drawString(this.font, "1000 C$", (this.imageWidth / 2) - 52, 58, 0xFFD700, false);
+        // ИСПРАВЛЕННО: Берем динамическую цену из меню
+        long price = this.menu.getPriceForItem(this.menu.rodItem);
+        guiGraphics.drawString(this.font, price + " C$", (this.imageWidth / 2) - 52, 58, 0xFFD700, false);
     }
 }

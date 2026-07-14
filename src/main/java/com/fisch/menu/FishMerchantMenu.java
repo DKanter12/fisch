@@ -21,6 +21,7 @@ public class FishMerchantMenu extends AbstractContainerMenu {
         this(syncId, playerInventory, new SimpleContainer(27), null);
     }
 
+
     public FishMerchantMenu(int syncId, Inventory playerInventory, Container container, Villager merchant) {
         super(ModMenuTypes.FISH_MERCHANT_MENU, syncId);
         checkContainerSize(container, 27);

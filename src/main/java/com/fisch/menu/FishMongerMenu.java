@@ -1,6 +1,7 @@
 package com.fisch.menu;
 
 import com.fisch.entity.FishMongerEntity;
+import com.fisch.item.ModItems;
 import com.fisch.registry.ModMenuTypes;
 import com.fisch.util.CurrencyHolder;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -23,30 +24,46 @@ public class FishMongerMenu extends AbstractContainerMenu {
     public FishMongerMenu(int containerId, Inventory playerInventory, FriendlyByteBuf buf) {
         super(ModMenuTypes.FISH_MONGER_MENU, containerId);
         this.rodItem = BuiltInRegistries.ITEM.byId(buf.readInt());
-        Entity entity = playerInventory.player.level().getEntity(buf.readInt());
-        this.monger = entity instanceof FishMongerEntity ? (FishMongerEntity) entity : null;
+        // На клиенте сущность может быть недоступна, используем null, если не нужно
+        this.monger = null;
     }
-
-    // Конструктор для СЕРВЕРА
     public FishMongerMenu(int containerId, Inventory playerInventory, Item rodItem, FishMongerEntity monger) {
         super(ModMenuTypes.FISH_MONGER_MENU, containerId);
         this.rodItem = rodItem;
         this.monger = monger;
     }
 
+    // Добавь этот вспомогательный метод в класс FishMongerMenu
+    // Найди в FishMongerMenu метод getPriceForItem и поменяй private на public
+    public long getPriceForItem(Item item) {
+        if (item == ModItems.ICE_ROD) return 2500;
+        if (item == ModItems.SAND_ROD) return 5000;
+        if (item == ModItems.JUNGLE_ROD) return 10000;
+        return 99999;
+    }
+
     public boolean buyRod(ServerPlayer player) {
-        long price = 1000;
+        long price = getPriceForItem(this.rodItem);
         CurrencyHolder holder = (CurrencyHolder) player;
 
-        if (holder.getMoney() >= price) {
-            holder.setMoney(holder.getMoney() - price);
-            player.getInventory().add(new ItemStack(this.rodItem));
-            player.sendSystemMessage(Component.literal("§a[Продавец] Вы успешно купили удочку!"));
-            return true;
-        } else {
-            player.sendSystemMessage(Component.literal("§c[Продавец] Недостаточно средств для покупки!"));
+        // 1. Сначала проверяем деньги
+        if (holder.getMoney() < price) {
+            long remaining = price - holder.getMoney();
+            player.sendSystemMessage(Component.literal("§c[Продавец] Недостаточно средств! Нужно ещё " + remaining + " C$."));
             return false;
         }
+
+        // 2. НОВАЯ ПРОВЕРКА: Если в инвентаре нет ни одного свободного слота
+        if (player.getInventory().getFreeSlot() == -1) {
+            player.sendSystemMessage(Component.literal("§c[Продавец] Твой инвентарь переполнен! Освободи место."));
+            return false;
+        }
+
+        // 3. Если всё ок — снимаем деньги и выдаем предмет
+        holder.setMoney(holder.getMoney() - price);
+        player.getInventory().add(new ItemStack(this.rodItem));
+        player.sendSystemMessage(Component.literal("§a[Продавец] Вы купили " + this.rodItem.getName(new ItemStack(this.rodItem)).getString() + " за " + price + " C$!"));
+        return true;
     }
 
     @Override

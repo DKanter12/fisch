@@ -1,5 +1,6 @@
 package com.fisch;
 
+import com.fisch.command.ModCommands;
 import com.fisch.entity.FishMongerEntity;
 import com.fisch.entity.ModEntities;
 import com.fisch.events.ModEvents;
@@ -36,6 +37,7 @@ public class FischMod implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        ModCommands.register();
         ModMenuTypes.registerMenus();
         FabricDefaultAttributeRegistry.register(ModEntities.FISH_MONGER, FishMongerEntity.createAttributes());
         ModEntities.registerModEntities();
