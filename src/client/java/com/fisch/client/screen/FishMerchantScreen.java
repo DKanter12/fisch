@@ -28,25 +28,27 @@ public class FishMerchantScreen extends AbstractContainerScreen<FishMerchantMenu
         super.init();
         int btnWidth = 54;
         int btnHeight = 20;
-        int buttonsY = this.imageHeight + 4;
+        int buttonsY = this.imageHeight + 4; // Координата Y для первого ряда кнопок
 
+        // Кнопка "Продать"
         this.sellAllButton = this.addRenderableWidget(Button.builder(Component.literal("Продать"), button -> {
             ClientPlayNetworking.send(ModPackets.SELL_ITEMS_C2S, PacketByteBufs.create());
             this.priceEstimationText = "Продано!";
         }).bounds(this.leftPos + 6, this.topPos + buttonsY, btnWidth, btnHeight).build());
 
+        // Кнопка "Закрыть"
         this.addRenderableWidget(Button.builder(Component.literal("Закрыть"), button -> {
             this.onClose();
         }).bounds(this.leftPos + 61, this.topPos + buttonsY, btnWidth, btnHeight).build());
 
+        // Кнопка "Цена"
         this.checkPriceButton = this.addRenderableWidget(Button.builder(Component.literal("Цена"), button -> {
             checkFishPrice(); // Вызываем проверку цены по клику
         }).bounds(this.leftPos + 116, this.topPos + buttonsY, btnWidth, btnHeight).build());
     }
 
     private void checkFishPrice() {
-        // МАГИЯ ЗДЕСЬ: Мы забираем готовую сумму, которую для нас посчитал сервер в DataSlot.
-        // Если предмету не задали цену командой, getTotalPrice() вернет 0, и мы так и напишем!
+        // Забираем готовую сумму, которую для нас посчитал сервер в DataSlot
         int totalValue = this.menu.getTotalPrice();
         this.priceEstimationText = totalValue + " C$";
     }
@@ -89,7 +91,7 @@ public class FishMerchantScreen extends AbstractContainerScreen<FishMerchantMenu
             int titleWidth = this.font.width(this.title);
             int priceX = this.titleLabelX + titleWidth + 5;
 
-            // ВЕРНУЛИ ТВОЙ ЦВЕТ: 0x00AA00 (тёмно-зелёный)
+            // Зелёный цвет для отображения цены: 0x00AA00
             guiGraphics.drawString(this.font, "➔ " + this.priceEstimationText, priceX, this.titleLabelY, 0x00AA00, false);
         }
     }
