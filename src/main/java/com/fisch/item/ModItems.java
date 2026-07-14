@@ -15,7 +15,7 @@ public class ModItems {
     public static final NewFish[] ALL_FISH = {TEST_FISH};
 
     public static final Item BUG_NET = registerItem("bug_net",
-            new BugNetItem(new Item.Properties().stacksTo(1))
+            new BugNetItem(new Item.Properties().durability(64)) // Прочность 64 использования
     );
 
     // 2. Базовый жук (стакается до 64)
