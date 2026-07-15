@@ -3,6 +3,8 @@ package com.fisch.command;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.fisch.util.CurrencyHolder;
 import com.fisch.networking.ModPackets;
+import com.fisch.fish.NewFish;
+import com.fisch.item.ModItems;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
@@ -16,21 +18,36 @@ import java.util.Map;
 
 public class ModCommands {
 
-    // КАТАЛОГ ЦЕН: Запоминает предмет (Item) и его цену (Integer)
     public static final Map<Item, Integer> FISH_PRICES = new HashMap<>();
 
-    // ДОБАВЛЕНО: Базовые цены при запуске сервера
     static {
-        FISH_PRICES.put(Items.COD, 10);          // Сырая треска
-        FISH_PRICES.put(Items.SALMON, 20);       // Сырой лосось
-        FISH_PRICES.put(Items.TROPICAL_FISH, 40);// Тропическая рыба
-        FISH_PRICES.put(Items.PUFFERFISH, 50);   // Иглобрюх (рыба-ёж)
+        // Базовые ванильные цены
+        FISH_PRICES.put(Items.COD, 10);
+        FISH_PRICES.put(Items.SALMON, 20);
+        FISH_PRICES.put(Items.TROPICAL_FISH, 40);
+        FISH_PRICES.put(Items.PUFFERFISH, 50);
+
+        // МАГИЯ ЗДЕСЬ: Автоматически рассчитываем и задаем цену для ВСЕХ наших 56 кастомных рыб на основе их редкости!
+        for (NewFish fish : ModItems.ALL_FISH) {
+            int autoPrice = switch (fish.rarity) {
+                case 10 -> 1;    // Мусор (Junk) -> всего 1 монета
+                case 8 -> 15;    // Common (Обычная) -> 15 монет
+                case 7 -> 35;    // Uncommon (Необычная) -> 35 монет
+                case 6 -> 75;    // Unusual (Редкая) -> 75 монет
+                case 5 -> 150;   // Rare (Очень Редкая) -> 150 монет
+                case 4 -> 450;   // Legendary (Легендарная) -> 450 монет
+                case 3 -> 1200;  // Mythical (Мифическая) -> 1200 монет
+                case 2 -> 3500;  // Exotic (Экзотическая) -> 3500 монет
+                default -> 20;
+            };
+            FISH_PRICES.put(fish, autoPrice);
+        }
     }
 
     public static void register() {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
 
-            // Команда /addcoins
+            // Команда /addcoins <кол-во>
             dispatcher.register(Commands.literal("addcoins")
                     .requires(source -> source.hasPermission(2))
                     .then(Commands.argument("amount", IntegerArgumentType.integer(1))
@@ -58,11 +75,8 @@ public class ModCommands {
                                     return 0;
                                 }
 
-                                // Записываем новую цену в базу
                                 FISH_PRICES.put(handItem.getItem(), price);
-
                                 context.getSource().sendSystemMessage(Component.literal("§e[Fisch] Цена за " + handItem.getHoverName().getString() + " установлена: " + price + " C$"));
-
                                 return 1;
                             })));
         });

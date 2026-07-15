@@ -1,85 +1,122 @@
 package com.fisch.rod;
 
 import com.fisch.fish.NewFish;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biome;
 import java.util.Random;
 
 public class RodMechanics {
 
     private static final Random RANDOM = new Random();
 
-    public static NewFish determineCatch(Level world, NewFish[] bestiary, String bait, float luck) {
-        if (bestiary == null || bestiary.length == 0) {
-            return null;
+    // Проверка размера водоема: ищем минимум 20 блоков воды в зоне 3x3 и 3 блока в глубину
+    public static boolean isValidWaterBody(Level world, BlockPos pos) {
+        int waterBlocks = 0;
+        for (int x = -1; x <= 1; x++) {
+            for (int z = -1; z <= 1; z++) {
+                for (int y = 0; y >= -2; y--) { // Проверяем на 3 блока вниз
+                    BlockPos checkPos = pos.offset(x, y, z);
+                    if (world.getFluidState(checkPos).is(FluidTags.WATER)) {
+                        waterBlocks++;
+                    }
+                }
+            }
+        }
+        return waterBlocks >= 20; // Если меньше 20 блоков воды из 27 возможных, это "лужа"
+    }
+
+    public static String getBiomeGroup(Level world, BlockPos pos) {
+        Holder<Biome> biomeHolder = world.getBiome(pos);
+        if (biomeHolder.unwrapKey().isPresent()) {
+            ResourceKey<Biome> key = biomeHolder.unwrapKey().get();
+            String path = key.location().getPath().toLowerCase();
+            if (path.contains("desert") || path.contains("badlands")) {
+                return "desert";
+            } else if (path.contains("ice") || path.contains("snow") || path.contains("frozen") || path.contains("cold") || path.contains("slope") || path.contains("peaks")) {
+                return "ice";
+            } else if (path.contains("jungle") || path.contains("bamboo")) {
+                return "jungle";
+            }
+        }
+        return "plain";
+    }
+
+    public static NewFish determineCatch(Level world, BlockPos pos, NewFish[] bestiary, String bait, float luck) {
+        if (bestiary == null || bestiary.length == 0) return null;
+
+        String currentBiomeGroup = getBiomeGroup(world, pos);
+
+        // Если водоем слишком мелкий (самодельный), принудительно меняем улов на мусор (с шансом 85%)
+        if (!isValidWaterBody(world, pos)) {
+            if (RANDOM.nextFloat() < 0.85f) {
+                currentBiomeGroup = "junk";
+            }
         }
 
-        float[] fishPercentages = new float[bestiary.length];
+        int count = 0;
+        for (NewFish fish : bestiary) {
+            if (fish.getBiomeGroup().equals(currentBiomeGroup)) count++;
+        }
+
+        NewFish[] filteredBestiary;
+        if (count > 0) {
+            filteredBestiary = new NewFish[count];
+            int index = 0;
+            for (NewFish fish : bestiary) {
+                if (fish.getBiomeGroup().equals(currentBiomeGroup)) {
+                    filteredBestiary[index++] = fish;
+                }
+            }
+        } else {
+            filteredBestiary = bestiary;
+        }
+
+        float[] fishPercentages = new float[filteredBestiary.length];
         float totalSum = 0;
+        float initialPercentage = 100.0f / filteredBestiary.length;
 
-        float initialPercentage = 100.0f / bestiary.length;
-
-        for (int i = 0; i < bestiary.length; i++) {
-            float percentage = fishDropPercentage(initialPercentage, bestiary[i], world, bait, luck);
+        for (int i = 0; i < filteredBestiary.length; i++) {
+            float percentage = fishDropPercentage(initialPercentage, filteredBestiary[i], world, bait, luck);
             fishPercentages[i] = percentage;
             totalSum += percentage;
         }
 
         float rolledValue = RANDOM.nextFloat() * totalSum;
         float currentSum = 0;
-        for (int i = 0; i < bestiary.length; i++) {
+        for (int i = 0; i < filteredBestiary.length; i++) {
             currentSum += fishPercentages[i];
             if (rolledValue <= currentSum) {
-                return bestiary[i];
+                return filteredBestiary[i];
             }
         }
 
-        return bestiary[bestiary.length - 1];
+        return filteredBestiary[filteredBestiary.length - 1];
     }
 
     public static boolean checkWeather(Level world, String bestWeather) {
-        String weather;
-
-        if (world.isRaining()) {
-            weather = "raining";
-        } else if (world.isThundering()) {
-            weather = "thundering";
-        } else {
-            weather = "clear";
-        }
-
+        String weather = world.isRaining() ? "raining" : (world.isThundering() ? "thundering" : "clear");
         return bestWeather.equals(weather);
     }
 
     public static boolean checkTime(Level world, String bestTime) {
         String time;
         long timeOfDay = world.getDayTime() % 24000;
-
-        if (timeOfDay >= 0 && timeOfDay < 12000) {
-            time = "day";
-        } else if (timeOfDay >= 12000 && timeOfDay < 13000) {
-            time = "sunset";
-        } else if (timeOfDay >= 13000 && timeOfDay < 23000) {
-            time = "night";
-        } else {
-            time = "sunrise";
-        }
-
+        if (timeOfDay < 12000) time = "day";
+        else if (timeOfDay < 13000) time = "sunset";
+        else if (timeOfDay < 23000) time = "night";
+        else time = "sunrise";
         return bestTime.equals(time);
     }
 
     public static float fishDropPercentage(float initialPercentage, NewFish fish, Level world, String bait, float luck){
         float fishPercentage = initialPercentage;
-
-        if (checkWeather(world, fish.bestWeather)){
-            fishPercentage += 1;
-        }
-        if (checkTime(world, fish.bestTime)){
-            fishPercentage += 1;
-        }
-        if (bait.equals(fish.bestBait)){
-            fishPercentage += 1;
-        }
-
+        if (checkWeather(world, fish.bestWeather)) fishPercentage += 1;
+        if (checkTime(world, fish.bestTime)) fishPercentage += 1;
+        if (bait.equals(fish.bestBait)) fishPercentage += 1;
         return fishPercentage + fish.rarity + getLuckBonus(luck, fish.rarity);
     }
 
@@ -90,27 +127,19 @@ public class RodMechanics {
     public static int getFishX(int maxMovement){
         return RANDOM.nextInt(maxMovement - (-maxMovement) + 1) + (-maxMovement);
     }
+
     public static float getLuckBonus(float luckPercent, int fishRare){
-      if (fishRare >= 5){
-          return fishRare * -(luckPercent / 1000);
-      }
-      if (fishRare == 4){
-          return fishRare * (luckPercent / 1000);
-      }
-      if (fishRare == 3){
-          return fishRare * (luckPercent / 1000) + 0.5f;
-      }
-      if (fishRare == 2){
-          return fishRare * (luckPercent / 1000) + 1f;
-      }
-      if (fishRare == 1) {
-          return fishRare * (luckPercent / 1000) + 2f;
-      }
-      return 0;
+        if (fishRare >= 5) return fishRare * -(luckPercent / 1000);
+        if (fishRare == 4) return fishRare * (luckPercent / 1000);
+        if (fishRare == 3) return fishRare * (luckPercent / 1000) + 0.5f;
+        if (fishRare == 2) return fishRare * (luckPercent / 1000) + 1f;
+        if (fishRare == 1) return fishRare * (luckPercent / 1000) + 2f;
+        return 0;
     }
 
     public static float getFishSpeedMultiplier(int rarity) {
         return switch (rarity) {
+            case 10 -> 0.05f; // Мусор почти не двигается
             case 8 -> 0.7f;
             case 7 -> 0.9f;
             case 6 -> 1.1f;
@@ -125,6 +154,7 @@ public class RodMechanics {
 
     public static int getFishMovement(int rarity) {
         return switch (rarity) {
+            case 10 -> 2; // Мусор почти не двигается
             case 8 -> 8;
             case 7 -> 12;
             case 6 -> 16;
@@ -138,12 +168,7 @@ public class RodMechanics {
     }
 
     public static float getResilienceMultiplier(float resilience) {
-
-        float min = 0.01f;
-        float max = 1.0f;
-
-        resilience = Math.max(min, Math.min(max, resilience));
-
+        resilience = Math.max(0.01f, Math.min(1.0f, resilience));
         return 1.0f - resilience * 0.5f;
     }
 }

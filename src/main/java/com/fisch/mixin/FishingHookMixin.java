@@ -8,9 +8,8 @@ import com.fisch.rod.RodMechanics;
 import com.fisch.fish.NewFish;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.FishingHook;
@@ -28,113 +27,92 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import static com.fisch.FischMod.LOGGER;
-import static com.fisch.FischMod.MODID;
-
 @Mixin(FishingHook.class)
 public abstract class FishingHookMixin implements FishingHookDuck {
     FriendlyByteBuf buf = PacketByteBufs.create();
     @Unique
     private static final Logger fisch$LOGGER = LoggerFactory.getLogger("FischMod");
 
-    @Shadow
-    public abstract Player getPlayerOwner();
+    @Shadow public abstract Player getPlayerOwner();
+    @Shadow private int nibble;
+    @Shadow private int timeUntilLured; // Доступ к ванильному таймеру
 
-    @Shadow
-    private int nibble; // Ванильный таймер поклёвки (сколько тиков рыба будет на крючке)
+    @Unique private NewFish fisch$customCatch = null;
+    @Unique private boolean fisch$isBiting = false;
 
-    // Наше кастомное поле для хранения определенной рыбы
-    @Unique
-    private NewFish fisch$customCatch = null;
-
-    // Флаг, гарантирующий, что поклёвка началась и рыба все еще считается активной для подсечки
-    @Unique
-    private boolean fisch$isBiting = false;
+    // Флаг, чтобы не спамить в чат каждую миллисекунду
+    @Unique private boolean fisch$warnedSmallWater = false;
 
     @Override
-    public NewFish getCustomCatch() {
-        return this.fisch$customCatch;
-    }
+    public NewFish getCustomCatch() { return this.fisch$customCatch; }
 
     @Override
-    public void setCustomCatch(NewFish fish) {
-        this.fisch$customCatch = fish;
-    }
+    public void setCustomCatch(NewFish fish) { this.fisch$customCatch = fish; }
 
     @Redirect(
             method = "shouldStopFishing",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/world/item/ItemStack;is(Lnet/minecraft/world/item/Item;)Z"
-            )
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;is(Lnet/minecraft/world/item/Item;)Z")
     )
     private boolean fischAllowCustomRod(ItemStack stack, Item item) {
-
-        if (item == Items.FISHING_ROD) {
-            return stack.getItem() instanceof FishingRodItem;
-        }
-
+        if (item == Items.FISHING_ROD) return stack.getItem() instanceof FishingRodItem;
         return stack.is(item);
+    }
+
+    // БЛОКИРУЕМ РЫБАЛКУ И ПИШЕМ В ЧАТ
+    @Inject(method = "tick", at = @At("HEAD"))
+    private void fisch$checkPuddles(CallbackInfo ci) {
+        FishingHook hook = (FishingHook) (Object) this;
+        // Если поплавок в воде и таймер рыбалки запущен
+        if (!hook.level().isClientSide() && this.timeUntilLured > 0) {
+
+            // Если водоем меньше нужного размера
+            if (!RodMechanics.isValidWaterBody(hook.level(), hook.blockPosition())) {
+
+                // Пишем в чат только один раз за один заброс удочки
+                if (!this.fisch$warnedSmallWater) {
+                    Player player = this.getPlayerOwner();
+                    if (player != null) {
+                        player.sendSystemMessage(Component.literal("§c[Fisch] Этот водоём слишком мал! Рыба здесь не водится."));
+                    }
+                    this.fisch$warnedSmallWater = true;
+                }
+
+                // "Замораживаем" таймер ожидания. Поклевка НИКОГДА не произойдет.
+                this.timeUntilLured = 100;
+            }
+        }
     }
 
     @Inject(
             method = "tick",
-            at = @At(
-                    value = "FIELD",
-                    target = "Lnet/minecraft/world/entity/projectile/FishingHook;nibble:I",
-                    shift = At.Shift.AFTER
-            )
+            at = @At(value = "FIELD", target = "Lnet/minecraft/world/entity/projectile/FishingHook;nibble:I", shift = At.Shift.AFTER)
     )
     private void onBiteStart(CallbackInfo ci) {
-
         FishingHook hook = (FishingHook) (Object) this;
 
-        if (hook.level().isClientSide()) {
-            return;
-        }
+        if (hook.level().isClientSide()) return;
 
         if (this.nibble > 0 && !this.fisch$isBiting) {
-
             Player player = this.getPlayerOwner();
-
-            if (player == null) {
-                return;
-            }
+            if (player == null) return;
 
             this.fisch$isBiting = true;
-
             String bait = getBaitFromPlayer(player);
             ItemStack itemStack = player.getMainHandItem();
 
             if (itemStack.getItem() instanceof NewRod newRod) {
-                NewRod rod = (NewRod) itemStack.getItem();
-                this.fisch$customCatch = RodMechanics.determineCatch(
-                        hook.level(),
-                        getActiveBestiary(),
-                        bait,
-                        rod.getLuck()
-                );
+                this.fisch$customCatch = RodMechanics.determineCatch(hook.level(), hook.blockPosition(), getActiveBestiary(), bait, newRod.getLuck());
+            } else if (itemStack.getItem() instanceof FishingRodItem){
+                this.fisch$customCatch = RodMechanics.determineCatch(hook.level(), hook.blockPosition(), getActiveBestiary(), bait, 1f);
             }
 
-            if (itemStack.getItem() instanceof FishingRodItem){
-                this.fisch$customCatch = RodMechanics.determineCatch(
-                        hook.level(),
-                        getActiveBestiary(),
-                        bait,
-                        1f
-                );
-            }
-
-
-            if (this.fisch$customCatch == null) {
-                return;
-            }
+            if (this.fisch$customCatch == null) return;
 
             if (player instanceof ServerPlayer serverPlayer) {
 
-                buf.writeUtf(this.fisch$customCatch.name);
+                // О
+                buf.writeUtf("");
                 buf.writeInt(this.fisch$customCatch.rarity);
-
 
                 if (itemStack.getItem() instanceof NewRod newRod) {
                     buf.writeFloat(newRod.getControl());
@@ -146,57 +124,38 @@ public abstract class FishingHookMixin implements FishingHookDuck {
                     buf.writeFloat(0.001f);
                 }
 
-                ServerPlayNetworking.send(
-                        serverPlayer,
-                        FischMod.FISH_GUI_PACKET_ID,
-                        buf
-                );
+                ServerPlayNetworking.send(serverPlayer, FischMod.FISH_GUI_PACKET_ID, buf);
             }
-
-            LOGGER.info("Миниигра началась.");
         }
     }
-
-    /**
-     * Перехват вылавливания рыбы (нажатие ПКМ игроком).
-     * Мы перехватываем HEAD метода retrieve.
-     */
-
 
     @Unique
     private String getBaitFromPlayer(Player player) {
         ItemStack rod = player.getMainHandItem();
         if (rod.getItem() instanceof net.minecraft.world.item.FishingRodItem) {
-            if (rod.hasTag() && rod.getTag().contains("Bait")) {
-                return rod.getTag().getString("Bait");
-            }
+            if (rod.hasTag() && rod.getTag().contains("Bait")) return rod.getTag().getString("Bait");
         }
         return "none";
     }
 
     @Override
     public void finishMiniGame(boolean success) {
-
         FishingHook hook = (FishingHook) (Object) this;
-
-        if (hook.level().isClientSide()) {
-            return;
-        }
+        if (hook.level().isClientSide()) return;
 
         Player player = getPlayerOwner();
-
         if (player == null) {
             hook.discard();
             return;
         }
 
         if (success && this.fisch$customCatch != null) {
-            giveCustomFishToPlayer(player, this.fisch$customCatch);
+            player.addItem(new ItemStack(this.fisch$customCatch));
         }
 
         this.fisch$isBiting = false;
         this.fisch$customCatch = null;
-
+        this.fisch$warnedSmallWater = false; // Сбрасываем флаг чата
         player.fishing = null;
         hook.discard();
     }
@@ -205,12 +164,4 @@ public abstract class FishingHookMixin implements FishingHookDuck {
     private NewFish[] getActiveBestiary() {
         return ModItems.ALL_FISH;
     }
-
-    @Unique
-    private void giveCustomFishToPlayer(Player player, NewFish fish) {
-        fisch$LOGGER.info("Игрок " + player.getName().getString() + " выловил кастомную рыбу: " + fish.name);
-        player.addItem(new ItemStack(fish));
-
-    }
-
 }

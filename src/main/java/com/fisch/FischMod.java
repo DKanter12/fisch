@@ -1,5 +1,6 @@
 package com.fisch;
 
+import com.fisch.command.ModCommands;
 import com.fisch.events.ModEvents;
 import com.fisch.item.ModItems;
 import com.fisch.menu.FishMerchantMenu;
@@ -34,6 +35,7 @@ public class FischMod implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        ModCommands.register();
         ModItems.register();
         ModEvents.register();
 
