@@ -12,6 +12,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.goal.*;
+import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.npc.VillagerProfession;
@@ -28,6 +29,12 @@ public class FishMongerEntity extends Villager {
     public FishMongerEntity(EntityType<? extends Villager> entityType, Level level) {
         super(entityType, level);
         this.setVillagerData(this.getVillagerData().setProfession(VillagerProfession.FISHERMAN));
+        // --- ДОБАВЬ ЭТОТ БЛОК В КОНСТРУКТОР ---
+        // Получаем систему путей моба и запрещаем взаимодействие с дверями
+        if (this.getNavigation() instanceof GroundPathNavigation navigation) {
+            navigation.setCanOpenDoors(false); // Запрет открывать двери
+            navigation.setCanPassDoors(false); // Запрет проходить сквозь открытые двери (опционально)
+        }
     }
 
     // Без аннотации @Override, если ругается
