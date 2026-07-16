@@ -5,5 +5,8 @@
   "item.fisch.worm_bait": "Worm Bait",
   "item.fisch.ice_rod": "Ice Rod",
   "item.fisch.sand_rod": "Sand Rod",
-  "item.fisch.jungle_rod": "Jungle Rod"
+  "item.fisch.jungle_rod": "Jungle Rod",
+  "gui.fisch.buy_rod": "Buy Fishing Rod",
+  "gui.fisch.shop_title": "Rod Shop",
+  "gui.fisch.balance": "Balance: %s C$"
 }
