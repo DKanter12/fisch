@@ -20,11 +20,9 @@ public class ModItems {
 
     private static final List<NewFish> FISH_LIST = new ArrayList<>();
 
-    // (ЗДЕСЬ ОСТАВЛЯЕШЬ ВСЕХ СВОИХ 56 РЫБ ИЗ ПРОШЛОГО КОДА)
-    // ... [Твои пустынные, ледяные, джунглевые и обычные рыбы] ...
-// ==========================================
-// ПУСТЫННЫЕ РЫБЫ (10 штук) - "desert"
-// ==========================================
+    // ==========================================
+    // ПУСТЫННЫЕ РЫБЫ (10 штук) - "desert"
+    // ==========================================
     public static final NewFish SAND_GLIDER = registerFish("sand_glider", 8, 100, 500, "worm_bait", "clear", "day", "desert");
     public static final NewFish DUNE_GUPPY = registerFish("dune_guppy", 8, 50, 200, "none", "clear", "day", "desert");
     public static final NewFish MIRAGE_FIN = registerFish("mirage_fin", 7, 150, 600, "none", "clear", "sunset", "desert");
@@ -37,8 +35,8 @@ public class ModItems {
     public static final NewFish GLASS_DUNE_PIERCER = registerFish("glass_dune_piercer", 2, 800, 4000, "none", "clear", "sunrise", "desert");
 
     // ==========================================
-// ЛЕДЯНЫЕ РЫБЫ (14 штук) - "ice"
-// ==========================================
+    // ЛЕДЯНЫЕ РЫБЫ (14 штук) - "ice"
+    // ==========================================
     public static final NewFish FROST_MINNOW = registerFish("frost_minnow", 8, 30, 150, "worm_bait", "raining", "day", "ice");
     public static final NewFish SHIVER_TAIL = registerFish("shiver_tail", 8, 40, 200, "none", "clear", "day", "ice");
     public static final NewFish GLACIER_PERCH = registerFish("glacier_perch", 8, 150, 700, "none", "clear", "day", "ice");
@@ -55,8 +53,8 @@ public class ModItems {
     public static final NewFish ABSOLUTE_ZERO = registerFish("absolute_zero", 2, 1000, 5000, "none", "clear", "night", "ice");
 
     // ==========================================
-// ДЖУНГЛЕВЫЕ РЫБЫ (16 штук) - "jungle"
-// ==========================================
+    // ДЖУНГЛЕВЫЕ РЫБЫ (16 штук) - "jungle"
+    // ==========================================
     public static final NewFish BAMBOO_BORER = registerFish("bamboo_borer", 8, 80, 400, "worm_bait", "clear", "day", "jungle");
     public static final NewFish MUD_CRAWLER = registerFish("mud_crawler", 8, 120, 600, "none", "raining", "day", "jungle");
     public static final NewFish CANOPY_FLYER = registerFish("canopy_flyer", 7, 150, 750, "fishing_bug", "clear", "day", "jungle");
@@ -75,8 +73,8 @@ public class ModItems {
     public static final NewFish PREDATOR_PRIME = registerFish("predator_prime", 2, 5000, 22000, "fishing_bug", "clear", "night", "jungle");
 
     // ==========================================
-// РЫБЫ ОБЫЧНЫХ БИОМОВ (16 штук) - "plain"
-// ==========================================
+    // РЫБЫ ОБЫЧНЫХ БИОМОВ (16 штук) - "plain"
+    // ==========================================
     public static final NewFish RIVER_MINNOW = registerFish("river_minnow", 8, 20, 100, "worm_bait", "clear", "day", "plain");
     public static final NewFish POND_LOACH = registerFish("pond_loach", 8, 30, 150, "none", "raining", "day", "plain");
     public static final NewFish GRASSY_CARP = registerFish("grassy_carp", 8, 200, 1000, "none", "clear", "day", "plain");
@@ -93,13 +91,13 @@ public class ModItems {
     public static final NewFish FOREST_SPIRIT_MONARCH = registerFish("forest_spirit_monarch", 4, 3000, 12000, "fishing_bug", "clear", "day", "plain");
     public static final NewFish WHISPERING_WILLOW_EEL = registerFish("whispering_willow_eel", 3, 2500, 10000, "none", "clear", "night", "plain");
     public static final NewFish NATURE_INCARNATE = registerFish("nature_incarnate", 2, 4000, 16000, "none", "clear", "day", "plain");
+
     // ==========================================
     // МУСОР (3 штуки) - "junk" (Редкость 10)
     // ==========================================
     public static final NewFish SEAWEED = registerFish("seaweed", 10, 50, 200, "none", "clear", "day", "junk");
     public static final NewFish IRON_SCRAP = registerFish("iron_scrap", 10, 100, 1000, "none", "clear", "day", "junk");
     public static final NewFish OLD_BOOT = registerFish("old_boot", 10, 500, 1500, "none", "clear", "day", "junk");
-
 
     public static final NewFish[] ALL_FISH;
 

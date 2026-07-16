@@ -59,7 +59,8 @@ public class FischMod implements ModInitializer {
                     player.openMenu(new SimpleMenuProvider(
                             // 2. Обязательно передаём самого жителя в меню, чтобы знать, кого потом отпускать
                             (syncId, playerInv, p) -> new FishMerchantMenu(syncId, playerInv, tempMerchantInventory, villager),
-                            Component.literal("Рыботорговец")
+                            // Замени Component.literal("Рыботорговец") на:
+                            Component.translatable("container.fisch.fish_merchant")
                     ));
                 }
                 return InteractionResult.SUCCESS;

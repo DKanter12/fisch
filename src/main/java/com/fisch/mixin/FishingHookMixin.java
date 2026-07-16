@@ -29,18 +29,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(FishingHook.class)
 public abstract class FishingHookMixin implements FishingHookDuck {
-    FriendlyByteBuf buf = PacketByteBufs.create();
     @Unique
     private static final Logger fisch$LOGGER = LoggerFactory.getLogger("FischMod");
 
     @Shadow public abstract Player getPlayerOwner();
     @Shadow private int nibble;
-    @Shadow private int timeUntilLured; // Доступ к ванильному таймеру
+    @Shadow private int timeUntilLured;
 
     @Unique private NewFish fisch$customCatch = null;
     @Unique private boolean fisch$isBiting = false;
-
-    // Флаг, чтобы не спамить в чат каждую миллисекунду
     @Unique private boolean fisch$warnedSmallWater = false;
 
     @Override
@@ -58,26 +55,20 @@ public abstract class FishingHookMixin implements FishingHookDuck {
         return stack.is(item);
     }
 
-    // БЛОКИРУЕМ РЫБАЛКУ И ПИШЕМ В ЧАТ
     @Inject(method = "tick", at = @At("HEAD"))
     private void fisch$checkPuddles(CallbackInfo ci) {
         FishingHook hook = (FishingHook) (Object) this;
-        // Если поплавок в воде и таймер рыбалки запущен
-        if (!hook.level().isClientSide() && this.timeUntilLured > 0) {
 
-            // Если водоем меньше нужного размера
+        // ДОБАВЛЕНО: && !this.fisch$isBiting — если миниигра уже идет, проверку на размер лужи пропускаем
+        if (!hook.level().isClientSide() && this.timeUntilLured > 0 && !this.fisch$isBiting) {
             if (!RodMechanics.isValidWaterBody(hook.level(), hook.blockPosition())) {
-
-                // Пишем в чат только один раз за один заброс удочки
                 if (!this.fisch$warnedSmallWater) {
                     Player player = this.getPlayerOwner();
                     if (player != null) {
-                        player.sendSystemMessage(Component.literal("§c[Fisch] Этот водоём слишком мал! Рыба здесь не водится."));
+                        player.displayClientMessage(Component.translatable("message.fisch.small_water"), true);
                     }
                     this.fisch$warnedSmallWater = true;
                 }
-
-                // "Замораживаем" таймер ожидания. Поклевка НИКОГДА не произойдет.
                 this.timeUntilLured = 100;
             }
         }
@@ -109,8 +100,8 @@ public abstract class FishingHookMixin implements FishingHookDuck {
             if (this.fisch$customCatch == null) return;
 
             if (player instanceof ServerPlayer serverPlayer) {
-
-                // О
+                // ИСПРАВЛЕНО: Буфер создается локально под каждый конкретный пакет
+                FriendlyByteBuf buf = PacketByteBufs.create();
                 buf.writeUtf("");
                 buf.writeInt(this.fisch$customCatch.rarity);
 
@@ -155,7 +146,7 @@ public abstract class FishingHookMixin implements FishingHookDuck {
 
         this.fisch$isBiting = false;
         this.fisch$customCatch = null;
-        this.fisch$warnedSmallWater = false; // Сбрасываем флаг чата
+        this.fisch$warnedSmallWater = false;
         player.fishing = null;
         hook.discard();
     }

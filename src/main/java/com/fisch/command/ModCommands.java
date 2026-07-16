@@ -15,6 +15,7 @@ import net.minecraft.world.item.Items;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 public class ModCommands {
 
@@ -27,20 +28,37 @@ public class ModCommands {
         FISH_PRICES.put(Items.TROPICAL_FISH, 40);
         FISH_PRICES.put(Items.PUFFERFISH, 50);
 
-        // МАГИЯ ЗДЕСЬ: Автоматически рассчитываем и задаем цену для ВСЕХ наших 56 кастомных рыб на основе их редкости!
+        Random random = new Random();
+
+        // МАГИЯ ЗДЕСЬ: Расчет случайных цен с наслоением
         for (NewFish fish : ModItems.ALL_FISH) {
-            int autoPrice = switch (fish.rarity) {
-                case 10 -> 1;    // Мусор (Junk) -> всего 1 монета
-                case 8 -> 15;    // Common (Обычная) -> 15 монет
-                case 7 -> 35;    // Uncommon (Необычная) -> 35 монет
-                case 6 -> 75;    // Unusual (Редкая) -> 75 монет
-                case 5 -> 150;   // Rare (Очень Редкая) -> 150 монет
-                case 4 -> 450;   // Legendary (Легендарная) -> 450 монет
-                case 3 -> 1200;  // Mythical (Мифическая) -> 1200 монет
-                case 2 -> 3500;  // Exotic (Экзотическая) -> 3500 монет
-                default -> 20;
-            };
-            FISH_PRICES.put(fish, autoPrice);
+
+            // Мы передаем имя рыбы как seed.
+            // Это значит, что для конкретной рыбы рандом выдаст ВСЕГДА одно и то же число.
+            // Например, "river_minnow" всегда будет стоить 18, а "pond_loach" - 12.
+            random.setSeed(fish.name.hashCode());
+
+            int basePrice = 20;
+            int variance = 5; // Насколько цена может отклоняться (+ или -)
+
+            switch (fish.rarity) {
+                case 10 -> { basePrice = 1; variance = 0; }      // Мусор: Всегда 1
+                case 8 -> { basePrice = 15; variance = 10; }     // Common: от 5 до 25
+                case 7 -> { basePrice = 35; variance = 15; }     // Uncommon: от 20 до 50
+                case 6 -> { basePrice = 75; variance = 30; }     // Unusual: от 45 до 105 (может быть 100!)
+                case 5 -> { basePrice = 150; variance = 60; }    // Rare: от 90 до 210 (тоже может быть 100!)
+                case 4 -> { basePrice = 450; variance = 150; }   // Legendary: от 300 до 600
+                case 3 -> { basePrice = 1200; variance = 400; }  // Mythical: от 800 до 1600
+                case 2, 1 -> { basePrice = 3500; variance = 1000;}// Exotic: от 2500 до 4500
+            }
+
+            int finalPrice = basePrice;
+            if (variance > 0) {
+                // Прибавляем или вычитаем случайное число из разброса
+                finalPrice += random.nextInt(variance * 2 + 1) - variance;
+            }
+
+            FISH_PRICES.put(fish, finalPrice);
         }
     }
 
