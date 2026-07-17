@@ -38,6 +38,10 @@ public class FischMod implements ModInitializer {
     public void onInitialize() {
         ModCommands.register();
         ModItems.register();
+
+        // --- РЕГИСТРАЦИЯ ВКЛАДКИ ДОЛЖНА БЫТЬ ЗДЕСЬ (при запуске мода) ---
+        com.fisch.item.ModCreativeTabs.register();
+
         ModEvents.register();
         ModScreenHandlers.register();
         ModPackets.register();
@@ -55,11 +59,12 @@ public class FischMod implements ModInitializer {
                 if (!level.isClientSide) {
                     villager.setTradingPlayer(player);
 
+                    // УБРАНО: com.fisch.item.ModCreativeTabs.register(); отсюда!
+
                     SimpleContainer tempMerchantInventory = new SimpleContainer(27);
                     player.openMenu(new SimpleMenuProvider(
                             // 2. Обязательно передаём самого жителя в меню, чтобы знать, кого потом отпускать
                             (syncId, playerInv, p) -> new FishMerchantMenu(syncId, playerInv, tempMerchantInventory, villager),
-                            // Замени Component.literal("Рыботорговец") на:
                             Component.translatable("container.fisch.fish_merchant")
                     ));
                 }
@@ -77,7 +82,7 @@ public class FischMod implements ModInitializer {
             ((CurrencyHolder) newPlayer).setMoney(currentMoney);
             ModPackets.syncMoney(newPlayer);
         });
-    
+
         ServerPlayNetworking.registerGlobalReceiver(
                 FINISH_MINIGAME_PACKET_ID,
                 (server, player, handler, buf, responseSender) -> {
@@ -85,11 +90,9 @@ public class FischMod implements ModInitializer {
                     boolean success = buf.readBoolean();
 
                     server.execute(() -> {
-
                         if (player.fishing instanceof FishingHookDuck duck) {
                             duck.finishMiniGame(success);
                         }
-
                     });
                 }
         );
