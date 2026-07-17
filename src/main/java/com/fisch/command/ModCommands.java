@@ -3,6 +3,8 @@ package com.fisch.command;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.fisch.util.CurrencyHolder;
 import com.fisch.networking.ModPackets;
+import com.fisch.fish.NewFish;
+import com.fisch.item.ModItems;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
@@ -13,18 +15,44 @@ import net.minecraft.world.item.Items;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 public class ModCommands {
 
-    // КАТАЛОГ ЦЕН: Запоминает предмет (Item) и его цену (Integer)
     public static final Map<Item, Integer> FISH_PRICES = new HashMap<>();
 
-    // ДОБАВЛЕНО: Базовые цены при запуске сервера
     static {
-        FISH_PRICES.put(Items.COD, 10);          // Сырая треска
-        FISH_PRICES.put(Items.SALMON, 20);       // Сырой лосось
-        FISH_PRICES.put(Items.TROPICAL_FISH, 40);// Тропическая рыба
-        FISH_PRICES.put(Items.PUFFERFISH, 50);   // Иглобрюх (рыба-ёж)
+        FISH_PRICES.put(Items.COD, 10);
+        FISH_PRICES.put(Items.SALMON, 20);
+        FISH_PRICES.put(Items.TROPICAL_FISH, 40);
+        FISH_PRICES.put(Items.PUFFERFISH, 50);
+
+        Random random = new Random();
+
+        for (NewFish fish : ModItems.ALL_FISH) {
+            random.setSeed(fish.name.hashCode());
+
+            int basePrice = 20;
+            int variance = 5;
+
+            switch (fish.rarity) {
+                case 10 -> { basePrice = 1; variance = 0; }
+                case 8 -> { basePrice = 15; variance = 10; }
+                case 7 -> { basePrice = 35; variance = 15; }
+                case 6 -> { basePrice = 75; variance = 30; }
+                case 5 -> { basePrice = 150; variance = 60; }
+                case 4 -> { basePrice = 450; variance = 150; }
+                case 3 -> { basePrice = 1200; variance = 400; }
+                case 2, 1 -> { basePrice = 3500; variance = 1000;}
+            }
+
+            int finalPrice = basePrice;
+            if (variance > 0) {
+                finalPrice += random.nextInt(variance * 2 + 1) - variance;
+            }
+
+            FISH_PRICES.put(fish, finalPrice);
+        }
     }
 
     public static void register() {
@@ -40,11 +68,13 @@ public class ModCommands {
                                 CurrencyHolder holder = (CurrencyHolder) player;
                                 holder.setMoney(holder.getMoney() + amount);
                                 ModPackets.syncMoney(player);
-                                context.getSource().sendSystemMessage(Component.literal("§a[Fisch] Выдано " + amount + " C$!"));
+
+                                // ИСПОЛЬЗУЕМ КЛЮЧ ПЕРЕВОДА
+                                context.getSource().sendSystemMessage(Component.translatable("command.fisch.addcoins.success", amount));
                                 return 1;
                             })));
 
-            // Команда /fishprice <цена>
+            // Команда /fishprice
             dispatcher.register(Commands.literal("fishprice")
                     .requires(source -> source.hasPermission(2))
                     .then(Commands.argument("price", IntegerArgumentType.integer(0))
@@ -54,15 +84,14 @@ public class ModCommands {
                                 ItemStack handItem = player.getMainHandItem();
 
                                 if (handItem.isEmpty()) {
-                                    context.getSource().sendFailure(Component.literal("§cВозьми рыбу в руку, чтобы установить на неё цену!"));
+                                    // ИСПОЛЬЗУЕМ КЛЮЧ ПЕРЕВОДА ДЛЯ ОШИБКИ
+                                    context.getSource().sendFailure(Component.translatable("command.fisch.fishprice.empty_hand"));
                                     return 0;
                                 }
 
-                                // Записываем новую цену в базу
                                 FISH_PRICES.put(handItem.getItem(), price);
-
-                                context.getSource().sendSystemMessage(Component.literal("§e[Fisch] Цена за " + handItem.getHoverName().getString() + " установлена: " + price + " C$"));
-
+                                // ИСПОЛЬЗУЕМ КЛЮЧ ПЕРЕВОДА С ДВУМЯ ПЕРЕМЕННЫМИ (название предмета и цена)
+                                context.getSource().sendSystemMessage(Component.translatable("command.fisch.fishprice.success", handItem.getHoverName().getString(), price));
                                 return 1;
                             })));
         });

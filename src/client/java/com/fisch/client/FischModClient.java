@@ -4,13 +4,14 @@ import com.fisch.FischMod;
 import com.fisch.client.hud.CoinHudOverlay;
 import com.fisch.client.model.FishMerchantModel;
 import com.fisch.client.renderer.CustomVillagerRenderer;
+import com.fisch.client.screen.BaitScreen;
 import com.fisch.client.screen.FishCatchScreen;
 import com.fisch.client.screen.FishMerchantScreen;
 import com.fisch.command.ModCommands;
 import com.fisch.item.ModItems;
 import com.fisch.registry.ModMenuTypes;
+import com.fisch.screen.ModScreenHandlers;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
@@ -35,11 +36,20 @@ public class FischModClient implements ClientModInitializer {
 
     public static final ResourceLocation FINISH_MINIGAME_PACKET =
             new ResourceLocation(MODID, "finish_minigame");
+
     @Override
     public void onInitializeClient() {
         registerCast(ModItems.ICE_ROD);
         registerCast(ModItems.SAND_ROD);
         registerCast(ModItems.JUNGLE_ROD);
+
+        MenuScreens.register(
+                ModScreenHandlers.BAIT_MENU,
+                BaitScreen::new
+        );
+
+        com.fisch.network.ModNetworkingClient.sendOpenBaitMenu();
+
 
         ClientPlayNetworking.registerGlobalReceiver(
                 FischMod.FISH_GUI_PACKET_ID,
@@ -74,34 +84,28 @@ public class FischModClient implements ClientModInitializer {
                 }
         );
 
-        // 1. САМОЕ ВАЖНОЕ ДЛЯ МЕНЮ: Связываем логику с интерфейсом!
+        // Связываем логику с интерфейсом
         MenuScreens.register(ModMenuTypes.FISH_MERCHANT_MENU, FishMerchantScreen::new);
 
         // Регистрируем 3D модель самого жителя-рыбака
         EntityModelLayerRegistry.registerModelLayer(FishMerchantModel.LAYER_LOCATION, FishMerchantModel::createBodyLayer);
 
-        // 2. Говорим игре использовать наш умный переключатель вместо стандартного рендера жителей
+        // Переключатель рендера жителей
         EntityRendererRegistry.register(EntityType.VILLAGER, CustomVillagerRenderer::new);
 
         // Регистрация 3D-модели одежды
         EntityModelLayerRegistry.registerModelLayer(FishMerchantClothesModel.LAYER_LOCATION, FishMerchantClothesModel::createBodyLayer);
 
-        // 3. Добавляем одежду к стандартному жителю
+        // Добавляем одежду к стандартному жителю
         LivingEntityFeatureRendererRegistrationCallback.EVENT.register((entityType, entityRenderer, registrationHelper, context) -> {
             if (entityType == EntityType.VILLAGER && entityRenderer instanceof VillagerRenderer villagerRenderer) {
                 registrationHelper.register(new FishMerchantLayer(villagerRenderer, context.getModelSet()));
             }
         });
 
-        // ==========================================
-        // ОТОБРАЖЕНИЕ ЦЕНЫ В ИНВЕНТАРЕ
-        // ==========================================
-        ItemTooltipCallback.EVENT.register((stack, context, lines) -> {
-            if (ModCommands.FISH_PRICES.containsKey(stack.getItem())) {
-                int price = ModCommands.FISH_PRICES.get(stack.getItem());
-                lines.add(Component.literal("§eЦена продажи: " + price + " C$"));
-            }
-        });
+        // ПРИМЕЧАНИЕ: ItemTooltipCallback (отображение цены при наведении) полностью удален!
+        //ДИМА НЕ НАДО ОНО НЕНАДОООООООООООООООООООООООООООООООООООООООООООООООООООООООООООООООООООО
+        //ГАНДОН
     }
     public static void registerCast(FishingRodItem rod){
         ItemProperties.register(

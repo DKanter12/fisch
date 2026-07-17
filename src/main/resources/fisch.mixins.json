@@ -5,7 +5,8 @@
 	"mixins": [
       "FischMixin",
       "FishingHookMixin",
-      "PlayerMixin"
+      "PlayerMixin",
+      "FishingRodItemMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

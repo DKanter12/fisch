@@ -1,9 +1,11 @@
 package com.fisch;
 
+import com.fisch.command.ModCommands;
 import com.fisch.events.ModEvents;
 import com.fisch.item.ModItems;
 import com.fisch.menu.FishMerchantMenu;
 import com.fisch.networking.ModPackets;
+import com.fisch.screen.ModScreenHandlers;
 import com.fisch.util.CurrencyHolder;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
@@ -34,8 +36,15 @@ public class FischMod implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        ModCommands.register();
         ModItems.register();
+
+        // --- РЕГИСТРАЦИЯ ВКЛАДКИ ДОЛЖНА БЫТЬ ЗДЕСЬ (при запуске мода) ---
+        com.fisch.item.ModCreativeTabs.register();
+
         ModEvents.register();
+        ModScreenHandlers.register();
+        ModPackets.register();
 
         try {
             Class.forName("com.fisch.registry.ModMenuTypes");
@@ -43,21 +52,20 @@ public class FischMod implements ModInitializer {
             e.printStackTrace();
         }
 
-        ModPackets.registerServerPackets();
+        ModPackets.register();
 
         UseEntityCallback.EVENT.register((player, level, hand, entity, hitResult) -> {
             if (entity instanceof Villager villager && villager.getVillagerData().getProfession() == VillagerProfession.FISHERMAN) {
                 if (!level.isClientSide) {
-
-                    // 1. МАГИЯ ЗДЕСЬ: Говорим жителю, что с ним торгуют.
-                    // Его ИИ сразу остановит его и заставит смотреть на игрока.
                     villager.setTradingPlayer(player);
+
+                    // УБРАНО: com.fisch.item.ModCreativeTabs.register(); отсюда!
 
                     SimpleContainer tempMerchantInventory = new SimpleContainer(27);
                     player.openMenu(new SimpleMenuProvider(
                             // 2. Обязательно передаём самого жителя в меню, чтобы знать, кого потом отпускать
                             (syncId, playerInv, p) -> new FishMerchantMenu(syncId, playerInv, tempMerchantInventory, villager),
-                            Component.literal("Рыботорговец")
+                            Component.translatable("container.fisch.fish_merchant")
                     ));
                 }
                 return InteractionResult.SUCCESS;
@@ -74,7 +82,7 @@ public class FischMod implements ModInitializer {
             ((CurrencyHolder) newPlayer).setMoney(currentMoney);
             ModPackets.syncMoney(newPlayer);
         });
-    
+
         ServerPlayNetworking.registerGlobalReceiver(
                 FINISH_MINIGAME_PACKET_ID,
                 (server, player, handler, buf, responseSender) -> {
@@ -82,11 +90,9 @@ public class FischMod implements ModInitializer {
                     boolean success = buf.readBoolean();
 
                     server.execute(() -> {
-
                         if (player.fishing instanceof FishingHookDuck duck) {
                             duck.finishMiniGame(success);
                         }
-
                     });
                 }
         );

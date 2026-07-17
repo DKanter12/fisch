@@ -13,7 +13,11 @@ import net.minecraft.world.entity.player.Inventory;
 
 public class FishMerchantScreen extends AbstractContainerScreen<FishMerchantMenu> {
     private static final ResourceLocation BACKGROUND_TEXTURE = new ResourceLocation("textures/gui/container/shulker_box.png");
-    private String priceEstimationText = "";
+
+    // Сделали компонентом для поддержки локализации
+    private Component priceEstimationText = Component.empty();
+    private boolean isSold = false; // Флаг, чтобы отслеживать нажатие кнопки продажи
+
     private Button sellAllButton;
     private Button checkPriceButton;
 
@@ -30,25 +34,28 @@ public class FishMerchantScreen extends AbstractContainerScreen<FishMerchantMenu
         int btnHeight = 20;
         int buttonsY = this.imageHeight + 4;
 
-        this.sellAllButton = this.addRenderableWidget(Button.builder(Component.literal("Продать"), button -> {
+        // КНОПКА "ПРОДАТЬ"
+        this.sellAllButton = this.addRenderableWidget(Button.builder(Component.translatable("gui.fisch.merchant.sell"), button -> {
             ClientPlayNetworking.send(ModPackets.SELL_ITEMS_C2S, PacketByteBufs.create());
-            this.priceEstimationText = "Продано!";
+            this.priceEstimationText = Component.translatable("gui.fisch.merchant.sold");
+            this.isSold = true;
         }).bounds(this.leftPos + 6, this.topPos + buttonsY, btnWidth, btnHeight).build());
 
-        this.addRenderableWidget(Button.builder(Component.literal("Закрыть"), button -> {
+        // КНОПКА "ЗАКРЫТЬ"
+        this.addRenderableWidget(Button.builder(Component.translatable("gui.fisch.merchant.close"), button -> {
             this.onClose();
         }).bounds(this.leftPos + 61, this.topPos + buttonsY, btnWidth, btnHeight).build());
 
-        this.checkPriceButton = this.addRenderableWidget(Button.builder(Component.literal("Цена"), button -> {
-            checkFishPrice(); // Вызываем проверку цены по клику
+        // КНОПКА "ЦЕНА"
+        this.checkPriceButton = this.addRenderableWidget(Button.builder(Component.translatable("gui.fisch.merchant.price"), button -> {
+            checkFishPrice();
         }).bounds(this.leftPos + 116, this.topPos + buttonsY, btnWidth, btnHeight).build());
     }
 
     private void checkFishPrice() {
-        // МАГИЯ ЗДЕСЬ: Мы забираем готовую сумму, которую для нас посчитал сервер в DataSlot.
-        // Если предмету не задали цену командой, getTotalPrice() вернет 0, и мы так и напишем!
         int totalValue = this.menu.getTotalPrice();
-        this.priceEstimationText = totalValue + " C$";
+        this.priceEstimationText = Component.literal(totalValue + " C$");
+        this.isSold = false;
     }
 
     @Override
@@ -63,7 +70,10 @@ public class FishMerchantScreen extends AbstractContainerScreen<FishMerchantMenu
         }
         this.sellAllButton.active = hasItems;
         this.checkPriceButton.active = hasItems;
-        if (!hasItems && !this.priceEstimationText.equals("Продано!")) this.priceEstimationText = "";
+
+        if (!hasItems && !this.isSold) {
+            this.priceEstimationText = Component.empty();
+        }
     }
 
     @Override
@@ -80,17 +90,15 @@ public class FishMerchantScreen extends AbstractContainerScreen<FishMerchantMenu
 
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        // Отрисовка названий «Рыботорговец» и «Инвентарь» стандартным тёмно-серым цветом
         guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
         guiGraphics.drawString(this.font, this.playerInventoryTitle, this.inventoryLabelX, this.inventoryLabelY, 4210752, false);
 
-        // Отрисовка цены (срабатывает только после нажатия на кнопку "Цена", когда строка не пустая)
-        if (!priceEstimationText.isEmpty()) {
+        if (!priceEstimationText.getString().isEmpty()) {
             int titleWidth = this.font.width(this.title);
             int priceX = this.titleLabelX + titleWidth + 5;
 
-            // ВЕРНУЛИ ТВОЙ ЦВЕТ: 0x00AA00 (тёмно-зелёный)
-            guiGraphics.drawString(this.font, "➔ " + this.priceEstimationText, priceX, this.titleLabelY, 0x00AA00, false);
+            Component fullText = Component.literal("➔ ").append(this.priceEstimationText);
+            guiGraphics.drawString(this.font, fullText, priceX, this.titleLabelY, 0x00AA00, false);
         }
     }
 }
