@@ -12,7 +12,6 @@ import java.util.List;
 
 public class ModItems {
     public static final NewRod TEST_FISHING_ROD = (NewRod) registerItem("test_rod", new NewRod(new Item.Properties(), 10f, 0.3f, 1f));
-    public static final NewFish TEST_FISH = (NewFish) registerItem("test_fish", new NewFish(new Item.Properties(), "test_fish", 8, 1, 10, "none", "clear", "day", "plain"));
 
     public static final Item BUG_NET = registerItem("bug_net", new BugNetItem(new Item.Properties().durability(64)));
     public static final Item FISHING_BUG = registerItem("fishing_bug", new FishingBugItem(new Item.Properties()));
@@ -102,7 +101,7 @@ public class ModItems {
     public static final NewFish[] ALL_FISH;
 
     static {
-        FISH_LIST.add(TEST_FISH);
+        // Убрали добавление TEST_FISH
         ALL_FISH = FISH_LIST.toArray(new NewFish[0]);
     }
 
