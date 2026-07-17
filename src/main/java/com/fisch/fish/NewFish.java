@@ -40,8 +40,8 @@ public class NewFish extends Item {
             case 7 -> ChatFormatting.GREEN;       // Uncommon
             case 6 -> ChatFormatting.DARK_AQUA;   // Unusual
             case 5 -> ChatFormatting.LIGHT_PURPLE;// Rare
-            case 4 -> ChatFormatting.RED;      // миф
-            case 3 -> ChatFormatting.YELLOW;         // лег
+            case 4 -> ChatFormatting.YELLOW;      // лег
+            case 3 -> ChatFormatting.RED;         // миф
             case 2, 1 -> ChatFormatting.DARK_RED;     // Exotic)
             default -> ChatFormatting.WHITE;
         };

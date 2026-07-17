@@ -5,6 +5,7 @@ import com.fisch.events.ModEvents;
 import com.fisch.item.ModItems;
 import com.fisch.menu.FishMerchantMenu;
 import com.fisch.networking.ModPackets;
+import com.fisch.screen.ModScreenHandlers;
 import com.fisch.util.CurrencyHolder;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
@@ -38,6 +39,8 @@ public class FischMod implements ModInitializer {
         ModCommands.register();
         ModItems.register();
         ModEvents.register();
+        ModScreenHandlers.register();
+        ModPackets.register();
 
         try {
             Class.forName("com.fisch.registry.ModMenuTypes");
@@ -45,14 +48,11 @@ public class FischMod implements ModInitializer {
             e.printStackTrace();
         }
 
-        ModPackets.registerServerPackets();
+        ModPackets.register();
 
         UseEntityCallback.EVENT.register((player, level, hand, entity, hitResult) -> {
             if (entity instanceof Villager villager && villager.getVillagerData().getProfession() == VillagerProfession.FISHERMAN) {
                 if (!level.isClientSide) {
-
-                    // 1. МАГИЯ ЗДЕСЬ: Говорим жителю, что с ним торгуют.
-                    // Его ИИ сразу остановит его и заставит смотреть на игрока.
                     villager.setTradingPlayer(player);
 
                     SimpleContainer tempMerchantInventory = new SimpleContainer(27);

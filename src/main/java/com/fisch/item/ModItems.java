@@ -10,6 +10,9 @@ import net.minecraft.world.item.Item;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.fisch.FischMod.MODID;
+import static net.minecraft.world.item.Items.registerItem;
+
 public class ModItems {
     public static final NewRod TEST_FISHING_ROD = (NewRod) registerItem("test_rod", new NewRod(new Item.Properties(), 10f, 0.3f, 1f));
     public static final NewFish TEST_FISH = (NewFish) registerItem("test_fish", new NewFish(new Item.Properties(), "test_fish", 8, 1, 10, "none", "clear", "day", "plain"));
@@ -19,6 +22,12 @@ public class ModItems {
     public static final Item WORM = registerItem("worm_bait", new Bait(new Item.Properties(), 0.01f, 0.01f));
 
     private static final List<NewFish> FISH_LIST = new ArrayList<>();
+    public static final NewFish[] DESERT_FISH;
+    public static final NewFish[] ICE_FISH;
+    public static final NewFish[] JUNGLE_FISH;
+    public static final NewFish[] PLAIN_FISH;
+    public static final NewFish[] JUNK_FISH;
+    public static NewFish[] ALL_FISH;
 
     // ==========================================
     // ПУСТЫННЫЕ РЫБЫ (10 штук) - "desert"
@@ -99,8 +108,69 @@ public class ModItems {
     public static final NewFish IRON_SCRAP = registerFish("iron_scrap", 10, 100, 1000, "none", "clear", "day", "junk");
     public static final NewFish OLD_BOOT = registerFish("old_boot", 10, 500, 1500, "none", "clear", "day", "junk");
 
-    public static final NewFish[] ALL_FISH;
 
+    static {
+
+        DESERT_FISH = List.of(
+                SAND_GLIDER, DUNE_GUPPY, MIRAGE_FIN,
+                CACTUS_SPIKE, OASIS_SHIMMER, DUST_DEVIL_EEL,
+                SCARAOH, PHARAOH_BASS, SUN_SERPENT,
+                GLASS_DUNE_PIERCER
+        ).toArray(new NewFish[0]);
+
+        ICE_FISH = List.of(
+                FROST_MINNOW, SHIVER_TAIL, GLACIER_PERCH,
+                AURORA_TETRA, ICICLE_PIKE, SNOWBALL_PUFFER,
+                DEEP_FROST_COD, BLIZZARD_VORTEX, CRYO_CRAB,
+                FROSTBITE_SNAPPER, PERMAFROST_GOLIATH,
+                ICE_SCULPTURE_KOI, WINTER_SPIRIT, ABSOLUTE_ZERO
+        ).toArray(new NewFish[0]);
+
+        JUNGLE_FISH = List.of(
+                BAMBOO_BORER, MUD_CRAWLER, CANOPY_FLYER,
+                ORCHID_GUPPY, VINE_CONSTRICTOR_EEL, PIRANHA_KING,
+                JAGUAR_CATFISH, VENOM_FANG, ACID_DISCUS,
+                SWAMP_LURKER, ANCIENT_TOTEM_FISH, JUNGLE_HEART_CARP,
+                TEMPLE_GUARDIAN_EEL, FEATHERED_SERPENT,
+                SPIRIT_OF_THE_CANOPY, PREDATOR_PRIME
+        ).toArray(new NewFish[0]);
+
+        PLAIN_FISH = List.of(
+                RIVER_MINNOW, POND_LOACH, GRASSY_CARP,
+                MUD_GUDGEON, OAK_LEAF_TAIL, BIRCH_BAR_DACE,
+                CLOVER_FISH, APPLE_CHEEK_GUPPY, DANDELION_FLOAT,
+                CHERRY_BLOSSOM_KOI, MOSS_BACK_TROUT, RAINBOW_TROUT,
+                AMBER_EYE_PERCH, FOREST_SPIRIT_MONARCH,
+                WHISPERING_WILLOW_EEL, NATURE_INCARNATE
+        ).toArray(new NewFish[0]);
+
+        JUNK_FISH = new NewFish[]{
+                SEAWEED, IRON_SCRAP, OLD_BOOT
+        };
+        ALL_FISH = new NewFish[]{
+                SAND_GLIDER, DUNE_GUPPY, MIRAGE_FIN,
+                CACTUS_SPIKE, OASIS_SHIMMER, DUST_DEVIL_EEL,
+                SCARAOH, PHARAOH_BASS, SUN_SERPENT,
+                GLASS_DUNE_PIERCER, FROST_MINNOW, SHIVER_TAIL,
+                GLACIER_PERCH, AURORA_TETRA, ICICLE_PIKE,
+                SNOWBALL_PUFFER, DEEP_FROST_COD, BLIZZARD_VORTEX,
+                CRYO_CRAB, FROSTBITE_SNAPPER, PERMAFROST_GOLIATH,
+                ICE_SCULPTURE_KOI, WINTER_SPIRIT, ABSOLUTE_ZERO,
+                BAMBOO_BORER, MUD_CRAWLER, CANOPY_FLYER,
+                ORCHID_GUPPY, VINE_CONSTRICTOR_EEL, PIRANHA_KING,
+                JAGUAR_CATFISH, VENOM_FANG, ACID_DISCUS,
+                SWAMP_LURKER, ANCIENT_TOTEM_FISH, JUNGLE_HEART_CARP,
+                TEMPLE_GUARDIAN_EEL, FEATHERED_SERPENT,
+                SPIRIT_OF_THE_CANOPY, PREDATOR_PRIME,
+                RIVER_MINNOW, POND_LOACH, GRASSY_CARP,
+                MUD_GUDGEON, OAK_LEAF_TAIL, BIRCH_BAR_DACE,
+                CLOVER_FISH, APPLE_CHEEK_GUPPY, DANDELION_FLOAT,
+                CHERRY_BLOSSOM_KOI, MOSS_BACK_TROUT, RAINBOW_TROUT,
+                AMBER_EYE_PERCH, FOREST_SPIRIT_MONARCH,
+                WHISPERING_WILLOW_EEL, NATURE_INCARNATE,
+                SEAWEED, IRON_SCRAP, OLD_BOOT
+           };
+        }
     static {
         FISH_LIST.add(TEST_FISH);
         ALL_FISH = FISH_LIST.toArray(new NewFish[0]);
@@ -115,11 +185,12 @@ public class ModItems {
     private static Item registerItem(String name, Item item) {
         return Registry.register(
                 BuiltInRegistries.ITEM,
-                new ResourceLocation("fisch", name),
+                ResourceLocation.tryParse(MODID + ":" + name),
                 item
         );
     }
 
     public static void register() {
+
     }
 }

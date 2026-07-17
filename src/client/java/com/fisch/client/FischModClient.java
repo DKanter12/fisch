@@ -4,10 +4,12 @@ import com.fisch.FischMod;
 import com.fisch.client.hud.CoinHudOverlay;
 import com.fisch.client.model.FishMerchantModel;
 import com.fisch.client.renderer.CustomVillagerRenderer;
+import com.fisch.client.screen.BaitScreen;
 import com.fisch.client.screen.FishCatchScreen;
 import com.fisch.client.screen.FishMerchantScreen;
 import com.fisch.command.ModCommands;
 import com.fisch.registry.ModMenuTypes;
+import com.fisch.screen.ModScreenHandlers;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
@@ -30,6 +32,14 @@ public class FischModClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+
+        MenuScreens.register(
+                ModScreenHandlers.BAIT_MENU,
+                BaitScreen::new
+        );
+
+        com.fisch.network.ModNetworkingClient.sendOpenBaitMenu();
+
 
         ClientPlayNetworking.registerGlobalReceiver(
                 FischMod.FISH_GUI_PACKET_ID,

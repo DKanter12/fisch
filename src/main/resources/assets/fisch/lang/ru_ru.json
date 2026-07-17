@@ -72,5 +72,9 @@
   "item.fisch.amber_eye_perch": "Янтарноглазый окунь",
   "item.fisch.forest_spirit_monarch": "Лесной монарх",
   "item.fisch.whispering_willow_eel": "Ивовый шепчущий угорь",
-  "item.fisch.nature_incarnate": "Воплощение природы"
+  "item.fisch.nature_incarnate": "Воплощение природы",
+  "message.fisch.need_bait": "Нужна приманка!",
+  "message.fisch.bait_selected": "Приманка выбрана",
+  "screen.fisch.bait_menu": "Насадка на удочку",
+  "screen.fisch.bait": "Приманка"
 }
