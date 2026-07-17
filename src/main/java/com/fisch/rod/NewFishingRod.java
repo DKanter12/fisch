@@ -3,6 +3,8 @@ package com.fisch.rod;
 import com.fisch.FischMod;
 import com.fisch.item.Bait;
 import com.fisch.screen.BaitScreenHandler;
+
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -15,161 +17,292 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.FishingHook;
 import net.minecraft.world.item.FishingRodItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
-import org.jetbrains.annotations.NotNull;
 
-public class NewRod extends FishingRodItem {
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
+
+
+public class NewFishingRod
+        extends FishingRodItem {
+
 
     private final float luck;
+
     private final float control;
+
     private final float resilience;
 
-    public NewRod(
+
+    public NewFishingRod(
             Properties properties,
             float luck,
             float control,
             float resilience
     ) {
+
         super(properties);
 
-        this.luck = luck;
-        this.control = control;
-        this.resilience = resilience;
+        this.luck =
+                luck;
+
+        this.control =
+                control;
+
+        this.resilience =
+                resilience;
     }
+
 
     @Override
     public @NotNull InteractionResultHolder<ItemStack> use(
             Level level,
             Player player,
-            InteractionHand interactionHand
+            InteractionHand hand
     ) {
-        FischMod.LOGGER.info("EFJFE4PIO");
 
         ItemStack itemStack =
-                player.getItemInHand(interactionHand);
+                player.getItemInHand(hand);
+
 
         /*
+         * =====================================================
          * SHIFT + ПКМ
-         * Открываем меню приманки
+         *
+         * ОТКРЫВАЕМ МЕНЮ ПРИМАНКИ
+         * =====================================================
          */
 
+        if (
+                player.isCrouching()
+                        &&
+                        player.fishing == null
+        ) {
 
-        int i;
+            if (
+                    !level.isClientSide
+                            &&
+                            player instanceof ServerPlayer serverPlayer
+            ) {
 
-        /*
-         * Если поплавок уже заброшен —
-         * забираем его
-         */
-        if (player.fishing != null) {
+                serverPlayer.openMenu(
+                        new SimpleMenuProvider(
 
-            if (!level.isClientSide) {
+                                (
+                                        containerId,
+                                        inventory,
+                                        playerEntity
+                                ) ->
+                                        new BaitScreenHandler(
+                                                containerId,
+                                                inventory
+                                        ),
 
-                i =
-                        player.fishing.retrieve(
-                                itemStack
-                        );
-
-                itemStack.hurtAndBreak(
-                        i,
-                        player,
-                        p ->
-                                p.broadcastBreakEvent(
-                                        interactionHand
+                                Component.translatable(
+                                        "screen.fisch.bait_menu"
                                 )
-                );
-            }
-
-            level.playSound(
-                    null,
-                    player.getX(),
-                    player.getY(),
-                    player.getZ(),
-                    SoundEvents.FISHING_BOBBER_RETRIEVE,
-                    SoundSource.NEUTRAL,
-                    1.0F,
-                    0.4F /
-                            (
-                                    level.getRandom()
-                                            .nextFloat()
-                                            * 0.4F
-                                            + 0.8F
-                            )
-            );
-
-            player.gameEvent(
-                    GameEvent.ITEM_INTERACT_FINISH
-            );
-        }
-
-        /*
-         * Забрасываем удочку
-         */
-        else {
-
-            ItemStack rightHand =
-                    player.getMainHandItem();
-
-            /*
-             * Пока оставляем твою старую проверку
-             */
-            if (!(rightHand.getItem() instanceof Bait)) {
-
-                return InteractionResultHolder.fail(
-                        itemStack
-                );
-            }
-
-            level.playSound(
-                    null,
-                    player.getX(),
-                    player.getY(),
-                    player.getZ(),
-                    SoundEvents.FISHING_BOBBER_THROW,
-                    SoundSource.NEUTRAL,
-                    0.5F,
-                    0.4F /
-                            (
-                                    level.getRandom()
-                                            .nextFloat()
-                                            * 0.4F
-                                            + 0.8F
-                            )
-            );
-
-            if (!level.isClientSide) {
-
-                i =
-                        EnchantmentHelper
-                                .getFishingSpeedBonus(
-                                        itemStack
-                                );
-
-                int j =
-                        EnchantmentHelper
-                                .getFishingLuckBonus(
-                                        itemStack
-                                );
-
-                level.addFreshEntity(
-                        new FishingHook(
-                                player,
-                                level,
-                                j,
-                                i
                         )
                 );
             }
 
-            player.awardStat(
-                    Stats.ITEM_USED.get(this)
-            );
 
-            player.gameEvent(
-                    GameEvent.ITEM_INTERACT_START
+            return InteractionResultHolder.sidedSuccess(
+                    itemStack,
+                    level.isClientSide()
             );
         }
+
+
+        /*
+         * =====================================================
+         * ЕСЛИ ПОПЛАВОК УЖЕ ЗАБРОШЕН
+         *
+         * ЗАБИРАЕМ ЕГО
+         * =====================================================
+         */
+
+        if (
+                player.fishing != null
+        ) {
+
+            int damage =
+                    0;
+
+
+            if (
+                    !level.isClientSide
+            ) {
+
+                damage =
+                        player.fishing.retrieve(
+                                itemStack
+                        );
+
+
+                itemStack.hurtAndBreak(
+                        damage,
+                        player,
+
+                        p ->
+                                p.broadcastBreakEvent(
+                                        hand
+                                )
+                );
+            }
+
+
+            level.playSound(
+                    null,
+
+                    player.getX(),
+                    player.getY(),
+                    player.getZ(),
+
+                    SoundEvents.FISHING_BOBBER_RETRIEVE,
+
+                    SoundSource.NEUTRAL,
+
+                    1.0F,
+
+                    0.4F /
+                            (
+                                    level.getRandom()
+                                            .nextFloat()
+                                            * 0.4F
+                                            + 0.8F
+                            )
+            );
+
+
+            player.gameEvent(
+                    GameEvent.ITEM_INTERACT_FINISH
+            );
+
+
+            return InteractionResultHolder.sidedSuccess(
+                    itemStack,
+                    level.isClientSide()
+            );
+        }
+
+
+        /*
+         * =====================================================
+         * ПРОВЕРКА ПРИМАНКИ
+         *
+         * УДОЧКА НЕ ЗАБРОСИТСЯ,
+         * ЕСЛИ В ЕЁ СЛОТЕ НЕТ ПРИМАНКИ
+         * =====================================================
+         */
+
+        ItemStack bait =
+                RodBaitData.getBait(
+                        itemStack
+                );
+
+
+        if (
+                bait.isEmpty()
+        ) {
+
+            if (
+                    level.isClientSide
+            ) {
+
+                player.displayClientMessage(
+
+                        Component.translatable(
+                                        "message.fisch.need_bait"
+                                )
+                                .withStyle(
+                                        ChatFormatting.RED
+                                ),
+
+                        true
+                );
+            }
+
+
+            return InteractionResultHolder.fail(
+                    itemStack
+            );
+        }
+
+
+        /*
+         * =====================================================
+         * ЗАБРАСЫВАЕМ УДОЧКУ
+         * =====================================================
+         */
+
+        level.playSound(
+                null,
+
+                player.getX(),
+                player.getY(),
+                player.getZ(),
+
+                SoundEvents.FISHING_BOBBER_THROW,
+
+                SoundSource.NEUTRAL,
+
+                0.5F,
+
+                0.4F /
+                        (
+                                level.getRandom()
+                                        .nextFloat()
+                                        * 0.4F
+                                        + 0.8F
+                        )
+        );
+
+
+        if (
+                !level.isClientSide
+        ) {
+
+            int luckBonus =
+                    EnchantmentHelper
+                            .getFishingLuckBonus(
+                                    itemStack
+                            );
+
+
+            int speedBonus =
+                    EnchantmentHelper
+                            .getFishingSpeedBonus(
+                                    itemStack
+                            );
+
+
+            level.addFreshEntity(
+                    new FishingHook(
+                            player,
+                            level,
+                            luckBonus,
+                            speedBonus
+                    )
+            );
+        }
+
+
+        player.awardStat(
+                Stats.ITEM_USED.get(
+                        this
+                )
+        );
+
+
+        player.gameEvent(
+                GameEvent.ITEM_INTERACT_START
+        );
+
 
         return InteractionResultHolder.sidedSuccess(
                 itemStack,
@@ -177,34 +310,85 @@ public class NewRod extends FishingRodItem {
         );
     }
 
+    @Override
+    public void appendHoverText(
+            ItemStack stack,
+            @Nullable Level level,
+            List<Component> tooltip,
+            TooltipFlag flag
+    ) {
+        tooltip.add(Component.literal(""));
+
+        tooltip.add(Component.literal("Luck: " + (int) this.luck + "%")
+                .withStyle(ChatFormatting.GOLD));
+
+        tooltip.add(Component.literal("Control: " + this.control)
+                .withStyle(ChatFormatting.AQUA));
+
+        tooltip.add(Component.literal("Resilience: " + (int) (this.resilience * 100)  + "%")
+                .withStyle(ChatFormatting.GREEN));
+
+        super.appendHoverText(stack, level, tooltip, flag);
+    }
+
+
+    /*
+     * =====================================================
+     * GETTERS
+     * =====================================================
+     */
+
     public float getLuck() {
+
         return luck;
     }
 
+
     public float getControl() {
+
         return control;
     }
 
+
     public float getResilience() {
+
         return resilience;
     }
+
+
+    /*
+     * =====================================================
+     * RESILIENCE
+     * =====================================================
+     */
 
     public static float getResilienceMultiplier(
             float resilience
     ) {
 
-        float min = 0.01f;
-        float max = 1.0f;
+        float min =
+                0.01F;
+
+        float max =
+                1.0F;
+
 
         resilience =
                 Math.max(
                         min,
+
                         Math.min(
                                 max,
                                 resilience
                         )
                 );
 
-        return 1.0f - resilience * 0.5f;
+
+        return 1.0F -
+                resilience *
+                        0.5F;
     }
+
+
+
 }

@@ -1,7 +1,7 @@
 package com.fisch.item;
 
 import com.fisch.fish.NewFish;
-import com.fisch.rod.NewRod;
+import com.fisch.rod.NewFishingRod;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -14,12 +14,15 @@ import static com.fisch.FischMod.MODID;
 import static net.minecraft.world.item.Items.registerItem;
 
 public class ModItems {
-    public static final NewRod TEST_FISHING_ROD = (NewRod) registerItem("test_rod", new NewRod(new Item.Properties(), 10f, 0.3f, 1f));
     public static final NewFish TEST_FISH = (NewFish) registerItem("test_fish", new NewFish(new Item.Properties(), "test_fish", 8, 1, 10, "none", "clear", "day", "plain"));
 
     public static final Item BUG_NET = registerItem("bug_net", new BugNetItem(new Item.Properties().durability(64)));
     public static final Item FISHING_BUG = registerItem("fishing_bug", new FishingBugItem(new Item.Properties()));
     public static final Item WORM = registerItem("worm_bait", new Bait(new Item.Properties(), 0.01f, 0.01f));
+
+    public static final NewFishingRod ICE_ROD = (NewFishingRod) registerItem("ice_rod", new NewFishingRod(new Item.Properties().stacksTo(1), 15f, 0.01f, 0.10f));
+    public static final NewFishingRod SAND_ROD = (NewFishingRod) registerItem("sand_rod", new NewFishingRod(new Item.Properties().stacksTo(1), 25f, 0.05f, 0.10f));
+    public static final NewFishingRod JUNGLE_ROD = (NewFishingRod) registerItem("jungle_rod", new NewFishingRod(new Item.Properties().stacksTo(1), 35f, 0.05f, 0.3f));
 
     private static final List<NewFish> FISH_LIST = new ArrayList<>();
     public static final NewFish[] DESERT_FISH;

@@ -1,7 +1,7 @@
 package com.fisch.mixin;
 
 import com.fisch.item.Bait;
-import com.fisch.rod.NewRod;
+import com.fisch.rod.NewFishingRod;
 import com.fisch.rod.RodBaitData;
 import com.fisch.screen.BaitScreenHandler;
 import com.fisch.screen.RodBaitContainer;
@@ -37,7 +37,7 @@ public class FishingRodItemMixin {
         ItemStack heldItem = player.getItemInHand(hand);
 
         // Работает только для нашей кастомной удочки NewRod
-        if (!(heldItem.getItem() instanceof NewRod) && !(heldItem.getItem() instanceof FishingRodItem)) {
+        if (!(heldItem.getItem() instanceof NewFishingRod) && !(heldItem.getItem() instanceof FishingRodItem)) {
             return;
         }
 
