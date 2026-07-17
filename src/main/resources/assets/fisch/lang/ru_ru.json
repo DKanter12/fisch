@@ -5,7 +5,13 @@
   "item.fisch.worm_bait": "Червяк приманка",
   "item.fisch.ice_rod": "Ледяная удочка",
   "item.fisch.sand_rod": "Песчанная удочка",
-  "item.fisch.jungle_rod": "Джунглевая удочка"
+  "item.fisch.jungle_rod": "Джунглевая удочка",
+  "gui.fisch.buy_rod": "Купить удочку",
+  "gui.fisch.shop_title": "Магазин удочек",
+  "itemGroup.fisch.fisch_tab": "Рыбы",
+  "itemGroup.fisch.rods_tab": "Удочки и Приманки",
+  "gui.fisch.balance": "Баланс: %s C$"
+
 
 
 

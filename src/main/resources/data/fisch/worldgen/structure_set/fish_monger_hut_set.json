@@ -1,0 +1,15 @@
+{
+  "structures": [
+    {
+      "structure": "fisch:fish_monger_hut",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "spacing": 35,
+    "separation": 12,
+    "salt": 14357892,
+    "frequency_modifier": 0.2
+  }
+}
