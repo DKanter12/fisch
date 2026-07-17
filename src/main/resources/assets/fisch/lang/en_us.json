@@ -8,5 +8,7 @@
   "item.fisch.jungle_rod": "Jungle Rod",
   "gui.fisch.buy_rod": "Buy Fishing Rod",
   "gui.fisch.shop_title": "Rod Shop",
+  "itemGroup.fisch.fisch_tab": "Fishes",
+  "itemGroup.fisch.rods_tab": "Rods & Baits",
   "gui.fisch.balance": "Balance: %s C$"
 }
