@@ -31,18 +31,18 @@ public class FishMerchantScreen extends AbstractContainerScreen<FishMerchantMenu
         int buttonsY = this.imageHeight + 4; // Координата Y для первого ряда кнопок
 
         // Кнопка "Продать"
-        this.sellAllButton = this.addRenderableWidget(Button.builder(Component.literal("Продать"), button -> {
+        this.sellAllButton = this.addRenderableWidget(Button.builder(Component.translatable("gui.fisch.merchant.sell"), button -> {
             ClientPlayNetworking.send(ModPackets.SELL_ITEMS_C2S, PacketByteBufs.create());
-            this.priceEstimationText = "Продано!";
+            this.priceEstimationText = Component.translatable("gui.fisch.merchant.sold").getString();
         }).bounds(this.leftPos + 6, this.topPos + buttonsY, btnWidth, btnHeight).build());
 
         // Кнопка "Закрыть"
-        this.addRenderableWidget(Button.builder(Component.literal("Закрыть"), button -> {
+        this.addRenderableWidget(Button.builder(Component.translatable("gui.fisch.merchant.close"), button -> {
             this.onClose();
         }).bounds(this.leftPos + 61, this.topPos + buttonsY, btnWidth, btnHeight).build());
 
         // Кнопка "Цена"
-        this.checkPriceButton = this.addRenderableWidget(Button.builder(Component.literal("Цена"), button -> {
+        this.checkPriceButton = this.addRenderableWidget(Button.builder(Component.translatable("gui.fisch.merchant.price"), button -> {
             checkFishPrice(); // Вызываем проверку цены по клику
         }).bounds(this.leftPos + 116, this.topPos + buttonsY, btnWidth, btnHeight).build());
     }
@@ -65,7 +65,7 @@ public class FishMerchantScreen extends AbstractContainerScreen<FishMerchantMenu
         }
         this.sellAllButton.active = hasItems;
         this.checkPriceButton.active = hasItems;
-        if (!hasItems && !this.priceEstimationText.equals("Продано!")) this.priceEstimationText = "";
+        if (!hasItems && !this.priceEstimationText.equals("gui.fisch.merchant.sold")) this.priceEstimationText = "";
     }
 
     @Override

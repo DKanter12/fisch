@@ -4,6 +4,7 @@ import com.fisch.command.ModCommands;
 import com.fisch.registry.ModMenuTypes;
 
 import net.minecraft.world.Container;
+import net.minecraft.world.Containers;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Inventory;
@@ -299,31 +300,17 @@ public class FishMerchantMenu extends AbstractContainerMenu {
      */
 
     @Override
-    public void removed(
-            Player player
-    ) {
-
+    public void removed(Player player) {
         super.removed(player);
 
-
-        this.container.stopOpen(
-                player
-        );
-
-
-        /*
-         * Отпускаем жителя
-         */
-
-        if (
-                this.merchant != null
-                        &&
-                        !player.level().isClientSide
-        ) {
-
-            this.merchant.setTradingPlayer(
-                    null
+        if (!player.level().isClientSide) {
+            Containers.dropContents(
+                    player.level(),
+                    player,
+                    this.getMerchantInventory()
             );
         }
     }
+
+
 }

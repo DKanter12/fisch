@@ -189,15 +189,6 @@ public class  FishCatchScreen extends Screen {
         );
 
 
-
-        g.drawString(
-                this.font,
-                "Catch: " + fishName.replace("_",  " "),
-                barX,
-                barY - 15,
-                getRarityColor(rarity)
-        );
-
         int progressWidth = 100;
         int progressHeight = 4;
 

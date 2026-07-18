@@ -12,6 +12,8 @@ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundSetActionBarTextPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -36,40 +38,20 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(FishingHook.class)
-public abstract class FishingHookMixin
-        implements FishingHookDuck {
+public abstract class FishingHookMixin implements FishingHookDuck {
 
-    /*
-     * Владелец поплавка
-     */
     @Shadow
     public abstract Player getPlayerOwner();
 
-
-    /*
-     * Ванильный таймер поклёвки
-     */
     @Shadow
     private int nibble;
 
-
-    /*
-     * Рыба, которая будет поймана
-     */
     @Unique
     private NewFish fisch$customCatch;
 
-
-    /*
-     * Идёт ли сейчас мини-игра
-     */
     @Unique
     private boolean fisch$isBiting;
 
-
-    /*
-     * Логгер
-     */
     @Unique
     private static final Logger fisch$LOGGER =
             LoggerFactory.getLogger("FischMod");
@@ -77,24 +59,18 @@ public abstract class FishingHookMixin
 
     /*
      * =========================================================
-     * CUSTOM FISH
+     * CUSTOM CATCH
      * =========================================================
      */
 
     @Override
     public NewFish getCustomCatch() {
-
         return this.fisch$customCatch;
     }
 
-
     @Override
-    public void setCustomCatch(
-            NewFish fish
-    ) {
-
-        this.fisch$customCatch =
-                fish;
+    public void setCustomCatch(NewFish fish) {
+        this.fisch$customCatch = fish;
     }
 
 
@@ -117,11 +93,8 @@ public abstract class FishingHookMixin
             ItemStack stack,
             Item item
     ) {
-
         if (item == Items.FISHING_ROD) {
-
-            return stack.getItem()
-                    instanceof FishingRodItem;
+            return stack.getItem() instanceof FishingRodItem;
         }
 
         return stack.is(item);
@@ -131,7 +104,6 @@ public abstract class FishingHookMixin
     /*
      * =========================================================
      * ОТКЛЮЧАЕМ ВАНИЛЬНУЮ РЫБАЛКУ
-     * ВО ВРЕМЯ МИНИ-ИГРЫ
      * =========================================================
      */
 
@@ -142,9 +114,7 @@ public abstract class FishingHookMixin
     private void disableVanillaFishingDuringMiniGame(
             CallbackInfo ci
     ) {
-
         if (this.fisch$isBiting) {
-
             this.nibble = 0;
         }
     }
@@ -169,41 +139,33 @@ public abstract class FishingHookMixin
     private void onBiteStart(
             CallbackInfo ci
     ) {
-
         FishingHook hook =
                 (FishingHook) (Object) this;
 
 
         /*
-         * Только сервер
+         * Работаем только на сервере
          */
-        if (
-                hook.level()
-                        .isClientSide()
-        ) {
 
+        if (hook.level().isClientSide()) {
             return;
         }
 
 
         /*
-         * Если поклёвки нет
+         * Поклёвки нет
          */
-        if (
-                this.nibble <= 0
-        ) {
 
+        if (this.nibble <= 0) {
             return;
         }
 
 
         /*
-         * Если мини-игра уже идёт
+         * Мини-игра уже запущена
          */
-        if (
-                this.fisch$isBiting
-        ) {
 
+        if (this.fisch$isBiting) {
             return;
         }
 
@@ -212,41 +174,32 @@ public abstract class FishingHookMixin
                 this.getPlayerOwner();
 
 
-        if (
-                player == null
-        ) {
-
+        if (player == null) {
             return;
         }
 
 
-        /*
-         * Запускаем мини-игру
-         */
-        this.fisch$isBiting =
-                true;
+        this.fisch$isBiting = true;
 
 
         /*
-         * Настоящая удочка игрока
+         * Получаем удочку
          */
+
         ItemStack rodStack =
                 player.getMainHandItem();
 
 
         /*
-         * Приманка
+         * Получаем приманку
          */
+
         String bait =
-                getBaitFromPlayer(
-                        player
-                );
+                getBaitFromPlayer(player);
 
 
         /*
-         * =====================================================
-         * ОПРЕДЕЛЯЕМ РЫБУ
-         * =====================================================
+         * Определяем рыбу
          */
 
         if (
@@ -263,7 +216,6 @@ public abstract class FishingHookMixin
                             newRod.getLuck()
                     );
         }
-
 
         else if (
                 rodStack.getItem()
@@ -282,12 +234,7 @@ public abstract class FishingHookMixin
 
 
         /*
-         * =====================================================
-         * ТРАТИМ ОДНУ ПРИМАНКУ
-         *
-         * Каждая мини-игра = одна приманка.
-         * Результат мини-игры значения не имеет.
-         * =====================================================
+         * Тратим одну приманку
          */
 
         ItemStack baitStack =
@@ -296,14 +243,9 @@ public abstract class FishingHookMixin
                 );
 
 
-        if (
-                !baitStack.isEmpty()
-        ) {
+        if (!baitStack.isEmpty()) {
 
-            baitStack.shrink(
-                    1
-            );
-
+            baitStack.shrink(1);
 
             RodBaitData.setBait(
                     rodStack,
@@ -315,42 +257,48 @@ public abstract class FishingHookMixin
         /*
          * Если рыба не определилась
          */
-        if (
-                this.fisch$customCatch
-                        == null
-        ) {
 
-            this.fisch$isBiting =
-                    false;
+        if (this.fisch$customCatch == null) {
+
+            this.fisch$isBiting = false;
 
             return;
         }
 
 
         /*
-         * =====================================================
-         * ОТПРАВЛЯЕМ ДАННЫЕ МИНИ-ИГРЫ
-         * =====================================================
+         * Отправляем данные мини-игры клиенту
          */
 
         if (
-                player
-                        instanceof ServerPlayer serverPlayer
+                player instanceof ServerPlayer serverPlayer
         ) {
 
             FriendlyByteBuf buffer =
                     PacketByteBufs.create();
 
 
+            /*
+             * Название рыбы
+             */
+
             buffer.writeUtf(
                     this.fisch$customCatch.name
             );
 
 
+            /*
+             * Редкость рыбы
+             */
+
             buffer.writeInt(
                     this.fisch$customCatch.rarity
             );
 
+
+            /*
+             * Характеристики удочки
+             */
 
             if (
                     rodStack.getItem()
@@ -370,22 +318,17 @@ public abstract class FishingHookMixin
                 );
             }
 
-
             else {
 
-                buffer.writeFloat(
-                        0.001F
-                );
-
-                buffer.writeFloat(
-                        0.001F
-                );
-
-                buffer.writeFloat(
-                        0.001F
-                );
+                buffer.writeFloat(0.001F);
+                buffer.writeFloat(0.001F);
+                buffer.writeFloat(0.001F);
             }
 
+
+            /*
+             * Отправляем пакет
+             */
 
             ServerPlayNetworking.send(
                     serverPlayer,
@@ -403,7 +346,7 @@ public abstract class FishingHookMixin
 
     /*
      * =========================================================
-     * ПОЛУЧАЕМ ПРИМАНКУ ИЗ УДОЧКИ
+     * ПОЛУЧАЕМ ПРИМАНКУ
      * =========================================================
      */
 
@@ -460,13 +403,7 @@ public abstract class FishingHookMixin
                         .orElse(null);
 
 
-        /*
-         * Если ключ биома не найден
-         */
-        if (
-                biomeKey == null
-        ) {
-
+        if (biomeKey == null) {
             return ModItems.PLAIN_FISH;
         }
 
@@ -477,9 +414,7 @@ public abstract class FishingHookMixin
 
 
         /*
-         * =====================================================
          * ЛЕДЯНЫЕ БИОМЫ
-         * =====================================================
          */
 
         if (
@@ -515,9 +450,7 @@ public abstract class FishingHookMixin
 
 
         /*
-         * =====================================================
          * ПУСТЫННЫЕ БИОМЫ
-         * =====================================================
          */
 
         if (
@@ -535,9 +468,7 @@ public abstract class FishingHookMixin
 
 
         /*
-         * =====================================================
          * ДЖУНГЛЕВЫЕ БИОМЫ
-         * =====================================================
          */
 
         if (
@@ -553,9 +484,7 @@ public abstract class FishingHookMixin
 
 
         /*
-         * =====================================================
-         * ВСЕ ОСТАЛЬНЫЕ БИОМЫ
-         * =====================================================
+         * ОБЫЧНЫЕ БИОМЫ
          */
 
         return ModItems.PLAIN_FISH;
@@ -578,13 +507,10 @@ public abstract class FishingHookMixin
 
 
         /*
-         * Только сервер
+         * Работаем только на сервере
          */
-        if (
-                hook.level()
-                        .isClientSide()
-        ) {
 
+        if (hook.level().isClientSide()) {
             return;
         }
 
@@ -593,9 +519,7 @@ public abstract class FishingHookMixin
                 getPlayerOwner();
 
 
-        if (
-                player == null
-        ) {
+        if (player == null) {
 
             hook.discard();
 
@@ -605,21 +529,20 @@ public abstract class FishingHookMixin
 
         /*
          * =====================================================
-         * УСПЕШНАЯ ПОИМКА
+         * УСПЕШНАЯ ПОИМКА РЫБЫ
          * =====================================================
          */
 
         if (
                 success
                         &&
-                        this.fisch$customCatch
-                                != null
+                        this.fisch$customCatch != null
         ) {
 
-
             /*
-             * Создаём рыбу
+             * Создаём предмет рыбы
              */
+
             ItemStack fishStack =
                     new ItemStack(
                             this.fisch$customCatch
@@ -627,32 +550,32 @@ public abstract class FishingHookMixin
 
 
             /*
-             * Создаём предмет
-             * в месте поплавка
+             * Создаём ItemEntity
              */
+
             ItemEntity fishEntity =
                     new ItemEntity(
                             hook.level(),
-
                             hook.getX(),
                             hook.getY(),
                             hook.getZ(),
-
                             fishStack
                     );
 
 
             /*
-             * Небольшая задержка
+             * Рыба некоторое время не подбирается
              */
+
             fishEntity.setPickUpDelay(
                     10
             );
 
 
             /*
-             * Направление к игроку
+             * Направление полёта к игроку
              */
+
             Vec3 direction =
                     player.position()
                             .add(
@@ -666,10 +589,6 @@ public abstract class FishingHookMixin
                             .normalize();
 
 
-            /*
-             * Рыба вылетает
-             * вверх и к игроку
-             */
             fishEntity.setDeltaMovement(
                     direction.x * 0.35,
                     0.45,
@@ -678,12 +597,50 @@ public abstract class FishingHookMixin
 
 
             /*
-             * Добавляем рыбу в мир
+             * =================================================
+             * РЫБА ВЫЛЕТАЕТ ИЗ ВОДЫ
+             * =================================================
              */
+
             hook.level()
                     .addFreshEntity(
                             fishEntity
                     );
+
+
+            /*
+             * =================================================
+             * СООБЩЕНИЕ ПОСЛЕ ВЫЛЕТА РЫБЫ
+             * =================================================
+             *
+             * Если водоём маленький,
+             * сообщение появляется сразу после
+             * появления рыбы в мире.
+             *
+             * Component.translatable()
+             * автоматически использует язык игрока.
+             */
+
+            if (
+                    !RodMechanics.isValidWaterBody(
+                            hook.level(),
+                            hook.blockPosition()
+                    )
+            ) {
+
+                if (
+                        player instanceof ServerPlayer serverPlayer
+                ) {
+
+                    serverPlayer.connection.send(
+                            new ClientboundSetActionBarTextPacket(
+                                    Component.translatable(
+                                            "message.fisch.small_water"
+                                    )
+                            )
+                    );
+                }
+            }
 
 
             fisch$LOGGER.info(
@@ -697,22 +654,16 @@ public abstract class FishingHookMixin
 
 
         /*
-         * Сбрасываем состояние
+         * =====================================================
+         * СБРАСЫВАЕМ СОСТОЯНИЕ
+         * =====================================================
          */
-        this.fisch$isBiting =
-                false;
 
+        this.fisch$isBiting = false;
 
-        this.fisch$customCatch =
-                null;
+        this.fisch$customCatch = null;
 
-
-        /*
-         * Убираем поплавок
-         */
-        player.fishing =
-                null;
-
+        player.fishing = null;
 
         hook.discard();
     }
