@@ -1,0 +1,19 @@
+{
+  "name": "Fish and Trash",
+  "icon": "fisch:seaweed",
+  "category": "fisch:mechanics",
+  "pages": [
+    {
+      "type": "text",
+      "text": "The mod features 56 new types of fish! They all have different rarities. The higher the rarity, the harder the catching minigame.$(br)$(br)Fishes drop as items to make them easy to sell."
+    },
+    {
+      "type": "text",
+      "text": "$(l)Choosing a body of water$()$(br)Size matters! If you try fishing in a water body that is too small (for example, a 2x2 hole), fish won't bite."
+    },
+    {
+      "type": "text",
+      "text": "Instead of fish, you will only catch trash in small puddles:$(br)$(br)• Old Boots$(br)• Iron Scrap$(br)• Seaweed$(br)$(br)Look for large rivers and oceans!"
+    }
+  ]
+}

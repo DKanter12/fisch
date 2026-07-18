@@ -1,0 +1,29 @@
+{
+  "name": "Wandering Fisherman",
+  "icon": "minecraft:villager_spawn_egg",
+  "category": "fisch:economy",
+  "pages": [
+    {
+      "type": "text",
+      "text": "Once you've saved up some coins, go looking for the Special Merchant. He spawns outside of villages all over the world.$(br)$(br)His stock $(l)directly depends on the biome$() you find him in!"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "fisch:jungle_rod",
+      "title": "Jungle Rod",
+      "text": "Sold only in the Jungle. The most expensive, but also the best rod in the game."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "fisch:sand_rod",
+      "title": "Sand Rod",
+      "text": "Sold in the Desert. A mid-tier rod with an average price."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "fisch:ice_rod",
+      "title": "Ice Rod",
+      "text": "Sold in winter biomes. The cheapest and weakest of the custom rods."
+    }
+  ]
+}
