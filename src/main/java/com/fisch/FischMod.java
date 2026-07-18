@@ -21,242 +21,138 @@ import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRe
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.npc.VillagerProfession;
+import net.minecraft.world.item.ItemStack;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class FischMod implements ModInitializer {
 
     public static final String MODID = "fisch";
+    public static final Logger LOGGER = LoggerFactory.getLogger(MODID);
 
-    public static final Logger LOGGER =
-            LoggerFactory.getLogger(MODID);
-
-
-    /*
-     * ============================================================
-     * NETWORK PACKETS
-     * ============================================================
-     */
-
-    public static final ResourceLocation FISH_GUI_PACKET_ID =
-            new ResourceLocation(MODID, "open_fish_gui");
-
-    public static final ResourceLocation FINISH_MINIGAME_PACKET_ID =
-            new ResourceLocation(MODID, "finish_minigame");
-
+    public static final ResourceLocation FISH_GUI_PACKET_ID = new ResourceLocation(MODID, "open_fish_gui");
+    public static final ResourceLocation FINISH_MINIGAME_PACKET_ID = new ResourceLocation(MODID, "finish_minigame");
 
     @Override
     public void onInitialize() {
-
-        /*
-         * ========================================================
-         * BASIC REGISTRATION
-         * ========================================================
-         */
-
         ModCommands.register();
-
         ModItems.register();
-
         ModCreativeTabs.register();
-
         ModEvents.register();
-
         ModScreenHandlers.register();
-
         ModPackets.register();
-
         ModEntities.registerModEntities();
-
 
         /*
          * ========================================================
          * ENTITY ATTRIBUTES
          * ========================================================
          */
-
         FabricDefaultAttributeRegistry.register(
                 ModEntities.FISH_MONGER,
                 FishMongerEntity.createAttributes()
         );
-
-
-        /*
-         * ========================================================
-         * MENUS
-         * ========================================================
-         */
-
-        // Если у тебя есть отдельный класс ModMenuTypes
-        // и он действительно нужен — регистрируй его только один раз.
-        //
-        // ModMenuTypes.registerMenus();
-
 
         /*
          * ========================================================
          * OPEN FISH MERCHANT MENU
          * ========================================================
          */
-
         UseEntityCallback.EVENT.register(
                 (player, level, hand, entity, hitResult) -> {
 
-                    /*
-                     * Проверяем, что игрок взаимодействует
-                     * именно с рыбаком
-                     */
-                    if (
-                            entity instanceof Villager villager
-                                    &&
-                                    villager.getVillagerData().getProfession()
-                                            == VillagerProfession.FISHERMAN
-                    ) {
+                    // Пропускаем кастомного продавца удочек, чтобы он сам открыл свое меню
+                    if (entity instanceof FishMongerEntity) {
+                        return InteractionResult.PASS;
+                    }
 
-                        /*
-                         * На клиенте ничего не открываем.
-                         * Меню открывается только на сервере.
-                         */
+                    // Обычный скупщик рыбы
+                    if (entity instanceof Villager villager && villager.getVillagerData().getProfession() == VillagerProfession.FISHERMAN) {
                         if (!level.isClientSide) {
-
-                            /*
-                             * Запоминаем игрока, который торгует
-                             * с жителем
-                             */
                             villager.setTradingPlayer(player);
+                            SimpleContainer merchantInventory = new SimpleContainer(27);
 
-
-                            /*
-                             * Временный контейнер торговца
-                             */
-                            SimpleContainer merchantInventory =
-                                    new SimpleContainer(27);
-
-
-                            /*
-                             * Открываем меню
-                             */
                             player.openMenu(
                                     new SimpleMenuProvider(
-
-                                            /*
-                                             * Создание меню
-                                             */
                                             (syncId, playerInventory, menuPlayer) ->
-                                                    new FishMerchantMenu(
-                                                            syncId,
-                                                            playerInventory,
-                                                            merchantInventory,
-                                                            villager
-                                                    ),
-
-                                            /*
-                                             * Заголовок меню
-                                             */
-                                            Component.translatable(
-                                                    "container.fisch.fish_merchant"
-                                            )
+                                                    new FishMerchantMenu(syncId, playerInventory, merchantInventory, villager),
+                                            Component.translatable("container.fisch.fish_merchant")
                                     )
                             );
                         }
-
-
-                        /*
-                         * Говорим Minecraft, что взаимодействие
-                         * обработано нашим модом
-                         */
                         return InteractionResult.SUCCESS;
                     }
-
 
                     return InteractionResult.PASS;
                 }
         );
 
-
         /*
          * ========================================================
-         * SYNC MONEY WHEN PLAYER JOINS
+         * SYNC MONEY & GIVE GUIDE BOOK WHEN PLAYER JOINS
          * ========================================================
          */
-
         ServerPlayConnectionEvents.JOIN.register(
                 (handler, sender, server) -> {
-
-                    ServerPlayer player =
-                            handler.getPlayer();
-
+                    ServerPlayer player = handler.getPlayer();
                     ModPackets.syncMoney(player);
+
+                    // Выдача книги ПРИ ПЕРВОМ ЗАХОДЕ
+                    if (!player.getTags().contains("fisch.given_guide")) {
+                        ItemStack guideBook = new ItemStack(ModItems.FISCH_GUIDE_BOOK);
+
+                        // Если рука пустая - даем прямо в нее
+                        if (player.getMainHandItem().isEmpty()) {
+                            player.setItemInHand(InteractionHand.MAIN_HAND, guideBook);
+                        } else {
+                            // Иначе просто кладем в инвентарь
+                            player.getInventory().add(guideBook);
+                        }
+
+                        // Сохраняем тег, чтобы книга не выдавалась каждый раз при входе
+                        player.addTag("fisch.given_guide");
+                    }
                 }
         );
-
 
         /*
          * ========================================================
          * COPY MONEY AFTER RESPAWN / DIMENSION CHANGE
          * ========================================================
          */
-
         ServerPlayerEvents.COPY_FROM.register(
                 (oldPlayer, newPlayer, alive) -> {
-
-                    long currentMoney =
-                            ((CurrencyHolder) oldPlayer).getMoney();
-
-
-                    ((CurrencyHolder) newPlayer)
-                            .setMoney(currentMoney);
-
-
+                    long currentMoney = ((CurrencyHolder) oldPlayer).getMoney();
+                    ((CurrencyHolder) newPlayer).setMoney(currentMoney);
                     ModPackets.syncMoney(newPlayer);
                 }
         );
-
 
         /*
          * ========================================================
          * FINISH FISHING MINIGAME
          * ========================================================
          */
-
         ServerPlayNetworking.registerGlobalReceiver(
                 FINISH_MINIGAME_PACKET_ID,
-
                 (server, player, handler, buf, responseSender) -> {
-
-                    boolean success =
-                            buf.readBoolean();
-
+                    boolean success = buf.readBoolean();
 
                     server.execute(() -> {
-
-                        if (
-                                player.fishing
-                                        instanceof com.fisch.FishingHookDuck duck
-                        ) {
-
+                        if (player.fishing instanceof com.fisch.FishingHookDuck duck) {
                             duck.finishMiniGame(success);
                         }
                     });
                 }
         );
 
-
-        /*
-         * ========================================================
-         * LOG
-         * ========================================================
-         */
-
-        LOGGER.info(
-                "FischMod initialized successfully!"
-        );
+        LOGGER.info("FischMod initialized successfully!");
     }
 }

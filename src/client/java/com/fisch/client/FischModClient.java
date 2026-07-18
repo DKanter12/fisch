@@ -9,6 +9,7 @@ import com.fisch.client.renderer.FishMongerRenderer;
 import com.fisch.client.screen.BaitScreen;
 import com.fisch.client.screen.FishCatchScreen;
 import com.fisch.client.screen.FishMerchantScreen;
+import com.fisch.client.screen.FishMongerScreen;
 import com.fisch.command.ModCommands;
 import com.fisch.entity.ModEntities;
 import com.fisch.item.ModItems;
@@ -88,7 +89,7 @@ public class FischModClient implements ClientModInitializer {
 
         // Связываем логику с интерфейсом
         MenuScreens.register(ModMenuTypes.FISH_MERCHANT_MENU, FishMerchantScreen::new);
-
+        MenuScreens.register(ModMenuTypes.FISH_MONGER_MENU, FishMongerScreen::new);
         // Регистрируем 3D модель самого жителя-рыбака
         EntityModelLayerRegistry.registerModelLayer(FishMerchantModel.LAYER_LOCATION, FishMerchantModel::createBodyLayer);
 

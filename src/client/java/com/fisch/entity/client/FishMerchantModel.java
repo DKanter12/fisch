@@ -11,7 +11,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 
 public class FishMerchantModel<T extends Entity> extends EntityModel<T> {
-	// Указали правильный modid ("fisch")
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation("fisch", "fishmerchantmodel"), "main");
 
 	private final ModelPart headwear;
@@ -44,11 +43,13 @@ public class FishMerchantModel<T extends Entity> extends EntityModel<T> {
 
 		PartDefinition headwear = partdefinition.addOrReplaceChild("headwear", CubeListBuilder.create().texOffs(73, 42).addBox(-4.0F, -10.0F, -4.0F, 8.0F, 10.0F, 8.0F, new CubeDeformation(0.51F)), PartPose.offset(0.0F, 0.0F, 0.0F));
 		PartDefinition body = partdefinition.addOrReplaceChild("body", CubeListBuilder.create().texOffs(67, 40).addBox(-4.0F, 0.0F, -3.0F, 8.0F, 12.0F, 6.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+
 		PartDefinition bodywear = partdefinition.addOrReplaceChild("bodywear", CubeListBuilder.create().texOffs(0, 38).addBox(-4.0F, 0.0F, -3.0F, 8.0F, 18.0F, 6.0F, new CubeDeformation(0.5F))
 				.texOffs(116, 11).addBox(4.0F, 11.0F, -2.0F, 2.0F, 3.0F, 4.0F, new CubeDeformation(0.0F))
 				.texOffs(116, 11).addBox(-6.0F, 11.0F, -2.0F, 2.0F, 3.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
 
 		PartDefinition leska3_r1 = bodywear.addOrReplaceChild("leska3_r1", CubeListBuilder.create().texOffs(91, 107).addBox(-2.0F, -14.0F, 2.0F, 1.0F, 1.0F, 0.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(1.0F, 7.0F, 5.0F, -0.0209F, 0.0358F, -0.4731F));
+
 		PartDefinition leska2_r1 = bodywear.addOrReplaceChild("leska2_r1", CubeListBuilder.create().texOffs(82, 121).addBox(-1.9612F, -12.4966F, 3.9569F, 1.0F, 6.0F, 0.0F, new CubeDeformation(0.0F))
 				.texOffs(97, 106).addBox(-0.182F, -13.5868F, 3.0397F, 1.0F, 8.0F, 1.0F, new CubeDeformation(0.0F))
 				.texOffs(91, 107).addBox(-1.2452F, -6.8803F, 4.1773F, 1.0F, 1.0F, 0.0F, new CubeDeformation(0.0F))
@@ -58,10 +59,12 @@ public class FishMerchantModel<T extends Entity> extends EntityModel<T> {
 
 		PartDefinition arms = partdefinition.addOrReplaceChild("arms", CubeListBuilder.create().texOffs(40, 38).addBox(-4.0F, 2.0F, -2.0F, 8.0F, 4.0F, 4.0F, new CubeDeformation(0.0F))
 				.texOffs(44, 22).addBox(-8.0F, -2.0F, -2.0F, 4.0F, 8.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 2.95F, -1.05F, -0.7505F, 0.0F, 0.0F));
+
 		PartDefinition mirrored = arms.addOrReplaceChild("mirrored", CubeListBuilder.create().texOffs(44, 22).mirror().addBox(4.0F, -23.05F, -3.05F, 4.0F, 8.0F, 4.0F, new CubeDeformation(0.0F)).mirror(false), PartPose.offset(0.0F, 21.05F, 1.05F));
 
 		PartDefinition right_leg = partdefinition.addOrReplaceChild("right_leg", CubeListBuilder.create().texOffs(0, 22).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, new CubeDeformation(0.0F))
 				.texOffs(118, 0).addBox(-2.0F, 10.0F, -3.0F, 4.0F, 2.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offset(-2.0F, 12.0F, 0.0F));
+
 		PartDefinition left_leg = partdefinition.addOrReplaceChild("left_leg", CubeListBuilder.create().texOffs(0, 22).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, new CubeDeformation(0.0F))
 				.texOffs(103, 0).addBox(-2.0F, 10.0F, -3.0F, 4.0F, 2.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offset(2.0F, 12.0F, 0.0F));
 
@@ -81,7 +84,6 @@ public class FishMerchantModel<T extends Entity> extends EntityModel<T> {
 
 	@Override
 	public void setupAnim(Entity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-		// Простая анимация головы и ног (как у жителя)
 		this.head.yRot = netHeadYaw * ((float)Math.PI / 180F);
 		this.head.xRot = headPitch * ((float)Math.PI / 180F);
 		this.headwear.yRot = this.head.yRot;

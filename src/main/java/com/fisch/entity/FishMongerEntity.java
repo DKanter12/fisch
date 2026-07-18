@@ -29,53 +29,60 @@ public class FishMongerEntity extends Villager {
     public FishMongerEntity(EntityType<? extends Villager> entityType, Level level) {
         super(entityType, level);
         this.setVillagerData(this.getVillagerData().setProfession(VillagerProfession.FISHERMAN));
-        // --- ДОБАВЬ ЭТОТ БЛОК В КОНСТРУКТОР ---
-        // Получаем систему путей моба и запрещаем взаимодействие с дверями
+
         if (this.getNavigation() instanceof GroundPathNavigation navigation) {
-            navigation.setCanOpenDoors(false); // Запрет открывать двери
-            navigation.setCanPassDoors(false); // Запрет проходить сквозь открытые двери (опционально)
+            navigation.setCanOpenDoors(false);
+            navigation.setCanPassDoors(false);
         }
     }
 
-    // Без аннотации @Override, если ругается
-    protected void registerGoals() {
-        this.goalSelector.addGoal(0, new FloatGoal(this));
-        this.goalSelector.addGoal(1, new PanicGoal(this, 1.25D));
-        this.goalSelector.addGoal(1, new AvoidEntityGoal<>(this, Zombie.class, 8.0F, 1.2D, 1.35D));
-        // Используем правильный класс задачи:
-        this.goalSelector.addGoal(2, new LookAtTradingPlayerGoal(this));
-        this.goalSelector.addGoal(3, new WaterAvoidingRandomStrollGoal(this, 0.6D));
-        this.goalSelector.addGoal(4, new LookAtPlayerGoal(this, Player.class, 6.0F));
-        this.goalSelector.addGoal(5, new RandomLookAroundGoal(this));
-    }
-
-    // Остальной код (mobInteract и getRodForBiome) оставляем без изменений
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
-        if (!this.level().isClientSide() && player instanceof ServerPlayer serverPlayer) {
+        // Обрабатываем клик только один раз (для главной руки), чтобы не было двойного срабатывания
+        if (hand != InteractionHand.MAIN_HAND) {
+            return InteractionResult.PASS;
+        }
+
+        if (this.level().isClientSide()) {
+            return InteractionResult.sidedSuccess(true);
+        }
+
+        if (player instanceof ServerPlayer serverPlayer) {
             Holder<Biome> biome = this.level().getBiome(this.blockPosition());
             Item rodToSell = getRodForBiome(biome);
-
-            if (rodToSell == null) {
-                serverPlayer.sendSystemMessage(Component.literal("§c[Продавец] Тут для тебя ничего нет..."));
-                return InteractionResult.SUCCESS;
-            }
 
             this.setTradingPlayer(player);
             final Item finalRod = rodToSell;
 
-            serverPlayer.openMenu(new ExtendedScreenHandlerFactory() {
-                public void writeScreenOpeningData(ServerPlayer player, FriendlyByteBuf buf) {
-                    buf.writeInt(BuiltInRegistries.ITEM.getId(finalRod));
-                    buf.writeInt(FishMongerEntity.this.getId());
-                }
-                public Component getDisplayName() { return Component.literal("Магазин"); }
-                public AbstractContainerMenu createMenu(int syncId, Inventory inv, Player p) {
-                    return new FishMongerMenu(syncId, inv, finalRod, FishMongerEntity.this);
-                }
-            });
+            System.out.println("[FischMod] Попытка открыть меню продавца удочек...");
+
+            try {
+                serverPlayer.openMenu(new ExtendedScreenHandlerFactory() {
+                    @Override
+                    public void writeScreenOpeningData(ServerPlayer player, FriendlyByteBuf buf) {
+                        buf.writeInt(BuiltInRegistries.ITEM.getId(finalRod));
+                        buf.writeInt(FishMongerEntity.this.getId());
+                    }
+
+                    @Override
+                    public Component getDisplayName() {
+                        return Component.literal("Магазин Удочек");
+                    }
+
+                    @Override
+                    public AbstractContainerMenu createMenu(int syncId, Inventory inv, Player p) {
+                        return new FishMongerMenu(syncId, inv, finalRod, FishMongerEntity.this);
+                    }
+                });
+                System.out.println("[FischMod] Меню успешно отправлено игроку!");
+            } catch (Exception e) {
+                System.out.println("[FischMod] КРИТИЧЕСКАЯ ОШИБКА ОТКРЫТИЯ МЕНЮ:");
+                e.printStackTrace();
+            }
+
             return InteractionResult.SUCCESS;
         }
+
         return super.mobInteract(player, hand);
     }
 
@@ -83,6 +90,8 @@ public class FishMongerEntity extends Villager {
         if (biome.is(BiomeTags.IS_JUNGLE)) return ModItems.JUNGLE_ROD;
         if (biome.is(BiomeTags.IS_BADLANDS) || biome.is(BiomeTags.IS_SAVANNA) || biome.is(BiomeTags.HAS_DESERT_PYRAMID)) return ModItems.SAND_ROD;
         if (biome.is(BiomeTags.IS_TAIGA) || biome.is(BiomeTags.IS_MOUNTAIN) || biome.value().getBaseTemperature() < 0.15f) return ModItems.ICE_ROD;
-        return null;
+
+        // ВМЕСТО NULL ТЕПЕРЬ ВЫДАЕТСЯ ОБЫЧНАЯ УДОЧКА, ЧТОБЫ МЕНЮ ОТКРЫЛОСЬ В ЛЮБОМ БИОМЕ!
+        return net.minecraft.world.item.Items.FISHING_ROD;
     }
 }
