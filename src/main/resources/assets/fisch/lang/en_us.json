@@ -1,4 +1,5 @@
 {
+  "item.fisch.fisch_guide": "Fishing Guide",
   "entity.fisch.fish_merchant": "Fish Merchant",
   "item.fisch.bug_net": "Bug Net",
   "item.fisch.fishing_bug": "Fishing Bug",
@@ -10,6 +11,8 @@
   "gui.fisch.shop_title": "Rod Shop",
   "itemGroup.fisch.fisch_tab": "Fishes",
   "itemGroup.fisch.rods_tab": "Rods & Baits",
+  "fisch.book.name": "Traveler's Book",
+  "fisch.book.landing_text": "Welcome! Here you will learn everything about baits, merchants, and rare fish.",
   "gui.fisch.balance": "Balance: %s C$",
   "entity.fisch.fish_merchant": "Fish Merchant",
   "item.fisch.bug_net": "Bug Net",

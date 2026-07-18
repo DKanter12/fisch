@@ -1,0 +1,20 @@
+{
+  "name": "How to fish?",
+  "icon": "minecraft:fishing_rod",
+  "category": "fisch:basics",
+  "pages": [
+    {
+      "type": "text",
+      "text": "Forget everything you knew about vanilla fishing!$(br)$(br)Now, to cast your line, you need to hold the rod in your hand and press $(l)Shift + Right Click$(). This will open a special fishing menu."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "minecraft:fishing_rod",
+      "text": "Note: The basic fishing rod recipe has changed. Now it requires a bit of iron to craft."
+    },
+    {
+      "type": "text",
+      "text": "In the opened menu, you $(l)must$() place a bait. Without bait, the fish simply won't pay attention to you.$(br)$(br)The basic fishing rod also requires bait and works through this menu."
+    }
+  ]
+}

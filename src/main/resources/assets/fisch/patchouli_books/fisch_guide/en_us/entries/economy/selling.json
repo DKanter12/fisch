@@ -1,0 +1,17 @@
+{
+  "name": "Selling and Coins",
+  "icon": "minecraft:gold_nugget",
+  "category": "fisch:economy",
+  "pages": [
+    {
+      "type": "text",
+      "text": "In villages, you can find an updated Fisherman villager with a new model.$(br)$(br)He has a custom menu where you can check prices for your catches and sell them. In return, you receive $(l)Coins$()."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "minecraft:gold_nugget",
+      "title": "Virtual Balance",
+      "text": "Coins don't take up inventory space! Your balance is displayed in the bottom corner of the screen."
+    }
+  ]
+}

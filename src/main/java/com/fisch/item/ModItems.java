@@ -5,7 +5,14 @@ import com.fisch.rod.NewFishingRod;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import vazkii.patchouli.api.PatchouliAPI;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +26,16 @@ public class ModItems {
     public static final Item BUG_NET = registerItem("bug_net", new BugNetItem(new Item.Properties().durability(64)));
     public static final Item FISHING_BUG = registerItem("fishing_bug", new FishingBugItem(new Item.Properties()));
     public static final Item WORM = registerItem("worm_bait", new Bait(new Item.Properties(), 0.01f, 0.01f));
-
+    public static final Item FISCH_GUIDE_BOOK = registerItem("fisch_guide", new Item(new Item.Properties().stacksTo(1)) {
+        @Override
+        public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+            if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
+                // Открываем книгу Patchouli по её ID
+                PatchouliAPI.get().openBookGUI(serverPlayer, new ResourceLocation(MODID, "fisch_guide"));
+            }
+            return InteractionResultHolder.success(player.getItemInHand(hand));
+        }
+    });
     public static final NewFishingRod ICE_ROD = (NewFishingRod) registerItem("ice_rod", new NewFishingRod(new Item.Properties().stacksTo(1), 15f, 0.01f, 0.10f));
     public static final NewFishingRod SAND_ROD = (NewFishingRod) registerItem("sand_rod", new NewFishingRod(new Item.Properties().stacksTo(1), 25f, 0.05f, 0.10f));
     public static final NewFishingRod JUNGLE_ROD = (NewFishingRod) registerItem("jungle_rod", new NewFishingRod(new Item.Properties().stacksTo(1), 35f, 0.05f, 0.3f));

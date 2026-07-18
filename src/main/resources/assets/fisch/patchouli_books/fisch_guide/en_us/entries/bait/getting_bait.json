@@ -1,0 +1,16 @@
+{
+  "name": "Bugs and Worms",
+  "icon": "fisch:worm_bait",
+  "category": "fisch:bait",
+  "pages": [
+    {
+      "type": "text",
+      "text": "There are two main types of bait:$(br)$(br)1. $(l)Bugs$(): Gathered using a Bug Net. Simply break grass, vines, or sugar cane with it. The drop chance is quite high.$(br)$(br)2. $(l)Worms$(): Gathered with a shovel. Dig dirt, but keep in mind — the chance of finding a worm is lower."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "fisch:bug_net",
+      "text": "Bug Net. Its durability and properties are similar to a regular stick, but it's essential for starting out."
+    }
+  ]
+}

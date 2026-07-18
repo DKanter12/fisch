@@ -1,0 +1,10 @@
+{
+  "name": "fisch.book.name",
+  "landing_text": "fisch.book.landing_text",
+  "icon": "minecraft:fishing_rod",
+  "version": "1.0",
+  "i18n": true,
+  "use_resource_pack": true,
+  "show_progress": false,
+  "author": "Fisherman"
+}
