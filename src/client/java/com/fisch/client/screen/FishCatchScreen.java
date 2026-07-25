@@ -255,13 +255,11 @@ public class FishCatchScreen extends Screen {
         if (gameTicks < 80) {
             ResourceLocation markTexture = getExclamationTexture(this.rarity);
 
-            // Увеличили ширину знака, чтобы он не был худым
             int markW = 18;
             int markH = 26;
 
-            // Отодвинули чуть левее (с 25 на 30), чтобы из-за ширины он не задел белую полоску
-            int markX = progressX - 30;
-            int markY = progressY - (markH / 2) + (progressHeight / 2);
+            int markX = progressX - markW - 5;
+            int markY = progressY + (progressHeight / 2) - (markH / 2);
 
             g.blit(markTexture, markX, markY, 0, 0, markW, markH, markW, markH);
         }
