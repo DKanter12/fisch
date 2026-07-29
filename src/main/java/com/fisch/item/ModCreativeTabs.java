@@ -1,6 +1,7 @@
 package com.fisch.item;
 
 import com.fisch.FischMod;
+import com.fisch.block.ModBlocks;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -27,6 +28,8 @@ public class ModCreativeTabs { // Переименовали класс, что�
                         output.accept(ModItems.BUG_NET);
                         output.accept(ModItems.FISHING_BUG);
                         output.accept(ModItems.WORM);
+
+                        output.accept(ModBlocks.ENCHANTMENT_ALTAR);
                     })
                     .build()
     );
@@ -109,6 +112,8 @@ public class ModCreativeTabs { // Переименовали класс, что�
                         output.accept(ModItems.SEAWEED);
                         output.accept(ModItems.IRON_SCRAP);
                         output.accept(ModItems.OLD_BOOT);
+
+                        output.accept(ModItems.RELIC);
                     })
                     .build()
     );

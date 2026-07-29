@@ -317,15 +317,23 @@ public class NewFishingRod
             List<Component> tooltip,
             TooltipFlag flag
     ) {
-        tooltip.add(Component.literal(""));
+        String ench = RodEnchantment.getEnchantment(stack);
+        if (ench != null) {
+            tooltip.add(RodEnchantment.getDisplayName(ench));
+            tooltip.add(Component.literal(""));
+        }
 
-        tooltip.add(Component.literal("Luck: " + (int) this.luck + "%")
+        float totalLuck = this.luck + RodEnchantment.getLuckBonus(ench);
+        float totalControl = this.control + RodEnchantment.getControlBonus(ench);
+        float totalResilience = this.resilience + RodEnchantment.getResilienceBonus(ench);
+
+        tooltip.add(Component.literal("Luck: " + (int) totalLuck + "%")
                 .withStyle(ChatFormatting.GOLD));
 
-        tooltip.add(Component.literal("Control: " + this.control)
+        tooltip.add(Component.literal("Control: " + totalControl)
                 .withStyle(ChatFormatting.AQUA));
 
-        tooltip.add(Component.literal("Resilience: " + (int) (this.resilience * 100)  + "%")
+        tooltip.add(Component.literal("Resilience: " + (int) (totalResilience * 100) + "%")
                 .withStyle(ChatFormatting.GREEN));
 
         super.appendHoverText(stack, level, tooltip, flag);

@@ -10,6 +10,7 @@ import com.fisch.client.screen.BaitScreen;
 import com.fisch.client.screen.FishCatchScreen;
 import com.fisch.client.screen.FishMerchantScreen;
 import com.fisch.client.screen.FishMongerScreen;
+import com.fisch.client.screen.EnchantmentAltarScreen;
 import com.fisch.command.ModCommands;
 import com.fisch.entity.ModEntities;
 import com.fisch.item.ModItems;
@@ -49,6 +50,11 @@ public class FischModClient implements ClientModInitializer {
         MenuScreens.register(
                 ModScreenHandlers.BAIT_MENU,
                 BaitScreen::new
+        );
+
+        MenuScreens.register(
+                ModScreenHandlers.ENCHANTMENT_ALTAR_MENU,
+                EnchantmentAltarScreen::new
         );
 
         com.fisch.network.ModNetworkingClient.sendOpenBaitMenu();

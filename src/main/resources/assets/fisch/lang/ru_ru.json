@@ -92,7 +92,25 @@
   "message.fisch.need_bait": "Нужна приманка!",
   "message.fisch.bait_selected": "Приманка выбрана",
   "screen.fisch.bait_menu": "Насадка на удочку",
-  "screen.fisch.bait": "Приманка"
+  "screen.fisch.bait": "Приманка",
+  "item.fisch.relic": "Реликвия",
+  "block.fisch.enchantment_altar": "Алтарь зачарования",
+  "container.fisch.enchantment_altar": "Алтарь зачарования",
+  "gui.fisch.crate.rod": "Удочка",
+  "gui.fisch.crate.relic": "Реликвия",
+  "message.fisch.relic.empty": "Нет зачарования",
+  "message.fisch.enchant.tooltip": "Зачаровать удочку",
+  "message.fisch.enchant.no_rod": "Поместите удочку в алтарь!",
+  "message.fisch.enchant.night_only": "Зачарование работает только ночью!",
+  "message.fisch.enchant.no_xp": "Недостаточно опыта! Нужно 400 XP.",
+  "message.fisch.enchant.success": "Удочка зачарована на ",
+  "enchantment.fisch.format": "Зачарование: %s",
+  "enchantment.fisch.lucky": "Удача",
+  "enchantment.fisch.divine": "Божественность",
+  "enchantment.fisch.steady": "Стабильность",
+  "enchantment.fisch.controlled": "Контроль",
+  "enchantment.fisch.resilient": "Прочность",
+  "enchantment.fisch.mystical": "Мистика"
 
 
 

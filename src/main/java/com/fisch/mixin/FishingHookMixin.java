@@ -3,9 +3,11 @@ package com.fisch.mixin;
 import com.fisch.FischMod;
 import com.fisch.FishingHookDuck;
 import com.fisch.fish.NewFish;
+import com.fisch.fish.Relic;
 import com.fisch.item.ModItems;
 import com.fisch.rod.NewFishingRod;
 import com.fisch.rod.RodBaitData;
+import com.fisch.rod.RodEnchantment;
 import com.fisch.rod.RodMechanics;
 
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -207,13 +209,16 @@ public abstract class FishingHookMixin implements FishingHookDuck {
                         instanceof NewFishingRod newRod
         ) {
 
+            String ench = RodEnchantment.getEnchantment(rodStack);
+            float luckBonus = RodEnchantment.getLuckBonus(ench);
+
             this.fisch$customCatch =
                     RodMechanics.determineCatch(
                             hook.level(),
                             hook.blockPosition(),
                             getActiveBestiary(),
                             bait,
-                            newRod.getLuck()
+                            newRod.getLuck() + luckBonus
                     );
         }
 
@@ -305,16 +310,18 @@ public abstract class FishingHookMixin implements FishingHookDuck {
                             instanceof NewFishingRod newRod
             ) {
 
+                String ench = RodEnchantment.getEnchantment(rodStack);
+
                 buffer.writeFloat(
-                        newRod.getControl()
+                        newRod.getControl() + RodEnchantment.getControlBonus(ench)
                 );
 
                 buffer.writeFloat(
-                        newRod.getResilience()
+                        newRod.getResilience() + RodEnchantment.getResilienceBonus(ench)
                 );
 
                 buffer.writeFloat(
-                        newRod.getLuck()
+                        newRod.getLuck() + RodEnchantment.getLuckBonus(ench)
                 );
             }
 
@@ -548,6 +555,9 @@ public abstract class FishingHookMixin implements FishingHookDuck {
                             this.fisch$customCatch
                     );
 
+            if (this.fisch$customCatch instanceof Relic) {
+                Relic.setRandomEnchantment(fishStack, hook.level().getRandom());
+            }
 
             /*
              * Создаём ItemEntity

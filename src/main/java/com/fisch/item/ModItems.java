@@ -1,6 +1,7 @@
 package com.fisch.item;
 
 import com.fisch.fish.NewFish;
+import com.fisch.fish.Relic;
 import com.fisch.rod.NewFishingRod;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -127,6 +128,7 @@ public class ModItems {
     public static final NewFish IRON_SCRAP = registerFish("iron_scrap", 10, 100, 1000, "none", "clear", "day", "junk");
     public static final NewFish OLD_BOOT = registerFish("old_boot", 10, 500, 1500, "none", "clear", "day", "junk");
 
+    public static final Relic RELIC = (Relic) registerItem("relic", new Relic(new Item.Properties(), "relic", 4, 1, 1, "none", "clear", "night", "none"));
 
     static {
 

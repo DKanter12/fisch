@@ -24,6 +24,16 @@ public class ModScreenHandlers {
                     )
             );
 
+    public static final MenuType<EnchantmentAltarScreenHandler> ENCHANTMENT_ALTAR_MENU =
+            Registry.register(
+                    BuiltInRegistries.MENU,
+                    new ResourceLocation(FischMod.MODID, "enchantment_altar_menu"),
+                    new MenuType<>(
+                            EnchantmentAltarScreenHandler::new,
+                            FeatureFlags.DEFAULT_FLAGS
+                    )
+            );
+
     public static void register() {
 
         FischMod.LOGGER.info(

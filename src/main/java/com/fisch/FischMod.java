@@ -39,11 +39,14 @@ public class FischMod implements ModInitializer {
 
     public static final ResourceLocation FISH_GUI_PACKET_ID = new ResourceLocation(MODID, "open_fish_gui");
     public static final ResourceLocation FINISH_MINIGAME_PACKET_ID = new ResourceLocation(MODID, "finish_minigame");
+    public static final ResourceLocation ENCHANT_ROD_PACKET_ID = new ResourceLocation(MODID, "enchant_rod");
 
     @Override
     public void onInitialize() {
         ModCommands.register();
         ModItems.register();
+        com.fisch.block.ModBlocks.register();
+        com.fisch.block.entity.ModBlockEntities.register();
         ModCreativeTabs.register();
         ModEvents.register();
         ModScreenHandlers.register();
@@ -148,6 +151,22 @@ public class FischMod implements ModInitializer {
                     server.execute(() -> {
                         if (player.fishing instanceof com.fisch.FishingHookDuck duck) {
                             duck.finishMiniGame(success);
+                        }
+                    });
+                }
+        );
+
+        /*
+         * ========================================================
+         * ENCHANT ROD
+         * ========================================================
+         */
+        ServerPlayNetworking.registerGlobalReceiver(
+                ENCHANT_ROD_PACKET_ID,
+                (server, player, handler, buf, responseSender) -> {
+                    server.execute(() -> {
+                        if (player.containerMenu instanceof com.fisch.screen.EnchantmentAltarScreenHandler altar) {
+                            altar.enchantRod(player);
                         }
                     });
                 }
