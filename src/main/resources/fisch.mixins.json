@@ -6,7 +6,8 @@
       "FischMixin",
       "FishingHookMixin",
       "PlayerMixin",
-      "FishingRodItemMixin"
+      "FishingRodItemMixin",
+      "SinglePoolElementMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

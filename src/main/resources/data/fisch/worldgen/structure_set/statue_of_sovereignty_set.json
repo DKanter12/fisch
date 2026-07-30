@@ -1,0 +1,15 @@
+{
+  "structures": [
+    {
+      "structure": "fisch:statue_of_sovereignty",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "spacing": 60,
+    "separation": 30,
+    "salt": 1947205636,
+    "frequency_modifier": 0.1
+  }
+}
