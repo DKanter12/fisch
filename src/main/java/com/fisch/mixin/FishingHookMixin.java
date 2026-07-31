@@ -2,8 +2,10 @@ package com.fisch.mixin;
 
 import com.fisch.FischMod;
 import com.fisch.FishingHookDuck;
+import com.fisch.fish.FishMutation;
 import com.fisch.fish.NewFish;
 import com.fisch.fish.Relic;
+import com.fisch.item.Bait;
 import com.fisch.item.ModItems;
 import com.fisch.rod.NewFishingRod;
 import com.fisch.rod.RodBaitData;
@@ -13,6 +15,7 @@ import com.fisch.rod.RodMechanics;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSetActionBarTextPacket;
@@ -39,6 +42,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.Random;
+
 @Mixin(FishingHook.class)
 public abstract class FishingHookMixin implements FishingHookDuck {
 
@@ -48,6 +53,9 @@ public abstract class FishingHookMixin implements FishingHookDuck {
     @Shadow
     private int nibble;
 
+    @Shadow
+    private int timeUntilLured;
+
     @Unique
     private NewFish fisch$customCatch;
 
@@ -55,15 +63,10 @@ public abstract class FishingHookMixin implements FishingHookDuck {
     private boolean fisch$isBiting;
 
     @Unique
-    private static final Logger fisch$LOGGER =
-            LoggerFactory.getLogger("FischMod");
+    private static final Logger fisch$LOGGER = LoggerFactory.getLogger("FischMod");
 
-
-    /*
-     * =========================================================
-     * CUSTOM CATCH
-     * =========================================================
-     */
+    @Unique
+    private static final Random fisch$RANDOM = new Random();
 
     @Override
     public NewFish getCustomCatch() {
@@ -75,606 +78,274 @@ public abstract class FishingHookMixin implements FishingHookDuck {
         this.fisch$customCatch = fish;
     }
 
-
-    /*
-     * =========================================================
-     * РАЗРЕШАЕМ КАСТОМНЫЕ УДОЧКИ
-     * =========================================================
-     */
-
     @Redirect(
             method = "shouldStopFishing",
             at = @At(
                     value = "INVOKE",
-                    target =
-                            "Lnet/minecraft/world/item/ItemStack;" +
-                                    "is(Lnet/minecraft/world/item/Item;)Z"
+                    target = "Lnet/minecraft/world/item/ItemStack;is(Lnet/minecraft/world/item/Item;)Z"
             )
     )
-    private boolean fischAllowCustomRod(
-            ItemStack stack,
-            Item item
-    ) {
+    private boolean fischAllowCustomRod(ItemStack stack, Item item) {
         if (item == Items.FISHING_ROD) {
             return stack.getItem() instanceof FishingRodItem;
         }
-
         return stack.is(item);
     }
 
-
-    /*
-     * =========================================================
-     * ОТКЛЮЧАЕМ ВАНИЛЬНУЮ РЫБАЛКУ
-     * =========================================================
-     */
-
-    @Inject(
-            method = "tick",
-            at = @At("HEAD")
-    )
-    private void disableVanillaFishingDuringMiniGame(
-            CallbackInfo ci
-    ) {
+    @Inject(method = "tick", at = @At("HEAD"))
+    private void applyBaitTickEffects(CallbackInfo ci) {
         if (this.fisch$isBiting) {
             this.nibble = 0;
         }
+
+        FishingHook hook = (FishingHook) (Object) this;
+        if (!hook.level().isClientSide() && this.timeUntilLured > 0) {
+            Player player = this.getPlayerOwner();
+            if (player != null) {
+                String bait = getBaitFromPlayer(player);
+                if (bait.equals("bait_blend") && hook.tickCount % 2 == 0) {
+                    this.timeUntilLured--;
+                } else if (bait.equals("black_fish_eggs") && hook.tickCount % 2 == 0) {
+                    this.timeUntilLured++;
+                }
+            }
+        }
     }
-
-
-    /*
-     * =========================================================
-     * НАЧАЛО ПОКЛЁВКИ
-     * =========================================================
-     */
 
     @Inject(
             method = "tick",
             at = @At(
                     value = "FIELD",
-                    target =
-                            "Lnet/minecraft/world/entity/projectile/" +
-                                    "FishingHook;nibble:I",
+                    target = "Lnet/minecraft/world/entity/projectile/FishingHook;nibble:I",
                     shift = At.Shift.AFTER
             )
     )
-    private void onBiteStart(
-            CallbackInfo ci
-    ) {
-        FishingHook hook =
-                (FishingHook) (Object) this;
+    private void onBiteStart(CallbackInfo ci) {
+        FishingHook hook = (FishingHook) (Object) this;
 
+        if (hook.level().isClientSide()) return;
+        if (this.nibble <= 0) return;
+        if (this.fisch$isBiting) return;
 
-        /*
-         * Работаем только на сервере
-         */
-
-        if (hook.level().isClientSide()) {
-            return;
-        }
-
-
-        /*
-         * Поклёвки нет
-         */
-
-        if (this.nibble <= 0) {
-            return;
-        }
-
-
-        /*
-         * Мини-игра уже запущена
-         */
-
-        if (this.fisch$isBiting) {
-            return;
-        }
-
-
-        Player player =
-                this.getPlayerOwner();
-
-
-        if (player == null) {
-            return;
-        }
-
+        Player player = this.getPlayerOwner();
+        if (player == null) return;
 
         this.fisch$isBiting = true;
 
+        ItemStack rodStack = player.getMainHandItem();
+        String bait = getBaitFromPlayer(player);
+        ItemStack baitStack = RodBaitData.getBait(rodStack);
 
-        /*
-         * Получаем удочку
-         */
-
-        ItemStack rodStack =
-                player.getMainHandItem();
-
-
-        /*
-         * Получаем приманку
-         */
-
-        String bait =
-                getBaitFromPlayer(player);
-
-
-        /*
-         * Определяем рыбу
-         */
-
-        if (
-                rodStack.getItem()
-                        instanceof NewFishingRod newRod
-        ) {
-
-            String ench = RodEnchantment.getEnchantment(rodStack);
-            float luckBonus = RodEnchantment.getLuckBonus(ench);
-
-            this.fisch$customCatch =
-                    RodMechanics.determineCatch(
-                            hook.level(),
-                            hook.blockPosition(),
-                            getActiveBestiary(),
-                            bait,
-                            newRod.getLuck() + luckBonus
-                    );
-        }
-
-        else if (
-                rodStack.getItem()
-                        instanceof FishingRodItem
-        ) {
-
-            this.fisch$customCatch =
-                    RodMechanics.determineCatch(
-                            hook.level(),
-                            hook.blockPosition(),
-                            getActiveBestiary(),
-                            bait,
-                            1.0F
-                    );
-        }
-
-
-        /*
-         * Тратим одну приманку
-         */
-
-        ItemStack baitStack =
-                RodBaitData.getBait(
-                        rodStack
-                );
-
-
-        if (!baitStack.isEmpty()) {
-
-            baitStack.shrink(1);
-
-            RodBaitData.setBait(
-                    rodStack,
-                    baitStack
-            );
-        }
-
-
-        /*
-         * Если рыба не определилась
-         */
-
-        if (this.fisch$customCatch == null) {
-
+        // -- ДЕБАФФ CRAB CLAW --
+        if (bait.equals("crab_claw") && fisch$RANDOM.nextInt(100) < 15) {
             this.fisch$isBiting = false;
+            if (player instanceof ServerPlayer serverPlayer) {
+                serverPlayer.sendSystemMessage(Component.translatable("message.fisch.line_snapped").withStyle(ChatFormatting.RED));
+            }
 
+            if (!baitStack.isEmpty()) {
+                baitStack.shrink(1);
+                RodBaitData.setBait(rodStack, baitStack);
+            }
             return;
         }
 
-
-        /*
-         * Отправляем данные мини-игры клиенту
-         */
-
-        if (
-                player instanceof ServerPlayer serverPlayer
-        ) {
-
-            FriendlyByteBuf buffer =
-                    PacketByteBufs.create();
-
-
-            /*
-             * Название рыбы
-             */
-
-            buffer.writeUtf(
-                    this.fisch$customCatch.name
-            );
-
-
-            /*
-             * Редкость рыбы
-             */
-
-            buffer.writeInt(
-                    this.fisch$customCatch.rarity
-            );
-
-
-            /*
-             * Характеристики удочки
-             */
-
-            if (
-                    rodStack.getItem()
-                            instanceof NewFishingRod newRod
-            ) {
-
-                String ench = RodEnchantment.getEnchantment(rodStack);
-
-                buffer.writeFloat(
-                        newRod.getControl() + RodEnchantment.getControlBonus(ench)
-                );
-
-                buffer.writeFloat(
-                        newRod.getResilience() + RodEnchantment.getResilienceBonus(ench)
-                );
-
-                buffer.writeFloat(
-                        newRod.getLuck() + RodEnchantment.getLuckBonus(ench)
-                );
-            }
-
-            else {
-
-                buffer.writeFloat(0.001F);
-                buffer.writeFloat(0.001F);
-                buffer.writeFloat(0.001F);
-            }
-
-
-            /*
-             * Отправляем пакет
-             */
-
-            ServerPlayNetworking.send(
-                    serverPlayer,
-                    FischMod.FISH_GUI_PACKET_ID,
-                    buffer
-            );
+        // -- ИСПРАВЛЕННЫЙ ПОДСЧЕТ УДАЧИ --
+        float extraLuck = 0.0f;
+        if (baitStack.getItem() instanceof Bait baitItem) {
+            extraLuck = baitItem.getLuckBonus();
         }
 
+        float baseLuck = 0.0f; // ИСПРАВЛЕНО: Было 1.0f, из-за чего деф удочка была имбовой
+        float enchLuck = 0.0f;
 
-        fisch$LOGGER.info(
-                "Мини-игра началась."
-        );
+        if (rodStack.getItem() instanceof NewFishingRod newRod) {
+            baseLuck = newRod.getLuck();
+            String ench = RodEnchantment.getEnchantment(rodStack);
+            enchLuck = RodEnchantment.getLuckBonus(ench);
+        }
+
+        float totalLuck = baseLuck + enchLuck + extraLuck;
+
+        // -- ИСПРАВЛЕННАЯ СИСТЕМА РЕ-РОЛЛОВ --
+        // Теперь на деф удочке будет 1 ролл (как и должно быть).
+        int rolls = 1 + (int)(totalLuck);
+        if (rolls < 1) rolls = 1;
+
+        NewFish bestFish = null;
+        for (int i = 0; i < rolls; i++) {
+            NewFish rolled = RodMechanics.determineCatch(
+                    hook.level(),
+                    hook.blockPosition(),
+                    getActiveBestiary(),
+                    bait,
+                    totalLuck
+            );
+
+            if (rolled != null) {
+                if (bestFish == null || rolled.rarity < bestFish.rarity) {
+                    bestFish = rolled;
+                }
+            }
+        }
+
+        this.fisch$customCatch = bestFish;
+
+        // Тратим приманку
+        if (!baitStack.isEmpty()) {
+            baitStack.shrink(1);
+            RodBaitData.setBait(rodStack, baitStack);
+        }
+
+        if (this.fisch$customCatch == null) {
+            this.fisch$isBiting = false;
+            return;
+        }
+
+        // Запуск мини-игры
+        if (player instanceof ServerPlayer serverPlayer) {
+            FriendlyByteBuf buffer = PacketByteBufs.create();
+
+            buffer.writeUtf(this.fisch$customCatch.name);
+            buffer.writeInt(this.fisch$customCatch.rarity);
+
+            if (rodStack.getItem() instanceof NewFishingRod newRod) {
+                String ench = RodEnchantment.getEnchantment(rodStack);
+                float control = newRod.getControl() + RodEnchantment.getControlBonus(ench);
+                float resilience = newRod.getResilience() + RodEnchantment.getResilienceBonus(ench);
+
+                if (bait.equals("crab_claw")) {
+                    control *= 1.30f;
+                } else if (bait.equals("sea_cucumber")) {
+                    control *= 0.80f;
+                    resilience *= 0.80f;
+                }
+
+                buffer.writeFloat(control);
+                buffer.writeFloat(resilience);
+                buffer.writeFloat(totalLuck);
+            } else {
+                buffer.writeFloat(0.001F);
+                buffer.writeFloat(0.001F);
+                buffer.writeFloat(0.001F);
+            }
+
+            ServerPlayNetworking.send(serverPlayer, FischMod.FISH_GUI_PACKET_ID, buffer);
+        }
+        fisch$LOGGER.info("Мини-игра началась.");
     }
 
-
-    /*
-     * =========================================================
-     * ПОЛУЧАЕМ ПРИМАНКУ
-     * =========================================================
-     */
-
     @Unique
-    private String getBaitFromPlayer(
-            Player player
-    ) {
-
-        ItemStack rod =
-                player.getMainHandItem();
-
-
-        if (
-                rod.getItem()
-                        instanceof FishingRodItem
-        ) {
-
-            if (
-                    rod.hasTag()
-                            &&
-                            rod.getTag()
-                                    .contains("Bait")
-            ) {
-
-                return rod.getTag()
-                        .getString("Bait");
+    private String getBaitFromPlayer(Player player) {
+        ItemStack rod = player.getMainHandItem();
+        if (rod.getItem() instanceof FishingRodItem) {
+            if (rod.hasTag() && rod.getTag().contains("Bait")) {
+                return rod.getTag().getString("Bait");
             }
         }
-
-
         return "none";
     }
 
-
-    /*
-     * =========================================================
-     * ВЫБОР БЕСТИАРИЯ ПО БИОМУ
-     * =========================================================
-     */
-
     @Unique
     private NewFish[] getActiveBestiary() {
+        FishingHook hook = (FishingHook) (Object) this;
+        ResourceKey<Biome> biomeKey = hook.level().getBiome(hook.blockPosition()).unwrapKey().orElse(null);
+        if (biomeKey == null) return ModItems.PLAIN_FISH;
+        String biomeId = biomeKey.location().getPath();
 
-        FishingHook hook =
-                (FishingHook) (Object) this;
-
-
-        ResourceKey<Biome> biomeKey =
-                hook.level()
-                        .getBiome(
-                                hook.blockPosition()
-                        )
-                        .unwrapKey()
-                        .orElse(null);
-
-
-        if (biomeKey == null) {
-            return ModItems.PLAIN_FISH;
-        }
-
-
-        String biomeId =
-                biomeKey.location()
-                        .getPath();
-
-
-        /*
-         * ЛЕДЯНЫЕ БИОМЫ
-         */
-
-        if (
-                biomeId.equals("snowy_plains")
-                        ||
-                        biomeId.equals("ice_spikes")
-                        ||
-                        biomeId.equals("snowy_taiga")
-                        ||
-                        biomeId.equals("frozen_river")
-                        ||
-                        biomeId.equals("frozen_ocean")
-                        ||
-                        biomeId.equals("deep_frozen_ocean")
-                        ||
-                        biomeId.equals("cold_ocean")
-                        ||
-                        biomeId.equals("deep_cold_ocean")
-                        ||
-                        biomeId.equals("snowy_beach")
-                        ||
-                        biomeId.equals("grove")
-                        ||
-                        biomeId.equals("snowy_slopes")
-                        ||
-                        biomeId.equals("frozen_peaks")
-                        ||
-                        biomeId.equals("jagged_peaks")
-        ) {
-
+        if (biomeId.equals("snowy_plains") || biomeId.equals("ice_spikes") || biomeId.equals("snowy_taiga")
+                || biomeId.equals("frozen_river") || biomeId.equals("frozen_ocean") || biomeId.equals("deep_frozen_ocean")
+                || biomeId.equals("cold_ocean") || biomeId.equals("deep_cold_ocean") || biomeId.equals("snowy_beach")
+                || biomeId.equals("grove") || biomeId.equals("snowy_slopes") || biomeId.equals("frozen_peaks")
+                || biomeId.equals("jagged_peaks")) {
             return ModItems.ICE_FISH;
         }
 
-
-        /*
-         * ПУСТЫННЫЕ БИОМЫ
-         */
-
-        if (
-                biomeId.equals("desert")
-                        ||
-                        biomeId.equals("badlands")
-                        ||
-                        biomeId.equals("eroded_badlands")
-                        ||
-                        biomeId.equals("wooded_badlands")
-        ) {
-
+        if (biomeId.equals("desert") || biomeId.equals("badlands")
+                || biomeId.equals("eroded_badlands") || biomeId.equals("wooded_badlands")) {
             return ModItems.DESERT_FISH;
         }
 
-
-        /*
-         * ДЖУНГЛЕВЫЕ БИОМЫ
-         */
-
-        if (
-                biomeId.equals("jungle")
-                        ||
-                        biomeId.equals("sparse_jungle")
-                        ||
-                        biomeId.equals("bamboo_jungle")
-        ) {
-
+        if (biomeId.equals("jungle") || biomeId.equals("sparse_jungle") || biomeId.equals("bamboo_jungle")) {
             return ModItems.JUNGLE_FISH;
         }
-
-
-        /*
-         * ОБЫЧНЫЕ БИОМЫ
-         */
 
         return ModItems.PLAIN_FISH;
     }
 
-
-    /*
-     * =========================================================
-     * ЗАВЕРШЕНИЕ МИНИ-ИГРЫ
-     * =========================================================
-     */
-
     @Override
-    public void finishMiniGame(
-            boolean success
-    ) {
+    public void finishMiniGame(boolean success) {
+        FishingHook hook = (FishingHook) (Object) this;
 
-        FishingHook hook =
-                (FishingHook) (Object) this;
+        if (hook.level().isClientSide()) return;
 
-
-        /*
-         * Работаем только на сервере
-         */
-
-        if (hook.level().isClientSide()) {
-            return;
-        }
-
-
-        Player player =
-                getPlayerOwner();
-
+        Player player = getPlayerOwner();
 
         if (player == null) {
-
             hook.discard();
-
             return;
         }
 
-
-        /*
-         * =====================================================
-         * УСПЕШНАЯ ПОИМКА РЫБЫ
-         * =====================================================
-         */
-
-        if (
-                success
-                        &&
-                        this.fisch$customCatch != null
-        ) {
-
-            /*
-             * Создаём предмет рыбы
-             */
-
-            ItemStack fishStack =
-                    new ItemStack(
-                            this.fisch$customCatch
-                    );
+        if (success && this.fisch$customCatch != null) {
+            ItemStack fishStack = new ItemStack(this.fisch$customCatch);
 
             if (this.fisch$customCatch instanceof Relic) {
                 Relic.setRandomEnchantment(fishStack, hook.level().getRandom());
             }
 
-            /*
-             * Создаём ItemEntity
-             */
+            int roll = fisch$RANDOM.nextInt(100);
+            if (roll < 10) {
+                FishMutation.applyMutation(fishStack, FishMutation.SHINY);
+            } else if (roll < 20) {
+                FishMutation.applyMutation(fishStack, FishMutation.SPARKLING);
+            }
 
-            ItemEntity fishEntity =
-                    new ItemEntity(
-                            hook.level(),
-                            hook.getX(),
-                            hook.getY(),
-                            hook.getZ(),
-                            fishStack
-                    );
+            ItemEntity fishEntity = new ItemEntity(hook.level(), hook.getX(), hook.getY(), hook.getZ(), fishStack);
+            fishEntity.setPickUpDelay(10);
+            Vec3 direction = player.position().add(0, player.getEyeHeight(), 0).subtract(hook.position()).normalize();
+            fishEntity.setDeltaMovement(direction.x * 0.35, 0.45, direction.z * 0.35);
+            hook.level().addFreshEntity(fishEntity);
 
+            String bait = getBaitFromPlayer(player);
 
-            /*
-             * Рыба некоторое время не подбирается
-             */
+            if (bait.equals("black_fish_eggs") && fisch$RANDOM.nextInt(100) < 20) {
+                ItemEntity extraFishEntity = new ItemEntity(hook.level(), hook.getX(), hook.getY(), hook.getZ(), fishStack.copy());
+                extraFishEntity.setPickUpDelay(10);
+                extraFishEntity.setDeltaMovement(direction.x * 0.35, 0.45, direction.z * 0.35);
+                hook.level().addFreshEntity(extraFishEntity);
+            }
 
-            fishEntity.setPickUpDelay(
-                    10
-            );
+            ItemStack rodStack = player.getMainHandItem();
+            int boxChance = 5;
 
+            if (rodStack.getItem() == ModItems.JUNGLE_ROD) {
+                boxChance = 20;
+            } else if (rodStack.getItem() == ModItems.SAND_ROD) {
+                boxChance = 10;
+            } else if (rodStack.getItem() == ModItems.ICE_ROD) {
+                boxChance = 8;
+            }
 
-            /*
-             * Направление полёта к игроку
-             */
+            if (fisch$RANDOM.nextInt(100) < boxChance) {
+                ItemStack boxStack = new ItemStack(ModItems.BAIT_BOX);
+                ItemEntity boxEntity = new ItemEntity(hook.level(), hook.getX(), hook.getY(), hook.getZ(), boxStack);
+                boxEntity.setPickUpDelay(10);
+                boxEntity.setDeltaMovement(direction.x * 0.35, 0.45, direction.z * 0.35);
+                hook.level().addFreshEntity(boxEntity);
+            }
 
-            Vec3 direction =
-                    player.position()
-                            .add(
-                                    0,
-                                    player.getEyeHeight(),
-                                    0
-                            )
-                            .subtract(
-                                    hook.position()
-                            )
-                            .normalize();
-
-
-            fishEntity.setDeltaMovement(
-                    direction.x * 0.35,
-                    0.45,
-                    direction.z * 0.35
-            );
-
-
-            /*
-             * =================================================
-             * РЫБА ВЫЛЕТАЕТ ИЗ ВОДЫ
-             * =================================================
-             */
-
-            hook.level()
-                    .addFreshEntity(
-                            fishEntity
-                    );
-
-
-            /*
-             * =================================================
-             * СООБЩЕНИЕ ПОСЛЕ ВЫЛЕТА РЫБЫ
-             * =================================================
-             *
-             * Если водоём маленький,
-             * сообщение появляется сразу после
-             * появления рыбы в мире.
-             *
-             * Component.translatable()
-             * автоматически использует язык игрока.
-             */
-
-            if (
-                    !RodMechanics.isValidWaterBody(
-                            hook.level(),
-                            hook.blockPosition()
-                    )
-            ) {
-
-                if (
-                        player instanceof ServerPlayer serverPlayer
-                ) {
-
-                    serverPlayer.connection.send(
-                            new ClientboundSetActionBarTextPacket(
-                                    Component.translatable(
-                                            "message.fisch.small_water"
-                                    )
-                            )
-                    );
+            if (!RodMechanics.isValidWaterBody(hook.level(), hook.blockPosition())) {
+                if (player instanceof ServerPlayer serverPlayer) {
+                    serverPlayer.connection.send(new ClientboundSetActionBarTextPacket(Component.translatable("message.fisch.small_water")));
                 }
             }
 
-
-            fisch$LOGGER.info(
-                    "Игрок "
-                            + player.getName()
-                            .getString()
-                            + " выловил кастомную рыбу: "
-                            + this.fisch$customCatch.name
-            );
+            fisch$LOGGER.info("Игрок " + player.getName().getString() + " выловил кастомную рыбу: " + this.fisch$customCatch.name);
         }
 
-
-        /*
-         * =====================================================
-         * СБРАСЫВАЕМ СОСТОЯНИЕ
-         * =====================================================
-         */
-
         this.fisch$isBiting = false;
-
         this.fisch$customCatch = null;
-
         player.fishing = null;
-
         hook.discard();
     }
 }

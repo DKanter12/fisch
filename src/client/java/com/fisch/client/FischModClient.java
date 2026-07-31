@@ -4,19 +4,25 @@ import com.fisch.FischMod;
 import com.fisch.client.hud.CoinHudOverlay;
 import com.fisch.client.model.FishMerchantModel;
 import com.fisch.client.model.FishMongerModel;
+import com.fisch.client.model.FishermanWizardModel;
 import com.fisch.client.renderer.CustomVillagerRenderer;
 import com.fisch.client.renderer.FishMongerRenderer;
+import com.fisch.client.renderer.FishermanWizardRenderer;
 import com.fisch.client.screen.BaitScreen;
+import com.fisch.client.screen.EnchantmentAltarScreen;
 import com.fisch.client.screen.FishCatchScreen;
 import com.fisch.client.screen.FishMerchantScreen;
 import com.fisch.client.screen.FishMongerScreen;
-import com.fisch.client.screen.EnchantmentAltarScreen;
+import com.fisch.client.screen.WizardScreen;
 import com.fisch.command.ModCommands;
 import com.fisch.entity.ModEntities;
+import com.fisch.fish.FishMutation;
 import com.fisch.item.ModItems;
 import com.fisch.registry.ModMenuTypes;
 import com.fisch.screen.ModScreenHandlers;
+
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
@@ -47,6 +53,7 @@ public class FischModClient implements ClientModInitializer {
         registerCast(ModItems.SAND_ROD);
         registerCast(ModItems.JUNGLE_ROD);
 
+        // --- РЕГИСТРАЦИЯ ЭКРАНОВ (SCREENS) ---
         MenuScreens.register(
                 ModScreenHandlers.BAIT_MENU,
                 BaitScreen::new
@@ -59,7 +66,7 @@ public class FischModClient implements ClientModInitializer {
 
         com.fisch.network.ModNetworkingClient.sendOpenBaitMenu();
 
-
+        // --- ПАКЕТЫ И СЕТЬ (NETWORKING) ---
         ClientPlayNetworking.registerGlobalReceiver(
                 FischMod.FISH_GUI_PACKET_ID,
                 (client, handler, buf, responseSender) -> {
@@ -82,7 +89,9 @@ public class FischModClient implements ClientModInitializer {
                     );
                 }
         );
+
         HudRenderCallback.EVENT.register(new CoinHudOverlay());
+
         ClientPlayNetworking.registerGlobalReceiver(
                 new ResourceLocation("fisch", "money_sync"),
                 (client, handler, buf, responseSender) -> {
@@ -93,53 +102,61 @@ public class FischModClient implements ClientModInitializer {
                 }
         );
 
-        // Связываем логику с интерфейсом
+        // --- СВЯЗЬ GUI С MENU TYPES ---
         MenuScreens.register(ModMenuTypes.FISH_MERCHANT_MENU, FishMerchantScreen::new);
         MenuScreens.register(ModMenuTypes.FISH_MONGER_MENU, FishMongerScreen::new);
-        // Регистрируем 3D модель самого жителя-рыбака
+        MenuScreens.register(ModMenuTypes.WIZARD_MENU, WizardScreen::new);
+
+        // --- РЕНДЕР И МОДЕЛИ (MODELS & RENDERERS) ---
+
+        // 1. Обычный скупщик рыбы
         EntityModelLayerRegistry.registerModelLayer(FishMerchantModel.LAYER_LOCATION, FishMerchantModel::createBodyLayer);
-
-        // Переключатель рендера жителей
         EntityRendererRegistry.register(EntityType.VILLAGER, CustomVillagerRenderer::new);
-
-        // Регистрация 3D-модели одежды
         EntityModelLayerRegistry.registerModelLayer(FishMerchantClothesModel.LAYER_LOCATION, FishMerchantClothesModel::createBodyLayer);
 
-        // Добавляем одежду к стандартному жителю
         LivingEntityFeatureRendererRegistrationCallback.EVENT.register((entityType, entityRenderer, registrationHelper, context) -> {
             if (entityType == EntityType.VILLAGER && entityRenderer instanceof VillagerRenderer villagerRenderer) {
                 registrationHelper.register(new FishMerchantLayer(villagerRenderer, context.getModelSet()));
             }
         });
 
+        // 2. Продавец удочек
+        EntityRendererRegistry.register(ModEntities.FISH_MONGER, FishMongerRenderer::new);
+        EntityModelLayerRegistry.registerModelLayer(FishMongerModel.LAYER_LOCATION, FishMongerModel::createBodyLayer);
+
+        // 3. Чародей (Fisherman Wizard)
+        EntityRendererRegistry.register(ModEntities.FISHERMAN_WIZARD, FishermanWizardRenderer::new);
+        EntityModelLayerRegistry.registerModelLayer(FishermanWizardModel.LAYER_LOCATION, FishermanWizardModel::createBodyLayer);
+
+        // --- ПОКУПКА УДОЧКИ ---
         ServerPlayNetworking.registerGlobalReceiver(new ResourceLocation(FischMod.MODID, "buy_rod"), (server, player, handler, buf, responseSender) -> {
             server.execute(() -> {
-                // Проверяем, хватает ли у игрока денег (например, баланс хранится на сервере)
-                // Допустим у тебя есть метод получения денег, например: long balance = PlayerMoneyProvider.getMoney(player);
                 long price = 50;
 
-                // Замени 'YOUR_MONEY_SYSTEM' на то, как у тебя на сервере списываются/проверяются монеты:
                 if (/* баланс игрока >= price */ true) {
-                    // Списываем деньги
-                    // YOUR_MONEY_SYSTEM.takeMoney(player, price);
-
-                    // Выдаем удочку (например, обычную бамбуковую или кастомную)
-                    player.getInventory().add(new ItemStack(ModItems.ICE_ROD)); // Выдаем ледяную удочку как пример
+                    player.getInventory().add(new ItemStack(ModItems.ICE_ROD));
                     player.sendSystemMessage(net.minecraft.network.chat.Component.literal("§aВы успешно купили удочку!"));
                 } else {
                     player.sendSystemMessage(net.minecraft.network.chat.Component.literal("§cНедостаточно монет!"));
                 }
             });
         });
-        // Проверь ошибку тут (см. Шаг 2 ниже)
-        EntityRendererRegistry.register(ModEntities.FISH_MONGER, FishMongerRenderer::new);
-        EntityModelLayerRegistry.registerModelLayer(FishMongerModel.LAYER_LOCATION, FishMongerModel::createBodyLayer);
 
         // ПРИМЕЧАНИЕ: ItemTooltipCallback (отображение цены при наведении) полностью удален!
-        //ДИМА НЕ НАДО ОНО НЕНАДОООООООООООООООООООООООООООООООООООООООООООООООООООООООООООООООООООО
-        //ГАНДОН
+        // ДИМА НЕ НАДО ОНО НЕНАДОООООООООООООООООООООООООООООООООООООООООООООООООООООООООООООООООООО
+        // ГАНДОН
+
+        // НО: Я добавил тут Тултип ТОЛЬКО для Мутаций (чтобы было написано "✨ Shiny" на рыбе, как ты просил).
+        // Если рыба не зачарована, ничего писаться не будет. Цена тут тоже НЕ пишется.
+        ItemTooltipCallback.EVENT.register((stack, context, lines) -> {
+            FishMutation mutation = FishMutation.getMutation(stack);
+            if (mutation != FishMutation.NONE) {
+                lines.add(1, Component.literal(mutation.getDisplayName()).withStyle(mutation.getColor()));
+            }
+        });
     }
-    public static void registerCast(FishingRodItem rod){
+
+    public static void registerCast(FishingRodItem rod) {
         ItemProperties.register(
                 rod,
                 new ResourceLocation("cast"),
@@ -160,7 +177,5 @@ public class FischModClient implements ClientModInitializer {
                             : 0.0F;
                 }
         );
-
-
     }
 }

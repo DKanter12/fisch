@@ -3,6 +3,7 @@ package com.fisch.registry;
 import com.fisch.FischMod;
 import com.fisch.menu.FishMerchantMenu;
 import com.fisch.menu.FishMongerMenu;
+import com.fisch.menu.WizardMenu;
 
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
 
@@ -27,7 +28,6 @@ public class ModMenuTypes {
                     )
             );
 
-
     public static final MenuType<FishMongerMenu> FISH_MONGER_MENU =
             Registry.register(
                     BuiltInRegistries.MENU,
@@ -40,6 +40,19 @@ public class ModMenuTypes {
                     )
             );
 
+    // Добавлено меню для Чародея
+    public static final MenuType<WizardMenu> WIZARD_MENU =
+            Registry.register(
+                    BuiltInRegistries.MENU,
+                    new ResourceLocation(
+                            FischMod.MODID,
+                            "wizard_menu"
+                    ),
+                    new MenuType<>(
+                            WizardMenu::new,
+                            FeatureFlags.DEFAULT_FLAGS
+                    )
+            );
 
     public static void registerMenus() {
         // Регистрация происходит через Registry.register(...)

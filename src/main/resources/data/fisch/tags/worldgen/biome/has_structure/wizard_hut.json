@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    "#minecraft:is_overworld",
+    {
+      "id": "#minecraft:is_ocean",
+      "required": false,
+      "remove": true
+    },
+    {
+      "id": "#minecraft:is_deep_ocean",
+      "required": false,
+      "remove": true
+    },
+    {
+      "id": "#minecraft:is_river",
+      "required": false,
+      "remove": true
+    }
+  ]
+}

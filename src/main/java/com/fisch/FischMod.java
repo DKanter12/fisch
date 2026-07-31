@@ -2,6 +2,7 @@ package com.fisch;
 
 import com.fisch.command.ModCommands;
 import com.fisch.entity.FishMongerEntity;
+import com.fisch.entity.FishermanWizardEntity;
 import com.fisch.entity.ModEntities;
 import com.fisch.events.ModEvents;
 import com.fisch.item.ModCreativeTabs;
@@ -63,6 +64,11 @@ public class FischMod implements ModInitializer {
                 FishMongerEntity.createAttributes()
         );
 
+        FabricDefaultAttributeRegistry.register(
+                ModEntities.FISHERMAN_WIZARD,
+                FishermanWizardEntity.createAttributes()
+        );
+
         /*
          * ========================================================
          * OPEN FISH MERCHANT MENU
@@ -70,16 +76,18 @@ public class FischMod implements ModInitializer {
          */
         UseEntityCallback.EVENT.register(
                 (player, level, hand, entity, hitResult) -> {
-
-                    // Пропускаем кастомного продавца удочек, чтобы он сам открыл свое меню
                     if (entity instanceof FishMongerEntity) {
                         return InteractionResult.PASS;
                     }
+                    if (entity instanceof FishermanWizardEntity) {
+                        return InteractionResult.PASS;
+                    }
 
-                    // Обычный скупщик рыбы
                     if (entity instanceof Villager villager && villager.getVillagerData().getProfession() == VillagerProfession.FISHERMAN) {
                         if (!level.isClientSide) {
                             villager.setTradingPlayer(player);
+                            // ВНИМАНИЕ: Убедись, что твой FishMerchantMenu в методе "removed(Player player)"
+                            // выбрасывает предметы из merchantInventory на пол! Иначе при закрытии меню они удалятся навсегда.
                             SimpleContainer merchantInventory = new SimpleContainer(27);
 
                             player.openMenu(
@@ -107,19 +115,18 @@ public class FischMod implements ModInitializer {
                     ServerPlayer player = handler.getPlayer();
                     ModPackets.syncMoney(player);
 
-                    // Выдача книги ПРИ ПЕРВОМ ЗАХОДЕ
                     if (!player.getTags().contains("fisch.given_guide")) {
                         ItemStack guideBook = new ItemStack(ModItems.FISCH_GUIDE_BOOK);
 
-                        // Если рука пустая - даем прямо в нее
                         if (player.getMainHandItem().isEmpty()) {
                             player.setItemInHand(InteractionHand.MAIN_HAND, guideBook);
                         } else {
-                            // Иначе просто кладем в инвентарь
-                            player.getInventory().add(guideBook);
+                            // ИСПРАВЛЕНО: Если инвентарь полон, книга упадет под ноги, а не исчезнет!
+                            if (!player.getInventory().add(guideBook)) {
+                                player.drop(guideBook, false);
+                            }
                         }
 
-                        // Сохраняем тег, чтобы книга не выдавалась каждый раз при входе
                         player.addTag("fisch.given_guide");
                     }
                 }
@@ -146,6 +153,9 @@ public class FischMod implements ModInitializer {
         ServerPlayNetworking.registerGlobalReceiver(
                 FINISH_MINIGAME_PACKET_ID,
                 (server, player, handler, buf, responseSender) -> {
+                    // ВНИМАНИЕ ДЛЯ ЧИТОВ: Сейчас клиент может сам сказать серверу "я выиграл".
+                    // Тебе нужно добавить серверные проверки таймеров в класс FishingHookDuck,
+                    // иначе читеры будут пропускать мини-игру одним пакетом!
                     boolean success = buf.readBoolean();
 
                     server.execute(() -> {
