@@ -23,7 +23,21 @@ import static net.minecraft.world.item.Items.registerItem;
 
 public class ModItems {
     public static final NewFish TEST_FISH = (NewFish) registerItem("test_fish", new NewFish(new Item.Properties(), "test_fish", 8, 1, 10, "none", "clear", "day", "plain"));
+    // Регистрация коробки приманок (stacksTo(1) гарантирует не-стакаемость)
+    public static final Item BAIT_BOX = registerItem("bait_box", new BaitBoxItem(new Item.Properties().stacksTo(1)));
 
+    // Регистрация приманок со статами и описаниями
+    public static final Item BLACK_FISH_EGGS = registerItem("black_fish_eggs",
+            new Bait(new Item.Properties(), 0.2f, 2.5f, "tooltip.fisch.black_fish_eggs.buff", "tooltip.fisch.black_fish_eggs.debuff"));
+
+    public static final Item BAIT_BLEND = registerItem("bait_blend",
+            new Bait(new Item.Properties(), 0.1f, 1.0f, "tooltip.fisch.bait_blend.buff", null));
+
+    public static final Item CRAB_CLAW = registerItem("crab_claw",
+            new Bait(new Item.Properties(), 0.5f, 0.5f, "tooltip.fisch.crab_claw.buff", "tooltip.fisch.crab_claw.debuff"));
+
+    public static final Item SEA_CUCUMBER = registerItem("sea_cucumber",
+            new Bait(new Item.Properties(), 0.0f, 3.0f, "tooltip.fisch.sea_cucumber.buff", "tooltip.fisch.sea_cucumber.debuff"));
     public static final Item BUG_NET = registerItem("bug_net", new BugNetItem(new Item.Properties().durability(64)));
     public static final Item FISHING_BUG = registerItem("fishing_bug", new FishingBugItem(new Item.Properties()));
     public static final Item WORM = registerItem("worm_bait", new Bait(new Item.Properties(), 0.01f, 0.01f));
@@ -190,11 +204,8 @@ public class ModItems {
                 AMBER_EYE_PERCH, FOREST_SPIRIT_MONARCH,
                 WHISPERING_WILLOW_EEL, NATURE_INCARNATE,
                 SEAWEED, IRON_SCRAP, OLD_BOOT
-           };
-        }
-    static {
+        };
         FISH_LIST.add(TEST_FISH);
-        ALL_FISH = FISH_LIST.toArray(new NewFish[0]);
     }
 
     private static NewFish registerFish(String id, int rarity, long minWeight, long maxWeight, String bestBait, String bestWeather, String bestTime, String biomeGroup) {
