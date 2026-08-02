@@ -2,6 +2,7 @@ package com.fisch.item;
 
 import com.fisch.FischMod;
 import com.fisch.block.ModBlocks;
+import com.fisch.fish.NewFish;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -23,7 +24,7 @@ public class ModCreativeTabs { // Переименовали класс, что�
                         output.accept(ModItems.ICE_ROD);
                         output.accept(ModItems.SAND_ROD);
                         output.accept(ModItems.JUNGLE_ROD);
-                        // === ТВОИ НОВЫЕ ПРИМАНКИ ТЕПЕРЬ ТУТ ===
+                        // === ТВОИ НОВЫЕ    ПРИМАНКИ ТЕПЕРЬ ТУТ ===
                         output.accept(ModItems.BAIT_BOX);
                         output.accept(ModItems.BLACK_FISH_EGGS);
                         output.accept(ModItems.BAIT_BLEND);
@@ -48,7 +49,14 @@ public class ModCreativeTabs { // Переименовали класс, что�
                     // Иконка вкладки
                     .icon(() -> new ItemStack(ModItems.RAINBOW_TROUT))
                     .displayItems((displayParameters, output) -> {
+                        for (NewFish fish : ModItems.SWAMP_FISH) {
+                            output.accept(fish); // или content.accept(fish); в зависимости от твоего кода
+                        }
 
+// Добавляем всю грибную рыбу
+                        for (NewFish fish : ModItems.MUSHROOM_FISH) {
+                            output.accept(fish);
+                        }
                         // Пустынные рыбы
                         output.accept(ModItems.SAND_GLIDER);
                         output.accept(ModItems.DUNE_GUPPY);

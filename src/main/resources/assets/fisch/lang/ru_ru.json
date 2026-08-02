@@ -56,7 +56,7 @@
   "item.fisch.oasis_shimmer": "Оазисный мерцатель",
   "item.fisch.dust_devil_eel": "Пыльный угорь-вихрь",
   "item.fisch.scaraoh": "Скарабейник",
-  "item.fisch.frost_minnow": "Морозный гольян",
+  "item.fisch.frost_minnow": "Морозный гольян", ..1
   "item.fisch.shiver_tail": "Дрожащий хвост",
   "item.fisch.glacier_perch": "Ледниковый окунь",
   "item.fisch.aurora_tetra": "Аврора тетра",
@@ -102,6 +102,29 @@
   "item.fisch.forest_spirit_monarch": "Лесной монарх",
   "item.fisch.whispering_willow_eel": "Ивовый шепчущий угорь",
   "item.fisch.nature_incarnate": "Воплощение природы",
+
+
+  "item.fisch.swamp_eel": "Болотный угорь",
+  "item.fisch.slime_loach": "Слизевой вьюн",
+  "item.fisch.muddy_catfish": "Грязный сом",
+  "item.fisch.algae_carp": "Водорослевый карп",
+  "item.fisch.leeched_bass": "Пиявочный окунь",
+  "item.fisch.glowing_toadfish": "Белый-лох",
+  "item.fisch.toxic_puffer": "Токсичный иглобрюх",
+  "item.fisch.bonefish": "Костяная рыба",
+  "item.fisch.witch_fin": "Плавник ведьмы",
+  "item.fisch.bog_behemoth": "Болотный бегемот",
+  "item.fisch.hydra_serpent": "Змей-Гидра",
+  "item.fisch.wisp_ray": "Скат Блуждающего Огня",
+
+  "item.fisch.spore_minnow": "Споровый гольян",
+  "item.fisch.mycelium_carp": "Мицелиевый карп",
+  "item.fisch.cap_jellyfish": "Шляпочная медуза",
+  "item.fisch.truffle_loach": "Трюфельный вьюн",
+  "item.fisch.bioluminescent_tetra": "Биолюминесцентная тетра",
+  "item.fisch.mooshroom_piranha": "Мухоморная пиранья",
+  "item.fisch.fungal_leviathan": "Грибной левиафан",
+  "item.fisch.amanita_serpent": "Змей-Аманита",
 
   "fisch.book.name": "Книга Путника",
   "fisch.book.landing_text": "Добро пожаловать! Здесь вы узнаете всё о наживках, торговцах и редких видах рыб.",

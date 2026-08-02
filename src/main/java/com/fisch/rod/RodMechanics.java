@@ -44,6 +44,10 @@ public class RodMechanics {
                 return "ice";
             } else if (path.contains("jungle") || path.contains("bamboo")) {
                 return "jungle";
+            } else if (path.contains("swamp") || path.contains("mangrove")) {
+                return "swamp";
+            } else if (path.contains("mushroom")) {
+                return "mushroom";
             }
         }
         return "plain";

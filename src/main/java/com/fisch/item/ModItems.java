@@ -3,6 +3,7 @@ package com.fisch.item;
 import com.fisch.fish.NewFish;
 import com.fisch.fish.Relic;
 import com.fisch.rod.NewFishingRod;
+import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -19,10 +20,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.fisch.FischMod.MODID;
-import static net.minecraft.world.item.Items.registerItem;
 
 public class ModItems {
     public static final NewFish TEST_FISH = (NewFish) registerItem("test_fish", new NewFish(new Item.Properties(), "test_fish", 8, 1, 10, "none", "clear", "day", "plain"));
+
     // Регистрация коробки приманок (stacksTo(1) гарантирует не-стакаемость)
     public static final Item BAIT_BOX = registerItem("bait_box", new BaitBoxItem(new Item.Properties().stacksTo(1)));
 
@@ -38,9 +39,11 @@ public class ModItems {
 
     public static final Item SEA_CUCUMBER = registerItem("sea_cucumber",
             new Bait(new Item.Properties(), 0.0f, 3.0f, "tooltip.fisch.sea_cucumber.buff", "tooltip.fisch.sea_cucumber.debuff"));
+
     public static final Item BUG_NET = registerItem("bug_net", new BugNetItem(new Item.Properties().durability(64)));
     public static final Item FISHING_BUG = registerItem("fishing_bug", new FishingBugItem(new Item.Properties()));
     public static final Item WORM = registerItem("worm_bait", new Bait(new Item.Properties(), 0.01f, 0.01f));
+
     public static final Item FISCH_GUIDE_BOOK = registerItem("fisch_guide", new Item(new Item.Properties().stacksTo(1)) {
         @Override
         public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
@@ -51,6 +54,7 @@ public class ModItems {
             return InteractionResultHolder.success(player.getItemInHand(hand));
         }
     });
+
     public static final NewFishingRod ICE_ROD = (NewFishingRod) registerItem("ice_rod", new NewFishingRod(new Item.Properties().stacksTo(1), 15f, 0.01f, 0.10f));
     public static final NewFishingRod SAND_ROD = (NewFishingRod) registerItem("sand_rod", new NewFishingRod(new Item.Properties().stacksTo(1), 25f, 0.05f, 0.10f));
     public static final NewFishingRod JUNGLE_ROD = (NewFishingRod) registerItem("jungle_rod", new NewFishingRod(new Item.Properties().stacksTo(1), 35f, 0.05f, 0.3f));
@@ -60,6 +64,8 @@ public class ModItems {
     public static final NewFish[] ICE_FISH;
     public static final NewFish[] JUNGLE_FISH;
     public static final NewFish[] PLAIN_FISH;
+    public static final NewFish[] SWAMP_FISH;
+    public static final NewFish[] MUSHROOM_FISH;
     public static final NewFish[] JUNK_FISH;
     public static NewFish[] ALL_FISH;
 
@@ -136,6 +142,34 @@ public class ModItems {
     public static final NewFish NATURE_INCARNATE = registerFish("nature_incarnate", 2, 4000, 16000, "none", "clear", "day", "plain");
 
     // ==========================================
+    // БОЛОТО (12 рыб) - "swamp"
+    // ==========================================
+    public static final NewFish SWAMP_EEL = registerFish("swamp_eel", 10, 50, 300, "worm_bait", "raining", "night", "swamp");
+    public static final NewFish SLIME_LOACH = registerFish("slime_loach", 10, 30, 200, "worm_bait", "raining", "night", "swamp");
+    public static final NewFish MUDDY_CATFISH = registerFish("muddy_catfish", 10, 200, 800, "bait_blend", "clear", "day", "swamp");
+    public static final NewFish ALGAE_CARP = registerFish("algae_carp", 8, 100, 500, "seaweed", "raining", "day", "swamp");
+    public static final NewFish LEECHED_BASS = registerFish("leeched_bass", 8, 300, 1200, "crab_claw", "clear", "night", "swamp");
+    public static final NewFish GLOWING_TOADFISH = registerFish("glowing_toadfish", 7, 150, 600, "fishing_bug", "clear", "night", "swamp");
+    public static final NewFish TOXIC_PUFFER = registerFish("toxic_puffer", 5, 80, 400, "bait_blend", "raining", "day", "swamp");
+    public static final NewFish BONEFISH = registerFish("bonefish", 5, 500, 2000, "iron_scrap", "clear", "night", "swamp");
+    public static final NewFish WITCH_FIN = registerFish("witch_fin", 5, 400, 1500, "black_fish_eggs", "thundering", "night", "swamp");
+    public static final NewFish BOG_BEHEMOTH = registerFish("bog_behemoth", 3, 2000, 10000, "crab_claw", "raining", "night", "swamp");
+    public static final NewFish HYDRA_SERPENT = registerFish("hydra_serpent", 2, 3000, 15000, "sea_cucumber", "thundering", "night", "swamp");
+    public static final NewFish WISP_RAY = registerFish("wisp_ray", 1, 1000, 5000, "black_fish_eggs", "clear", "night", "swamp");
+
+    // ==========================================
+    // ГРИБНОЙ БИОМ (8 рыб) - "mushroom"
+    // ==========================================
+    public static final NewFish SPORE_MINNOW = registerFish("spore_minnow", 10, 20, 100, "worm_bait", "clear", "day", "mushroom");
+    public static final NewFish MYCELIUM_CARP = registerFish("mycelium_carp", 10, 150, 700, "bait_blend", "raining", "day", "mushroom");
+    public static final NewFish CAP_JELLYFISH = registerFish("cap_jellyfish", 8, 50, 300, "fishing_bug", "clear", "night", "mushroom");
+    public static final NewFish TRUFFLE_LOACH = registerFish("truffle_loach", 8, 80, 400, "worm_bait", "clear", "day", "mushroom");
+    public static final NewFish BIOLUMINESCENT_TETRA = registerFish("bioluminescent_tetra", 5, 60, 250, "fishing_bug", "raining", "night", "mushroom");
+    public static final NewFish MOOSHROOM_PIRANHA = registerFish("mooshroom_piranha", 3, 200, 900, "crab_claw", "clear", "day", "mushroom");
+    public static final NewFish FUNGAL_LEVIATHAN = registerFish("fungal_leviathan", 2, 4000, 18000, "sea_cucumber", "thundering", "night", "mushroom");
+    public static final NewFish AMANITA_SERPENT = registerFish("amanita_serpent", 1, 1500, 8000, "black_fish_eggs", "raining", "night", "mushroom");
+
+    // ==========================================
     // МУСОР (3 штуки) - "junk" (Редкость 10)
     // ==========================================
     public static final NewFish SEAWEED = registerFish("seaweed", 10, 50, 200, "none", "clear", "day", "junk");
@@ -145,7 +179,6 @@ public class ModItems {
     public static final Relic RELIC = (Relic) registerItem("relic", new Relic(new Item.Properties(), "relic", 4, 1, 1, "none", "clear", "night", "none"));
 
     static {
-
         DESERT_FISH = List.of(
                 SAND_GLIDER, DUNE_GUPPY, MIRAGE_FIN,
                 CACTUS_SPIKE, OASIS_SHIMMER, DUST_DEVIL_EEL,
@@ -179,9 +212,22 @@ public class ModItems {
                 WHISPERING_WILLOW_EEL, NATURE_INCARNATE
         ).toArray(new NewFish[0]);
 
+        SWAMP_FISH = List.of(
+                SWAMP_EEL, SLIME_LOACH, MUDDY_CATFISH, ALGAE_CARP,
+                LEECHED_BASS, GLOWING_TOADFISH, TOXIC_PUFFER, BONEFISH,
+                WITCH_FIN, BOG_BEHEMOTH, HYDRA_SERPENT, WISP_RAY
+        ).toArray(new NewFish[0]);
+
+        MUSHROOM_FISH = List.of(
+                SPORE_MINNOW, MYCELIUM_CARP, CAP_JELLYFISH, TRUFFLE_LOACH,
+                BIOLUMINESCENT_TETRA, MOOSHROOM_PIRANHA, FUNGAL_LEVIATHAN,
+                AMANITA_SERPENT
+        ).toArray(new NewFish[0]);
+
         JUNK_FISH = new NewFish[]{
                 SEAWEED, IRON_SCRAP, OLD_BOOT
         };
+
         ALL_FISH = new NewFish[]{
                 SAND_GLIDER, DUNE_GUPPY, MIRAGE_FIN,
                 CACTUS_SPIKE, OASIS_SHIMMER, DUST_DEVIL_EEL,
@@ -203,6 +249,12 @@ public class ModItems {
                 CHERRY_BLOSSOM_KOI, MOSS_BACK_TROUT, RAINBOW_TROUT,
                 AMBER_EYE_PERCH, FOREST_SPIRIT_MONARCH,
                 WHISPERING_WILLOW_EEL, NATURE_INCARNATE,
+                SWAMP_EEL, SLIME_LOACH, MUDDY_CATFISH, ALGAE_CARP,
+                LEECHED_BASS, GLOWING_TOADFISH, TOXIC_PUFFER, BONEFISH,
+                WITCH_FIN, BOG_BEHEMOTH, HYDRA_SERPENT, WISP_RAY,
+                SPORE_MINNOW, MYCELIUM_CARP, CAP_JELLYFISH, TRUFFLE_LOACH,
+                BIOLUMINESCENT_TETRA, MOOSHROOM_PIRANHA, FUNGAL_LEVIATHAN,
+                AMANITA_SERPENT,
                 SEAWEED, IRON_SCRAP, OLD_BOOT
         };
         FISH_LIST.add(TEST_FISH);
@@ -223,6 +275,5 @@ public class ModItems {
     }
 
     public static void register() {
-
     }
 }
