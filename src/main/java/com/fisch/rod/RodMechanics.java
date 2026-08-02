@@ -58,8 +58,8 @@ public class RodMechanics {
     public static boolean rollCrateDrop(float luck) {
         // Базовый шанс у плохой удочки (luck = 0) равен 5% (1 раз в 20 поклевок).
         // За каждую единицу удачи шанс растет на 3%.
-        // Джунглевая удочка (luck = 5) получит шанс 5 + 15 = 20% (1 раз в 5 поклевок).
-        float crateChance = 5.0f + (luck * 3.0f);
+        // Джунглевая удочка (luck = 35 -> 3.5) получит шанс 5 + 10.5 = ~15.5%
+        float crateChance = 5.0f + (luck / 10.0f * 3.0f);
 
         // Ограничиваем максимальный шанс на 40%, чтобы даже под бафами кейсы не падали каждый раз
         crateChance = Math.min(crateChance, 40.0f);
@@ -145,6 +145,10 @@ public class RodMechanics {
     }
 
     public static float fishDropPercentage(NewFish fish, Level world, String bait, float luck) {
+        // Удочки дают luck в процентах (15/25/35), а формулы рассчитаны на диапазон 0-5.
+        // Нормализуем, чтобы баланс работал корректно.
+        luck = luck / 10.0f;
+
         float weight;
 
         // ЖЕСТКИЙ БАЛАНС: Разделяем рыбу по тирам.

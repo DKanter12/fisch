@@ -70,7 +70,7 @@ public class ModCreativeTabs { // Переименовали класс, что�
                         output.accept(ModItems.GLASS_DUNE_PIERCER);
 
                         // Ледяные рыбы
-                        output.accept(ModItems.FROST_MINNOW);
+                        output.accept(ModItems.SINISTER_FISCH);
                         output.accept(ModItems.SHIVER_TAIL);
                         output.accept(ModItems.GLACIER_PERCH);
                         output.accept(ModItems.AURORA_TETRA);

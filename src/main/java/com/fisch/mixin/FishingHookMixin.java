@@ -168,8 +168,11 @@ public abstract class FishingHookMixin implements FishingHookDuck {
         float totalLuck = baseLuck + enchLuck + extraLuck;
 
         // -- ИСПРАВЛЕННАЯ СИСТЕМА РЕ-РОЛЛОВ --
-        // Теперь на деф удочке будет 1 ролл (как и должно быть).
-        int rolls = 1 + (int)(totalLuck);
+        // Удочки дают luck в процентах (15/25/35), а не в диапазоне 0-5,
+        // поэтому нормализуем так же, как в fishDropPercentage, иначе у
+        // джунглевой удочки будет 35+ роллов и будут выпадать одни экзотики.
+        // Лёд (15) -> 2 ролла, Пустыня (25) -> 3, Джунгли (35) -> 4, Деф (0) -> 1.
+        int rolls = 1 + (int)(totalLuck / 10.0f);
         if (rolls < 1) rolls = 1;
 
         NewFish bestFish = null;
@@ -268,6 +271,14 @@ public abstract class FishingHookMixin implements FishingHookDuck {
 
         if (biomeId.equals("jungle") || biomeId.equals("sparse_jungle") || biomeId.equals("bamboo_jungle")) {
             return ModItems.JUNGLE_FISH;
+        }
+
+        if (biomeId.equals("swamp") || biomeId.equals("mangrove_swamp")) {
+            return ModItems.SWAMP_FISH;
+        }
+
+        if (biomeId.contains("mushroom")) {
+            return ModItems.MUSHROOM_FISH;
         }
 
         return ModItems.PLAIN_FISH;

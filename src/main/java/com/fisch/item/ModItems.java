@@ -86,7 +86,7 @@ public class ModItems {
     // ==========================================
     // ЛЕДЯНЫЕ РЫБЫ (14 штук) - "ice"
     // ==========================================
-    public static final NewFish FROST_MINNOW = registerFish("frost_minnow", 8, 30, 150, "worm_bait", "raining", "day", "ice");
+    public static final NewFish SINISTER_FISCH = registerFish("sinister_fish", 8, 30, 150, "worm_bait", "raining", "day", "ice");
     public static final NewFish SHIVER_TAIL = registerFish("shiver_tail", 8, 40, 200, "none", "clear", "day", "ice");
     public static final NewFish GLACIER_PERCH = registerFish("glacier_perch", 8, 150, 700, "none", "clear", "day", "ice");
     public static final NewFish AURORA_TETRA = registerFish("aurora_tetra", 7, 60, 300, "fishing_bug", "clear", "night", "ice");
@@ -187,7 +187,7 @@ public class ModItems {
         ).toArray(new NewFish[0]);
 
         ICE_FISH = List.of(
-                FROST_MINNOW, SHIVER_TAIL, GLACIER_PERCH,
+                SINISTER_FISCH, SHIVER_TAIL, GLACIER_PERCH,
                 AURORA_TETRA, ICICLE_PIKE, SNOWBALL_PUFFER,
                 DEEP_FROST_COD, BLIZZARD_VORTEX, CRYO_CRAB,
                 FROSTBITE_SNAPPER, PERMAFROST_GOLIATH,
@@ -232,7 +232,7 @@ public class ModItems {
                 SAND_GLIDER, DUNE_GUPPY, MIRAGE_FIN,
                 CACTUS_SPIKE, OASIS_SHIMMER, DUST_DEVIL_EEL,
                 SCARAOH, PHARAOH_BASS, SUN_SERPENT,
-                GLASS_DUNE_PIERCER, FROST_MINNOW, SHIVER_TAIL,
+                GLASS_DUNE_PIERCER, SINISTER_FISCH, SHIVER_TAIL,
                 GLACIER_PERCH, AURORA_TETRA, ICICLE_PIKE,
                 SNOWBALL_PUFFER, DEEP_FROST_COD, BLIZZARD_VORTEX,
                 CRYO_CRAB, FROSTBITE_SNAPPER, PERMAFROST_GOLIATH,
