@@ -1,0 +1,17 @@
+{
+  "name": "Bait Boxes",
+  "icon": "fisch:bait_box",
+  "category": "fisch:bait",
+  "pages": [
+    {
+      "type": "text",
+      "text": "While regular fishing, you have a chance to catch a $(l)Bait Box$().$(br)$(br)Inside you will find special baits that can significantly alter your fishing stats."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "fisch:bait_box",
+      "title": "Pros and Cons",
+      "text": "$(l)Be careful!$() Every bait is unique. Along with strong buffs (like luck or lure speed), baits can also apply debuffs. Always read their descriptions carefully!"
+    }
+  ]
+}
