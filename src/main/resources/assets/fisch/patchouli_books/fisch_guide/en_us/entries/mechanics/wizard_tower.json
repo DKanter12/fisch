@@ -1,0 +1,19 @@
+{
+  "name": "Tower Wizard",
+  "icon": "minecraft:brewing_stand",
+  "category": "fisch:mechanics",
+  "pages": [
+    {
+      "type": "text",
+      "text": "While traveling the world, you might stumble upon a mysterious lonely tower. It is home to a peculiar Wizard studying the magical properties of aquatic creatures."
+    },
+    {
+      "type": "text",
+      "text": "He will offer you a deal: for a small fee, the Wizard can enchant your caught fish, increasing its market value or adding useful effects."
+    },
+    {
+      "type": "text",
+      "text": "$(l)But be warned!$()$(br)$(br)This mage is self-taught, and his spells are highly unstable. Over time, the enchantments he casts may simply dissipate, returning the fish to normal. Sell it before the magic wears off!"
+    }
+  ]
+}

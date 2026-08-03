@@ -1,0 +1,15 @@
+{
+  "name": "Enchanting Island",
+  "icon": "minecraft:enchanting_table",
+  "category": "fisch:mechanics",
+  "pages": [
+    {
+      "type": "text",
+      "text": "Far out in the endless ocean lies a mysterious $(l)Island$().$(br)$(br)Grab a boat, bring your relics, and set sail into the deep seas to find it."
+    },
+    {
+      "type": "text",
+      "text": "$(l)Night Ritual$()$(br)$(br)Once you reach the island, $(l)you must wait until nightfall$().$(br)$(br)Only under the night sky does the ancient altar awaken, allowing you to enchant your rod with unique powers."
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Ancient Relics",
+  "icon": "fisch:relic",
+  "category": "fisch:mechanics",
+  "pages": [
+    {
+      "type": "text",
+      "text": "Fishing in $(l)any body of water$() gives a small chance to hook a rare $(l)Relic$().$(br)$(br)This is not just a valuable collectible, but an artifact holding ancient ocean magic."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "fisch:relic",
+      "title": "Key to Power",
+      "text": "Relics are your key to reaching the mysterious Enchanting Island and unlocking the true potential of your fishing rods."
+    }
+  ]
+}

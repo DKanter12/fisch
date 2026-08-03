@@ -1,0 +1,15 @@
+{
+  "name": "Biomes & Fish Rarity",
+  "icon": "fisch:jungle_heart_carp",
+  "category": "fisch:mechanics",
+  "pages": [
+    {
+      "type": "text",
+      "text": "Every biome holds unique species:$(br)$(br)• $(l)Desert$(): Sand Gliders & Pharaoh Bass.$(br)• $(l)Ice$(): Glacier Perch & Absolute Zero.$(br)• $(l)Jungle$(): Piranha Kings & Canopy Spirits.$(br)• $(l)Swamp & Mushroom$(): Toxic & Mycelium fish."
+    },
+    {
+      "type": "text",
+      "text": "$(l)Rarity & Value$()$(br)$(br)The rarer and cooler the fish, the harder the fishing minigame will be. But the reward is worth it — top-tier market prices!"
+    }
+  ]
+}
