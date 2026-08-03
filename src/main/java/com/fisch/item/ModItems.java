@@ -55,9 +55,11 @@ public class ModItems {
         }
     });
 
-    public static final NewFishingRod ICE_ROD = (NewFishingRod) registerItem("ice_rod", new NewFishingRod(new Item.Properties().stacksTo(1), 15f, 0.01f, 0.10f));
-    public static final NewFishingRod SAND_ROD = (NewFishingRod) registerItem("sand_rod", new NewFishingRod(new Item.Properties().stacksTo(1), 25f, 0.05f, 0.10f));
-    public static final NewFishingRod JUNGLE_ROD = (NewFishingRod) registerItem("jungle_rod", new NewFishingRod(new Item.Properties().stacksTo(1), 35f, 0.05f, 0.3f));
+    public static final NewFishingRod ICE_ROD = (NewFishingRod) registerItem("ice_rod", new NewFishingRod(new Item.Properties().stacksTo(1), 15f, 0.01f, 0.10f, "none"));
+    public static final NewFishingRod SAND_ROD = (NewFishingRod) registerItem("sand_rod", new NewFishingRod(new Item.Properties().stacksTo(1), 25f, 0.05f, 0.10f, "none"));
+    public static final NewFishingRod JUNGLE_ROD = (NewFishingRod) registerItem("jungle_rod", new NewFishingRod(new Item.Properties().stacksTo(1), 35f, 0.05f, 0.3f, "none"));
+    public static final NewFishingRod SWAMP_ROD = (NewFishingRod) registerItem("swamp_rod", new NewFishingRod(new Item.Properties().stacksTo(1), 45f, 0.10f, 0.35f, "swamp"));
+    public static final NewFishingRod MUSHROOM_ROD = (NewFishingRod) registerItem("mushroom_rod", new NewFishingRod(new Item.Properties().stacksTo(1), 55f, 0.15f, 0.40f, "mushroom"));
 
     private static final List<NewFish> FISH_LIST = new ArrayList<>();
     public static final NewFish[] DESERT_FISH;

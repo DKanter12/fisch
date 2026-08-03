@@ -166,5 +166,15 @@
   "enchantment.fisch.steady": "Steady",
   "enchantment.fisch.controlled": "Controlled",
   "enchantment.fisch.resilient": "Resilient",
-  "enchantment.fisch.mystical": "Mystical"
+  "enchantment.fisch.mystical": "Mystical",
+
+  "message.fisch.enchant.success": "Rod enchanted with ",
+
+  "item.fisch.swamp_rod": "Swamp Rod",
+  "item.fisch.mushroom_rod": "Mushroom Rod",
+
+  "passive.fisch.swamp.name": "Passive: Swamp Fortitude",
+  "passive.fisch.swamp.desc": "In swamp biomes, bait is consumed 50% less often",
+  "passive.fisch.mushroom.name": "Passive: Spore Catch",
+  "passive.fisch.mushroom.desc": "25% chance to catch a copy of the fish (double catch)"
 }

@@ -24,6 +24,8 @@ public class ModCreativeTabs { // Переименовали класс, что�
                         output.accept(ModItems.ICE_ROD);
                         output.accept(ModItems.SAND_ROD);
                         output.accept(ModItems.JUNGLE_ROD);
+                        output.accept(ModItems.SWAMP_ROD);
+                        output.accept(ModItems.MUSHROOM_ROD);
                         // === ТВОИ НОВЫЕ    ПРИМАНКИ ТЕПЕРЬ ТУТ ===
                         output.accept(ModItems.BAIT_BOX);
                         output.accept(ModItems.BLACK_FISH_EGGS);

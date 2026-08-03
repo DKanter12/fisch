@@ -130,6 +130,7 @@
   "fisch.book.landing_text": "Добро пожаловать! Здесь вы узнаете всё о наживках, торговцах и редких видах рыб.",
 
   "message.fisch.enchant_success": "Удочка зачарована на ",
+  "message.fisch.enchant.success": "Удочка зачарована на ",
   "message.fisch.enchant_fail": "§cНе удалось зачаровать удочку! Чары рассеялись.",
   "message.fisch.not_enough_money": "§c[Чар] У вас недостаточно денег!",
   "message.fisch.need_bait": "Нужна приманка!",
@@ -167,5 +168,13 @@
   "enchantment.fisch.steady": "Стабильность",
   "enchantment.fisch.controlled": "Контроль",
   "enchantment.fisch.resilient": "Прочность",
-  "enchantment.fisch.mystical": "Мистика"
+  "enchantment.fisch.mystical": "Мистика",
+
+  "item.fisch.swamp_rod": "Болотная удочка",
+  "item.fisch.mushroom_rod": "Грибная удочка",
+
+  "passive.fisch.swamp.name": "Пассивка: Болотная живучесть",
+  "passive.fisch.swamp.desc": "В болотных биомах приманка расходуется на 50% реже",
+  "passive.fisch.mushroom.name": "Пассивка: Споровый улов",
+  "passive.fisch.mushroom.desc": "25% шанс поймать копию рыбы (двойной улов)"
 }

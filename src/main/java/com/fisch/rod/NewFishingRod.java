@@ -38,12 +38,26 @@ public class NewFishingRod
 
     private final float resilience;
 
+    private final String passive;
+
 
     public NewFishingRod(
             Properties properties,
             float luck,
             float control,
             float resilience
+    ) {
+
+        this(properties, luck, control, resilience, "none");
+    }
+
+
+    public NewFishingRod(
+            Properties properties,
+            float luck,
+            float control,
+            float resilience,
+            String passive
     ) {
 
         super(properties);
@@ -56,6 +70,9 @@ public class NewFishingRod
 
         this.resilience =
                 resilience;
+
+        this.passive =
+                passive;
     }
 
 
@@ -336,6 +353,14 @@ public class NewFishingRod
         tooltip.add(Component.literal("Resilience: " + (int) (totalResilience * 100) + "%")
                 .withStyle(ChatFormatting.GREEN));
 
+        if (!this.passive.equals("none")) {
+            tooltip.add(Component.literal(""));
+            tooltip.add(Component.translatable("passive.fisch." + this.passive + ".name")
+                    .withStyle(ChatFormatting.LIGHT_PURPLE));
+            tooltip.add(Component.translatable("passive.fisch." + this.passive + ".desc")
+                    .withStyle(ChatFormatting.DARK_GRAY));
+        }
+
         super.appendHoverText(stack, level, tooltip, flag);
     }
 
@@ -361,6 +386,12 @@ public class NewFishingRod
     public float getResilience() {
 
         return resilience;
+    }
+
+
+    public String getPassive() {
+
+        return passive;
     }
 
 

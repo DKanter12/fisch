@@ -167,32 +167,19 @@ public abstract class FishingHookMixin implements FishingHookDuck {
 
         float totalLuck = baseLuck + enchLuck + extraLuck;
 
-        // -- ИСПРАВЛЕННАЯ СИСТЕМА РЕ-РОЛЛОВ --
-        // Удочки дают luck в процентах (15/25/35), а не в диапазоне 0-5,
-        // поэтому нормализуем так же, как в fishDropPercentage, иначе у
-        // джунглевой удочки будет 35+ роллов и будут выпадать одни экзотики.
-        // Лёд (15) -> 2 ролла, Пустыня (25) -> 3, Джунгли (35) -> 4, Деф (0) -> 1.
-        int rolls = 1 + (int)(totalLuck / 10.0f);
-        if (rolls < 1) rolls = 1;
-
-        NewFish bestFish = null;
-        for (int i = 0; i < rolls; i++) {
-            NewFish rolled = RodMechanics.determineCatch(
-                    hook.level(),
-                    hook.blockPosition(),
-                    getActiveBestiary(),
-                    bait,
-                    totalLuck
-            );
-
-            if (rolled != null) {
-                if (bestFish == null || rolled.rarity < bestFish.rarity) {
-                    bestFish = rolled;
-                }
-            }
-        }
-
-        this.fisch$customCatch = bestFish;
+        // -- ИСПРАВЛЕННАЯ СИСТЕМА ВЫБОРА РЫБЫ --
+        // Раньше было N ре-роллов с выбором лучшей (минимальной) редкости,
+        // из-за чего даже на деф удочке экзотики сыпались бесконечно.
+        // Теперь рыба выбирается ОДНИМ взвешенным броском: удочка
+        // с большей удачей просто сильнее увеличивает вес редких рыб
+        // в fishDropPercentage, а экзотика остаётся редкостью.
+        this.fisch$customCatch = RodMechanics.determineCatch(
+                hook.level(),
+                hook.blockPosition(),
+                getActiveBestiary(),
+                bait,
+                totalLuck
+        );
 
         // Тратим приманку
         if (!baitStack.isEmpty()) {
@@ -327,9 +314,40 @@ public abstract class FishingHookMixin implements FishingHookDuck {
             }
 
             ItemStack rodStack = player.getMainHandItem();
+
+            // -- ПАССИВКА ГРИБНОЙ УДОЧКИ: "Споровый улов" --
+            // 25% шанс поймать копию рыбы (двойной улов).
+            String rodPassive = "none";
+            if (rodStack.getItem() instanceof NewFishingRod activeRod) {
+                rodPassive = activeRod.getPassive();
+            }
+
+            if (rodPassive.equals("mushroom") && fisch$RANDOM.nextInt(100) < 25) {
+                ItemEntity sporeFishEntity = new ItemEntity(hook.level(), hook.getX(), hook.getY(), hook.getZ(), fishStack.copy());
+                sporeFishEntity.setPickUpDelay(10);
+                sporeFishEntity.setDeltaMovement(direction.x * 0.35, 0.45, direction.z * 0.35);
+                hook.level().addFreshEntity(sporeFishEntity);
+            }
+
+            // -- ПАССИВКА БОЛОТНОЙ УДОЧКИ: "Болотная живучесть" --
+            // В болотных биомах приманка расходуется на 50% реже.
+            boolean isSwampBiome = RodMechanics.getBiomeGroup(hook.level(), hook.blockPosition()).equals("swamp");
+            if (rodPassive.equals("swamp") && isSwampBiome && fisch$RANDOM.nextInt(100) < 50) {
+                ItemStack rodForBait = player.getMainHandItem();
+                ItemStack rodBaitStack = RodBaitData.getBait(rodForBait);
+                if (!rodBaitStack.isEmpty()) {
+                    rodBaitStack.grow(1);
+                    RodBaitData.setBait(rodForBait, rodBaitStack);
+                }
+            }
+
             int boxChance = 5;
 
-            if (rodStack.getItem() == ModItems.JUNGLE_ROD) {
+            if (rodStack.getItem() == ModItems.MUSHROOM_ROD) {
+                boxChance = 30;
+            } else if (rodStack.getItem() == ModItems.SWAMP_ROD) {
+                boxChance = 25;
+            } else if (rodStack.getItem() == ModItems.JUNGLE_ROD) {
                 boxChance = 20;
             } else if (rodStack.getItem() == ModItems.SAND_ROD) {
                 boxChance = 10;
