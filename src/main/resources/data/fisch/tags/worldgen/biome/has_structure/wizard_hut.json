@@ -1,21 +1,13 @@
 {
   "replace": false,
   "values": [
-    "#minecraft:is_overworld",
-    {
-      "id": "#minecraft:is_ocean",
-      "required": false,
-      "remove": true
-    },
-    {
-      "id": "#minecraft:is_deep_ocean",
-      "required": false,
-      "remove": true
-    },
-    {
-      "id": "#minecraft:is_river",
-      "required": false,
-      "remove": true
-    }
+    "minecraft:forest",
+    "minecraft:flower_forest",
+    "minecraft:birch_forest",
+    "minecraft:old_growth_birch_forest",
+    "minecraft:taiga",
+    "minecraft:old_growth_spruce_taiga",
+    "minecraft:old_growth_pine_taiga",
+    "minecraft:snowy_taiga"
   ]
 }

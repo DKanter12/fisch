@@ -35,6 +35,8 @@
   "item.fisch.ice_rod": "Ледяная удочка",
   "item.fisch.sand_rod": "Песчаная удочка",
   "item.fisch.jungle_rod": "Джунглевая удочка",
+  "item.fisch.swamp_rod": "Болотная удочка",
+  "item.fisch.mushroom_rod": "Грибная удочка",
   "item.fisch.relic": "Реликвия",
 
   "item.fisch.seaweed": "Морские водоросли",
@@ -102,21 +104,18 @@
   "item.fisch.forest_spirit_monarch": "Лесной монарх",
   "item.fisch.whispering_willow_eel": "Ивовый шепчущий угорь",
   "item.fisch.nature_incarnate": "Воплощение природы",
-
-
   "item.fisch.swamp_eel": "Болотный угорь",
   "item.fisch.slime_loach": "Слизевой вьюн",
   "item.fisch.muddy_catfish": "Грязный сом",
   "item.fisch.algae_carp": "Водорослевый карп",
   "item.fisch.leeched_bass": "Пиявочный окунь",
-  "item.fisch.glowing_toadfish": "Белый-лох",
+  "item.fisch.glowing_toadfish": "Светящаяся жаба-рыба",
   "item.fisch.toxic_puffer": "Токсичный иглобрюх",
   "item.fisch.bonefish": "Костяная рыба",
   "item.fisch.witch_fin": "Плавник ведьмы",
   "item.fisch.bog_behemoth": "Болотный бегемот",
   "item.fisch.hydra_serpent": "Змей-Гидра",
   "item.fisch.wisp_ray": "Скат Блуждающего Огня",
-
   "item.fisch.spore_minnow": "Споровый гольян",
   "item.fisch.mycelium_carp": "Мицелиевый карп",
   "item.fisch.cap_jellyfish": "Шляпочная медуза",
@@ -129,9 +128,12 @@
   "fisch.book.name": "Книга Путника",
   "fisch.book.landing_text": "Добро пожаловать! Здесь вы узнаете всё о наживках, торговцах и редких видах рыб.",
 
-  "message.fisch.enchant_success": "Удочка зачарована на ",
-  "message.fisch.enchant.success": "Удочка зачарована на ",
-  "message.fisch.enchant_fail": "§cНе удалось зачаровать удочку! Чары рассеялись.",
+  "message.fisch.enchant.rod_success": "Удочка зачарована на: %s",
+  "message.fisch.enchant.fish_success": "Рыба зачарована на: %s",
+
+  "message.fisch.enchant.success": "Успешно! ",
+  "message.fisch.enchant_success": "§aУспешно зачаровано!",
+  "message.fisch.enchant_fail": "§cНе удалось зачаровать! Чары рассеялись.",
   "message.fisch.not_enough_money": "§c[Чар] У вас недостаточно денег!",
   "message.fisch.need_bait": "Нужна приманка!",
   "message.fisch.bait_selected": "Приманка выбрана",
@@ -142,7 +144,7 @@
   "message.fisch.monger.inventory_full": "§c[Продавец] Твой инвентарь переполнен! Освободи место.",
   "message.fisch.monger.buy_success": "§a[Продавец] Вы купили %s за %s C$!",
   "message.fisch.relic.empty": "Нет зачарования",
-  "message.fisch.enchant.tooltip": "Зачаровать удочку",
+  "message.fisch.enchant.tooltip": "Зачаровать предмет",
   "message.fisch.enchant.no_rod": "Поместите удочку в алтарь!",
   "message.fisch.enchant.night_only": "Зачарование работает только ночью!",
   "message.fisch.enchant.no_xp": "Недостаточно опыта! Нужно 400 XP.",
@@ -169,9 +171,6 @@
   "enchantment.fisch.controlled": "Контроль",
   "enchantment.fisch.resilient": "Прочность",
   "enchantment.fisch.mystical": "Мистика",
-
-  "item.fisch.swamp_rod": "Болотная удочка",
-  "item.fisch.mushroom_rod": "Грибная удочка",
 
   "passive.fisch.swamp.name": "Пассивка: Болотная живучесть",
   "passive.fisch.swamp.desc": "В болотных биомах приманка расходуется на 50% реже",

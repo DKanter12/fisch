@@ -38,7 +38,7 @@ public class WizardScreen extends AbstractContainerScreen<WizardMenu> {
         int y = this.topPos + 44;
 
         this.enchantButton = Button.builder(
-                Component.translatable("gui.fisch.enchant"), // Перевод базовой кнопки
+                Component.translatable("gui.fisch.enchant"),
                 button -> {
                     ClientPlayNetworking.send(new ResourceLocation(FischMod.MODID, "enchant_fish"), PacketByteBufs.create());
                 }
@@ -56,10 +56,7 @@ public class WizardScreen extends AbstractContainerScreen<WizardMenu> {
             this.enchantButton.setMessage(Component.translatable("gui.fisch.enchant"));
             this.enchantButton.active = false;
         } else {
-            // Берем реальную цену из нашего класса с чарами
             long enchantCost = FishMutation.getEnchantCost(stack);
-
-            // Форматируем перевод: Зачаровать (Цена C$)
             this.enchantButton.setMessage(Component.translatable("gui.fisch.enchant_cost", enchantCost));
             this.enchantButton.active = true;
         }

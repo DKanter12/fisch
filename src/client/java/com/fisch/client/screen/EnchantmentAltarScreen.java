@@ -58,14 +58,15 @@ public class EnchantmentAltarScreen extends AbstractContainerScreen<EnchantmentA
             drawSlot(graphics, x + 8 + col * 18, y + 142);
         }
 
-        drawEnchantButton(graphics, x + BTN_X, y + BTN_Y);
+        drawEnchantButton(graphics, x + BTN_X, y + BTN_Y, mouseX, mouseY);
 
         graphics.drawCenteredString(this.font, Component.translatable("gui.fisch.crate.rod"), x + 53, y + 55, 0xFFCE93D8);
         graphics.drawCenteredString(this.font, Component.translatable("gui.fisch.crate.relic"), x + 125, y + 55, 0xFFCE93D8);
     }
 
-    private void drawEnchantButton(GuiGraphics graphics, int x, int y) {
-        int color = isEnchantButtonHovered() ? 0xFFE1BEE7 : 0xFFCE93D8;
+    private void drawEnchantButton(GuiGraphics graphics, int x, int y, int mouseX, int mouseY) {
+        boolean isHovered = isMouseOverButton(mouseX, mouseY);
+        int color = isHovered ? 0xFFE1BEE7 : 0xFFCE93D8;
         graphics.drawCenteredString(this.font, Component.literal("\u2697"), x + BTN_W / 2, y + 5, color);
     }
 
@@ -73,10 +74,6 @@ public class EnchantmentAltarScreen extends AbstractContainerScreen<EnchantmentA
         int bx = this.leftPos + BTN_X;
         int by = this.topPos + BTN_Y;
         return mouseX >= bx && mouseX < bx + BTN_W && mouseY >= by && mouseY < by + BTN_H;
-    }
-
-    private boolean isEnchantButtonHovered() {
-        return isMouseOverButton(this.minecraft.mouseHandler.xpos(), this.minecraft.mouseHandler.ypos());
     }
 
     private void drawSlot(GuiGraphics graphics, int x, int y) {

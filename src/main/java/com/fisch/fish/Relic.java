@@ -7,8 +7,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
-
 import net.minecraft.util.RandomSource;
+
 import java.util.List;
 
 public class Relic extends NewFish {
@@ -45,7 +45,8 @@ public class Relic extends NewFish {
         super.appendHoverText(stack, level, tooltip, flag);
         String ench = getRelicEnchantment(stack);
         if (ench != null && !ench.isEmpty()) {
-            tooltip.add(RodEnchantment.getDisplayName(ench));
+            // Берем переведенное имя зачарования
+            tooltip.add(Component.translatable("enchantment.fisch." + ench.toLowerCase()).withStyle(ChatFormatting.GOLD));
         } else {
             tooltip.add(Component.translatable("message.fisch.relic.empty").withStyle(ChatFormatting.DARK_GRAY));
         }

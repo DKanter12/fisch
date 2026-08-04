@@ -8,6 +8,7 @@ import com.fisch.events.ModEvents;
 import com.fisch.item.ModCreativeTabs;
 import com.fisch.item.ModItems;
 import com.fisch.menu.FishMerchantMenu;
+import com.fisch.menu.FishMongerMenu;
 import com.fisch.networking.ModPackets;
 import com.fisch.screen.ModScreenHandlers;
 import com.fisch.util.CurrencyHolder;
@@ -18,17 +19,28 @@ import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
+import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.BiomeTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.npc.VillagerProfession;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.Biomes;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,23 +83,61 @@ public class FischMod implements ModInitializer {
 
         /*
          * ========================================================
-         * OPEN FISH MERCHANT MENU
+         * OPEN MENUS ON ENTITY CLICK (ВКЛЮЧАЯ БИОМНУЮ ЛОГИКУ!)
          * ========================================================
          */
         UseEntityCallback.EVENT.register(
                 (player, level, hand, entity, hitResult) -> {
-                    if (entity instanceof FishMongerEntity) {
-                        return InteractionResult.PASS;
+                    // ПРОДАВЕЦ УДОЧЕК (FISH MONGER)
+                    if (entity instanceof FishMongerEntity monger) {
+                        if (!level.isClientSide) {
+                            // 1. Получаем биом в реальном времени под ногами жителя
+                            Holder<Biome> biomeHolder = level.getBiome(monger.blockPosition());
+                            Item rodToSell = ModItems.ICE_ROD; // Удочка по умолчанию
+
+                            // 2. Проверяем биом и назначаем нужную удочку
+                            if (biomeHolder.is(Biomes.SWAMP) || biomeHolder.is(Biomes.MANGROVE_SWAMP)) {
+                                rodToSell = ModItems.SWAMP_ROD;
+                            } else if (biomeHolder.is(Biomes.MUSHROOM_FIELDS)) {
+                                rodToSell = ModItems.MUSHROOM_ROD;
+                            } else if (biomeHolder.is(BiomeTags.IS_JUNGLE)) {
+                                rodToSell = ModItems.JUNGLE_ROD;
+                            } else if (biomeHolder.is(Biomes.DESERT) || biomeHolder.is(BiomeTags.HAS_DESERT_PYRAMID)) {
+                                rodToSell = ModItems.SAND_ROD;
+                            }
+
+                            // 3. Открываем меню и передаем туда нашу удочку
+                            monger.setTradingPlayer(player);
+                            Item finalRod = rodToSell;
+
+                            player.openMenu(new ExtendedScreenHandlerFactory() {
+                                @Override
+                                public void writeScreenOpeningData(ServerPlayer serverPlayer, FriendlyByteBuf buf) {
+                                    buf.writeInt(BuiltInRegistries.ITEM.getId(finalRod));
+                                }
+
+                                @Override
+                                public Component getDisplayName() {
+                                    return Component.translatable("container.fisch.fish_monger");
+                                }
+
+                                @Override
+                                public AbstractContainerMenu createMenu(int syncId, Inventory playerInventory, Player player) {
+                                    return new FishMongerMenu(syncId, playerInventory, finalRod, monger);
+                                }
+                            });
+                        }
+                        return InteractionResult.SUCCESS;
                     }
+
                     if (entity instanceof FishermanWizardEntity) {
                         return InteractionResult.PASS;
                     }
 
+                    // СКУПЩИК РЫБЫ
                     if (entity instanceof Villager villager && villager.getVillagerData().getProfession() == VillagerProfession.FISHERMAN) {
                         if (!level.isClientSide) {
                             villager.setTradingPlayer(player);
-                            // ВНИМАНИЕ: Убедись, что твой FishMerchantMenu в методе "removed(Player player)"
-                            // выбрасывает предметы из merchantInventory на пол! Иначе при закрытии меню они удалятся навсегда.
                             SimpleContainer merchantInventory = new SimpleContainer(27);
 
                             player.openMenu(
@@ -121,7 +171,6 @@ public class FischMod implements ModInitializer {
                         if (player.getMainHandItem().isEmpty()) {
                             player.setItemInHand(InteractionHand.MAIN_HAND, guideBook);
                         } else {
-                            // ИСПРАВЛЕНО: Если инвентарь полон, книга упадет под ноги, а не исчезнет!
                             if (!player.getInventory().add(guideBook)) {
                                 player.drop(guideBook, false);
                             }
@@ -147,24 +196,18 @@ public class FischMod implements ModInitializer {
 
         /*
          * ========================================================
-         * FINISH FISHING MINIGAME
+         * ПОКУПКА УДОЧКИ (ИСПРАВЛЕНО!)
          * ========================================================
          */
-        ServerPlayNetworking.registerGlobalReceiver(
-                FINISH_MINIGAME_PACKET_ID,
-                (server, player, handler, buf, responseSender) -> {
-                    // ВНИМАНИЕ ДЛЯ ЧИТОВ: Сейчас клиент может сам сказать серверу "я выиграл".
-                    // Тебе нужно добавить серверные проверки таймеров в класс FishingHookDuck,
-                    // иначе читеры будут пропускать мини-игру одним пакетом!
-                    boolean success = buf.readBoolean();
-
-                    server.execute(() -> {
-                        if (player.fishing instanceof com.fisch.FishingHookDuck duck) {
-                            duck.finishMiniGame(success);
-                        }
-                    });
+        ServerPlayNetworking.registerGlobalReceiver(new ResourceLocation(FischMod.MODID, "buy_rod"), (server, player, handler, buf, responseSender) -> {
+            server.execute(() -> {
+                // Теперь мы не хардкодим выдачу ICE_ROD за 50 монет!
+                // Мы берем открытое меню игрока и вызываем наш умный метод buyRod()
+                if (player.containerMenu instanceof FishMongerMenu mongerMenu) {
+                    mongerMenu.buyRod(player);
                 }
-        );
+            });
+        });
 
         /*
          * ========================================================

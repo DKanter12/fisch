@@ -28,7 +28,6 @@ import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.entity.VillagerRenderer;
@@ -92,17 +91,10 @@ public class FischModClient implements ClientModInitializer {
                 }
         );
 
-        HudRenderCallback.EVENT.register(new CoinHudOverlay());
+        // Включаем обработчик пакетов из ClientNetwork
+        ClientNetwork.registerReceivers();
 
-        ClientPlayNetworking.registerGlobalReceiver(
-                new ResourceLocation("fisch", "money_sync"),
-                (client, handler, buf, responseSender) -> {
-                    long updatedBalance = buf.readLong();
-                    client.execute(() -> {
-                        ClientMoneyStorage.setBalance(updatedBalance);
-                    });
-                }
-        );
+        HudRenderCallback.EVENT.register(new CoinHudOverlay());
 
         // --- СВЯЗЬ GUI С MENU TYPES ---
         MenuScreens.register(ModMenuTypes.FISH_MERCHANT_MENU, FishMerchantScreen::new);
@@ -129,20 +121,6 @@ public class FischModClient implements ClientModInitializer {
         // 3. Чародей (Fisherman Wizard)
         EntityRendererRegistry.register(ModEntities.FISHERMAN_WIZARD, FishermanWizardRenderer::new);
         EntityModelLayerRegistry.registerModelLayer(FishermanWizardModel.LAYER_LOCATION, FishermanWizardModel::createBodyLayer);
-
-        // --- ПОКУПКА УДОЧКИ ---
-        ServerPlayNetworking.registerGlobalReceiver(new ResourceLocation(FischMod.MODID, "buy_rod"), (server, player, handler, buf, responseSender) -> {
-            server.execute(() -> {
-                long price = 50;
-
-                if (/* баланс игрока >= price */ true) {
-                    player.getInventory().add(new ItemStack(ModItems.ICE_ROD));
-                    player.sendSystemMessage(net.minecraft.network.chat.Component.literal("§aВы успешно купили удочку!"));
-                } else {
-                    player.sendSystemMessage(net.minecraft.network.chat.Component.literal("§cНедостаточно монет!"));
-                }
-            });
-        });
 
         // ПРИМЕЧАНИЕ: ItemTooltipCallback (отображение цены при наведении) полностью удален!
         // ДИМА НЕ НАДО ОНО НЕНАДОООООООООООООООООООООООООООООООООООООООООООООООООООООООООООООООООООО

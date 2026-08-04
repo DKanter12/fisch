@@ -146,9 +146,9 @@ public class ModItems {
     // ==========================================
     // БОЛОТО (12 рыб) - "swamp"
     // ==========================================
-    public static final NewFish SWAMP_EEL = registerFish("swamp_eel", 10, 50, 300, "worm_bait", "raining", "night", "swamp");
-    public static final NewFish SLIME_LOACH = registerFish("slime_loach", 10, 30, 200, "worm_bait", "raining", "night", "swamp");
-    public static final NewFish MUDDY_CATFISH = registerFish("muddy_catfish", 10, 200, 800, "bait_blend", "clear", "day", "swamp");
+    public static final NewFish SWAMP_EEL = registerFish("swamp_eel", 8, 50, 300, "worm_bait", "raining", "night", "swamp");
+    public static final NewFish SLIME_LOACH = registerFish("slime_loach", 8, 30, 200, "worm_bait", "raining", "night", "swamp");
+    public static final NewFish MUDDY_CATFISH = registerFish("muddy_catfish", 8, 200, 800, "bait_blend", "clear", "day", "swamp");
     public static final NewFish ALGAE_CARP = registerFish("algae_carp", 8, 100, 500, "seaweed", "raining", "day", "swamp");
     public static final NewFish LEECHED_BASS = registerFish("leeched_bass", 8, 300, 1200, "crab_claw", "clear", "night", "swamp");
     public static final NewFish GLOWING_TOADFISH = registerFish("glowing_toadfish", 7, 150, 600, "fishing_bug", "clear", "night", "swamp");
@@ -162,8 +162,10 @@ public class ModItems {
     // ==========================================
     // ГРИБНОЙ БИОМ (8 рыб) - "mushroom"
     // ==========================================
-    public static final NewFish SPORE_MINNOW = registerFish("spore_minnow", 10, 20, 100, "worm_bait", "clear", "day", "mushroom");
-    public static final NewFish MYCELIUM_CARP = registerFish("mycelium_carp", 10, 150, 700, "bait_blend", "raining", "day", "mushroom");
+
+    // ГРИБНОЙ БИОМ — было 10, меняем на 8:
+    public static final NewFish SPORE_MINNOW = registerFish("spore_minnow", 8, 20, 100, "worm_bait", "clear", "day", "mushroom");
+    public static final NewFish MYCELIUM_CARP = registerFish("mycelium_carp", 8, 150, 700, "bait_blend", "raining", "day", "mushroom");
     public static final NewFish CAP_JELLYFISH = registerFish("cap_jellyfish", 8, 50, 300, "fishing_bug", "clear", "night", "mushroom");
     public static final NewFish TRUFFLE_LOACH = registerFish("truffle_loach", 8, 80, 400, "worm_bait", "clear", "day", "mushroom");
     public static final NewFish BIOLUMINESCENT_TETRA = registerFish("bioluminescent_tetra", 5, 60, 250, "fishing_bug", "raining", "night", "mushroom");
