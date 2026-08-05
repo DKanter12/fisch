@@ -66,11 +66,6 @@ public class FischMod implements ModInitializer {
         ModPackets.register();
         ModEntities.registerModEntities();
 
-        /*
-         * ========================================================
-         * ENTITY ATTRIBUTES
-         * ========================================================
-         */
         FabricDefaultAttributeRegistry.register(
                 ModEntities.FISH_MONGER,
                 FishMongerEntity.createAttributes()
@@ -83,7 +78,7 @@ public class FischMod implements ModInitializer {
 
         /*
          * ========================================================
-         * OPEN MENUS ON ENTITY CLICK (ВКЛЮЧАЯ БИОМНУЮ ЛОГИКУ!)
+         * ОТКРЫТИЕ МЕНЮ И ЛОГИКА БИОМОВ
          * ========================================================
          */
         UseEntityCallback.EVENT.register(
@@ -91,11 +86,10 @@ public class FischMod implements ModInitializer {
                     // ПРОДАВЕЦ УДОЧЕК (FISH MONGER)
                     if (entity instanceof FishMongerEntity monger) {
                         if (!level.isClientSide) {
-                            // 1. Получаем биом в реальном времени под ногами жителя
                             Holder<Biome> biomeHolder = level.getBiome(monger.blockPosition());
+
                             Item rodToSell = ModItems.ICE_ROD; // Удочка по умолчанию
 
-                            // 2. Проверяем биом и назначаем нужную удочку
                             if (biomeHolder.is(Biomes.SWAMP) || biomeHolder.is(Biomes.MANGROVE_SWAMP)) {
                                 rodToSell = ModItems.SWAMP_ROD;
                             } else if (biomeHolder.is(Biomes.MUSHROOM_FIELDS)) {
@@ -106,7 +100,6 @@ public class FischMod implements ModInitializer {
                                 rodToSell = ModItems.SAND_ROD;
                             }
 
-                            // 3. Открываем меню и передаем туда нашу удочку
                             monger.setTradingPlayer(player);
                             Item finalRod = rodToSell;
 
@@ -155,11 +148,6 @@ public class FischMod implements ModInitializer {
                 }
         );
 
-        /*
-         * ========================================================
-         * SYNC MONEY & GIVE GUIDE BOOK WHEN PLAYER JOINS
-         * ========================================================
-         */
         ServerPlayConnectionEvents.JOIN.register(
                 (handler, sender, server) -> {
                     ServerPlayer player = handler.getPlayer();
@@ -167,7 +155,6 @@ public class FischMod implements ModInitializer {
 
                     if (!player.getTags().contains("fisch.given_guide")) {
                         ItemStack guideBook = new ItemStack(ModItems.FISCH_GUIDE_BOOK);
-
                         if (player.getMainHandItem().isEmpty()) {
                             player.setItemInHand(InteractionHand.MAIN_HAND, guideBook);
                         } else {
@@ -175,17 +162,11 @@ public class FischMod implements ModInitializer {
                                 player.drop(guideBook, false);
                             }
                         }
-
                         player.addTag("fisch.given_guide");
                     }
                 }
         );
 
-        /*
-         * ========================================================
-         * COPY MONEY AFTER RESPAWN / DIMENSION CHANGE
-         * ========================================================
-         */
         ServerPlayerEvents.COPY_FROM.register(
                 (oldPlayer, newPlayer, alive) -> {
                     long currentMoney = ((CurrencyHolder) oldPlayer).getMoney();
@@ -196,34 +177,35 @@ public class FischMod implements ModInitializer {
 
         /*
          * ========================================================
-         * ПОКУПКА УДОЧКИ (ИСПРАВЛЕНО!)
+         * ЗАВЕРШЕНИЕ МИНИ-ИГРЫ И ВЫДАЧА КАСТОМНОЙ РЫБЫ ЧЕРЕЗ DUCK
          * ========================================================
          */
-        ServerPlayNetworking.registerGlobalReceiver(new ResourceLocation(FischMod.MODID, "buy_rod"), (server, player, handler, buf, responseSender) -> {
+        ServerPlayNetworking.registerGlobalReceiver(FINISH_MINIGAME_PACKET_ID, (server, player, handler, buf, responseSender) -> {
+            boolean success = true;
+            if (buf.readableBytes() >= 1) {
+                success = buf.readBoolean();
+            }
+
+            final boolean finalSuccess = success;
             server.execute(() -> {
-                // Теперь мы не хардкодим выдачу ICE_ROD за 50 монет!
-                // Мы берем открытое меню игрока и вызываем наш умный метод buyRod()
-                if (player.containerMenu instanceof FishMongerMenu mongerMenu) {
-                    mongerMenu.buyRod(player);
+                if (player.fishing instanceof com.fisch.FishingHookDuck duck) {
+                    duck.finishMiniGame(finalSuccess);
                 }
             });
         });
 
         /*
          * ========================================================
-         * ENCHANT ROD
+         * ПОКУПКА УДОЧКИ
          * ========================================================
          */
-        ServerPlayNetworking.registerGlobalReceiver(
-                ENCHANT_ROD_PACKET_ID,
-                (server, player, handler, buf, responseSender) -> {
-                    server.execute(() -> {
-                        if (player.containerMenu instanceof com.fisch.screen.EnchantmentAltarScreenHandler altar) {
-                            altar.enchantRod(player);
-                        }
-                    });
+        ServerPlayNetworking.registerGlobalReceiver(new ResourceLocation(FischMod.MODID, "buy_rod"), (server, player, handler, buf, responseSender) -> {
+            server.execute(() -> {
+                if (player.containerMenu instanceof FishMongerMenu mongerMenu) {
+                    mongerMenu.buyRod(player);
                 }
-        );
+            });
+        });
 
         LOGGER.info("FischMod initialized successfully!");
     }

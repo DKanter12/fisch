@@ -8,7 +8,6 @@ import com.fisch.menu.WizardMenu;
 import com.fisch.util.CurrencyHolder;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.ChatFormatting;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -20,7 +19,7 @@ public class ModPackets {
     public static final ResourceLocation ENCHANT_FISH_C2S = new ResourceLocation(FischMod.MODID, "enchant_fish");
     public static final ResourceLocation SYNC_MONEY_S2C = new ResourceLocation("fisch", "money_sync");
     public static final ResourceLocation SELL_ITEMS_C2S = new ResourceLocation("fisch", "sell_items");
-    public static final ResourceLocation BUY_ROD_C2S = new ResourceLocation("fisch", "buy_rod"); // Пакет покупки
+    public static final ResourceLocation BUY_ROD_C2S = new ResourceLocation("fisch", "buy_rod");
     public static final ResourceLocation OPEN_BAIT_MENU = new ResourceLocation(FischMod.MODID, "open_bait_menu");
 
     public static void syncMoney(ServerPlayer player) {
@@ -30,32 +29,11 @@ public class ModPackets {
     }
 
     public static void register() {
-        // Зачарование рыбы с проверкой реальной стоимости и шансом провала
+        // Перенаправляем логику зачарования в сам WizardMenu, где реализован шанс 1 к 7 и порча рыбы
         ServerPlayNetworking.registerGlobalReceiver(ENCHANT_FISH_C2S, (server, player, handler, buf, responseSender) -> {
             server.execute(() -> {
                 if (player.containerMenu instanceof WizardMenu wizardMenu) {
-                    ItemStack fishStack = wizardMenu.getSlot(0).getItem();
-
-                    if (!fishStack.isEmpty()) {
-                        CurrencyHolder currencyHolder = (CurrencyHolder) player;
-                        long cost = FishMutation.getEnchantCost(fishStack); // Берем реальную цену из расчета рыбы
-
-                        if (currencyHolder.getMoney() >= cost) {
-                            currencyHolder.setMoney(currencyHolder.getMoney() - cost);
-                            syncMoney(player);
-
-                            FishMutation randomMutation = FishMutation.getRandom();
-                            FishMutation.applyMutation(fishStack, randomMutation);
-
-                            if (randomMutation == FishMutation.NONE) {
-                                player.sendSystemMessage(Component.translatable("message.fisch.enchant_fail").withStyle(ChatFormatting.RED));
-                            } else {
-                                player.sendSystemMessage(Component.translatable("message.fisch.enchant_success").withStyle(ChatFormatting.GREEN));
-                            }
-                        } else {
-                            player.sendSystemMessage(Component.translatable("message.fisch.not_enough_money").withStyle(ChatFormatting.RED));
-                        }
-                    }
+                    wizardMenu.enchantFish(player);
                 }
             });
         });
@@ -81,7 +59,6 @@ public class ModPackets {
                         holder.setMoney(holder.getMoney() + totalValue);
                         syncMoney(player);
                         player.sendSystemMessage(Component.translatable("text.fisch.sell_success", totalValue));
-                        // Альтернативно можно оставить твой русский текст: player.sendSystemMessage(Component.literal("§a[Рыботорговец] Успешно продано на сумму " + totalValue + " C$!"));
                     }
                 }
             });
@@ -92,7 +69,7 @@ public class ModPackets {
             server.execute(() -> {
                 if (player.containerMenu instanceof com.fisch.menu.FishMongerMenu menu) {
                     if (menu.buyRod(player)) {
-                        syncMoney(player); // Обновляем баланс после успешной покупки
+                        syncMoney(player);
                     }
                 }
             });

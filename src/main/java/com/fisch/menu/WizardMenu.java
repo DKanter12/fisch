@@ -2,8 +2,13 @@ package com.fisch.menu;
 
 import com.fisch.command.ModCommands;
 import com.fisch.entity.FishermanWizardEntity;
+import com.fisch.fish.FishMutation;
+import com.fisch.networking.ModPackets;
 import com.fisch.registry.ModMenuTypes;
+import com.fisch.util.CurrencyHolder;
 
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -12,9 +17,12 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.Random;
+
 public class WizardMenu extends AbstractContainerMenu {
     private final Container container;
     private final FishermanWizardEntity wizard;
+    private static final Random RANDOM = new Random();
 
     public WizardMenu(int syncId, Inventory playerInventory) {
         this(syncId, playerInventory, null);
@@ -25,7 +33,7 @@ public class WizardMenu extends AbstractContainerMenu {
         this.container = new SimpleContainer(1);
         this.wizard = wizard;
 
-        // ЕДИНСТВЕННЫЙ СЛОТ: ровно на координате x: 80, y: 18
+        // Слот для рыбы
         this.addSlot(new Slot(this.container, 0, 80, 18) {
             @Override
             public boolean mayPlace(ItemStack stack) {
@@ -53,6 +61,48 @@ public class WizardMenu extends AbstractContainerMenu {
 
     public Container getContainer() {
         return this.container;
+    }
+
+    public void enchantFish(ServerPlayer player) {
+        ItemStack fish = this.container.getItem(0);
+
+        // 1. Проверяем, лежит ли валидная рыба
+        if (fish.isEmpty() || !ModCommands.FISH_PRICES.containsKey(fish.getItem())) {
+            return;
+        }
+
+        long cost = FishMutation.getEnchantCost(fish);
+        CurrencyHolder currencyHolder = (CurrencyHolder) player;
+
+        // 2. Проверяем баланс
+        if (currencyHolder.getMoney() < cost) {
+            player.sendSystemMessage(Component.translatable("message.fisch.wizard.not_enough_money"));
+            return;
+        }
+
+        // 3. Снимаем деньги
+        currencyHolder.setMoney(currencyHolder.getMoney() - cost);
+        ModPackets.syncMoney(player);
+
+        // 4. ШАНС 1 К 7 НА ПРОВАЛ
+        boolean isFail = (RANDOM.nextInt(7) == 0);
+
+        if (isFail) {
+            // ПРОВАЛ: Просто сбрасываем мутацию/чары, но рыбу можно чаровать дальше
+            FishMutation.clearMutation(fish);
+            player.sendSystemMessage(Component.translatable("message.fisch.wizard.fail"));
+        } else {
+            // УСПЕХ: Накладываем случайную мутацию
+            FishMutation newMutation = FishMutation.getRandom();
+            FishMutation.applyMutation(fish, newMutation);
+            player.sendSystemMessage(Component.translatable(
+                    "message.fisch.wizard.success",
+                    Component.literal(newMutation.getDisplayName()).withStyle(newMutation.getColor())
+            ));
+        }
+
+        // Обновляем слот в меню
+        this.container.setChanged();
     }
 
     @Override

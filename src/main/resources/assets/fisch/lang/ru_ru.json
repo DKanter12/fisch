@@ -6,7 +6,7 @@
   "container.fisch.wizard": "Рыбак-Чародей",
   "block.fisch.enchantment_altar": "Алтарь зачарования",
   "container.fisch.enchantment_altar": "Алтарь зачарования",
-
+  "message.fisch.monger.no_items": "§c[Продавец] В этих краях для тебя ничего нет.",
   "gui.fisch.buy_rod": "Купить удочку",
   "gui.fisch.shop_title": "Магазин удочек",
   "gui.fisch.balance": "Баланс: %s C$",
@@ -22,6 +22,10 @@
   "gui.fisch.crate.rod": "Удочка",
   "gui.fisch.crate.relic": "Реликвия",
 
+  "message.fisch.wizard.spoiled_fish": "§c[Маг] Эта рыба уже была испорчена магией, больше ее не зачаровать!",
+  "message.fisch.wizard.not_enough_money": "§c[Маг] У тебя недостаточно денег!",
+  "message.fisch.wizard.fail": "§c[Маг] Упс... Чары рассеялись! Магия разбилась вдребезги, и эта рыба больше не выдержит чар.",
+  "message.fisch.wizard.success": "§a[Маг] Успех! Твоя рыба получила мутацию: %s",
   "screen.fisch.bait_menu": "Насадка на удочку",
   "screen.fisch.bait": "Приманка",
 

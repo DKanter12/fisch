@@ -92,11 +92,8 @@ public enum FishMutation {
     }
 
     public static FishMutation getRandom() {
-        if (RANDOM.nextFloat() < 0.2f) {
-            return NONE;
-        }
-
         FishMutation[] mutations = values();
+        // Берем случайную мутацию (пропуская NONE с индексом 0)
         int index = 1 + RANDOM.nextInt(mutations.length - 1);
         return mutations[index];
     }
@@ -108,9 +105,24 @@ public enum FishMutation {
     }
 
     public static void applyMutation(ItemStack stack, FishMutation mutation) {
-        CompoundTag tag = stack.getOrCreateTag();
         if (mutation != NONE) {
+            CompoundTag tag = stack.getOrCreateTag();
             tag.putString("FishMutation", mutation.name());
+        } else {
+            clearMutation(stack);
+        }
+    }
+
+    // ПОЛНОЕ УДАЛЕНИЕ МУТАЦИИ С РЫБЫ
+    public static void clearMutation(ItemStack stack) {
+        if (stack.hasTag()) {
+            CompoundTag tag = stack.getTag();
+            if (tag != null) {
+                tag.remove("FishMutation");
+                if (tag.isEmpty()) {
+                    stack.setTag(null);
+                }
+            }
         }
     }
 
