@@ -22,12 +22,15 @@ import com.fisch.registry.ModMenuTypes;
 import com.fisch.screen.ModScreenHandlers;
 
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.entity.VillagerRenderer;
@@ -38,6 +41,8 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.FishingRodItem;
 import net.minecraft.world.item.ItemStack;
+import com.mojang.blaze3d.platform.InputConstants;
+import org.lwjgl.glfw.GLFW;
 
 import static com.fisch.FischMod.MODID;
 
@@ -45,6 +50,9 @@ public class FischModClient implements ClientModInitializer {
 
     public static final ResourceLocation FINISH_MINIGAME_PACKET =
             new ResourceLocation(MODID, "finish_minigame");
+
+    // Создаем бинд клавиши для скрытия баланса
+    public static KeyMapping toggleCoinKey;
 
     @Override
     public void onInitializeClient() {
@@ -55,15 +63,8 @@ public class FischModClient implements ClientModInitializer {
         registerCast(ModItems.MUSHROOM_ROD);
 
         // --- РЕГИСТРАЦИЯ ЭКРАНОВ (SCREENS) ---
-        MenuScreens.register(
-                ModScreenHandlers.BAIT_MENU,
-                BaitScreen::new
-        );
-
-        MenuScreens.register(
-                ModScreenHandlers.ENCHANTMENT_ALTAR_MENU,
-                EnchantmentAltarScreen::new
-        );
+        MenuScreens.register(ModScreenHandlers.BAIT_MENU, BaitScreen::new);
+        MenuScreens.register(ModScreenHandlers.ENCHANTMENT_ALTAR_MENU, EnchantmentAltarScreen::new);
 
         com.fisch.network.ModNetworkingClient.sendOpenBaitMenu();
 
@@ -71,7 +72,6 @@ public class FischModClient implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(
                 FischMod.FISH_GUI_PACKET_ID,
                 (client, handler, buf, responseSender) -> {
-
                     String fishName = buf.readUtf();
                     int fishRarity = buf.readInt();
                     float control = buf.readFloat();
@@ -80,12 +80,7 @@ public class FischModClient implements ClientModInitializer {
 
                     client.execute(() ->
                             Minecraft.getInstance().setScreen(
-                                    new FishCatchScreen(
-                                            fishName,
-                                            fishRarity,
-                                            control,
-                                            resilience
-                                    )
+                                    new FishCatchScreen(fishName, fishRarity, control, resilience)
                             )
                     );
                 }
@@ -94,7 +89,24 @@ public class FischModClient implements ClientModInitializer {
         // Включаем обработчик пакетов из ClientNetwork
         ClientNetwork.registerReceivers();
 
+        // Регистрация HUD
         HudRenderCallback.EVENT.register(new CoinHudOverlay());
+
+        // --- РЕГИСТРАЦИЯ ГОРЯЧЕЙ КЛАВИШИ ---
+        toggleCoinKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+                "Скрыть/Показать баланс", // Имя в настройках управления
+                InputConstants.Type.KEYSYM,
+                GLFW.GLFW_KEY_V, // Клавиша по умолчанию (V)
+                "Fisch Mod" // Категория в настройках управления
+        ));
+
+        // Отслеживаем нажатие клавиши каждый тик
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            while (toggleCoinKey.consumeClick()) {
+                // Инвертируем состояние (скрываем/показываем)
+                CoinHudOverlay.isHidden = !CoinHudOverlay.isHidden;
+            }
+        });
 
         // --- СВЯЗЬ GUI С MENU TYPES ---
         MenuScreens.register(ModMenuTypes.FISH_MERCHANT_MENU, FishMerchantScreen::new);
@@ -102,8 +114,6 @@ public class FischModClient implements ClientModInitializer {
         MenuScreens.register(ModMenuTypes.WIZARD_MENU, WizardScreen::new);
 
         // --- РЕНДЕР И МОДЕЛИ (MODELS & RENDERERS) ---
-
-        // 1. Обычный скупщик рыбы
         EntityModelLayerRegistry.registerModelLayer(FishMerchantModel.LAYER_LOCATION, FishMerchantModel::createBodyLayer);
         EntityRendererRegistry.register(EntityType.VILLAGER, CustomVillagerRenderer::new);
         EntityModelLayerRegistry.registerModelLayer(FishMerchantClothesModel.LAYER_LOCATION, FishMerchantClothesModel::createBodyLayer);
@@ -114,20 +124,12 @@ public class FischModClient implements ClientModInitializer {
             }
         });
 
-        // 2. Продавец удочек
         EntityRendererRegistry.register(ModEntities.FISH_MONGER, FishMongerRenderer::new);
         EntityModelLayerRegistry.registerModelLayer(FishMongerModel.LAYER_LOCATION, FishMongerModel::createBodyLayer);
 
-        // 3. Чародей (Fisherman Wizard)
         EntityRendererRegistry.register(ModEntities.FISHERMAN_WIZARD, FishermanWizardRenderer::new);
         EntityModelLayerRegistry.registerModelLayer(FishermanWizardModel.LAYER_LOCATION, FishermanWizardModel::createBodyLayer);
 
-        // ПРИМЕЧАНИЕ: ItemTooltipCallback (отображение цены при наведении) полностью удален!
-        // ДИМА НЕ НАДО ОНО НЕНАДОООООООООООООООООООООООООООООООООООООООООООООООООООООООООООООООООООО
-        // ГАНДОН
-
-        // НО: Я добавил тут Тултип ТОЛЬКО для Мутаций (чтобы было написано "✨ Shiny" на рыбе, как ты просил).
-        // Если рыба не зачарована, ничего писаться не будет. Цена тут тоже НЕ пишется.
         ItemTooltipCallback.EVENT.register((stack, context, lines) -> {
             FishMutation mutation = FishMutation.getMutation(stack);
             if (mutation != FishMutation.NONE) {
@@ -141,9 +143,7 @@ public class FischModClient implements ClientModInitializer {
                 rod,
                 new ResourceLocation("cast"),
                 (stack, level, entity, seed) -> {
-                    if (entity == null) {
-                        return 0.0F;
-                    }
+                    if (entity == null) return 0.0F;
 
                     boolean mainHand = entity.getMainHandItem() == stack;
                     boolean offHand = entity.getOffhandItem() == stack;
@@ -153,8 +153,7 @@ public class FischModClient implements ClientModInitializer {
                     }
 
                     return (mainHand || offHand) && entity instanceof Player player && player.fishing != null
-                            ? 1.0F
-                            : 0.0F;
+                            ? 1.0F : 0.0F;
                 }
         );
     }

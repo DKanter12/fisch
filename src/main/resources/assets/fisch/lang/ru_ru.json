@@ -21,17 +21,14 @@
   "gui.fisch.crate": "Кейс",
   "gui.fisch.crate.rod": "Удочка",
   "gui.fisch.crate.relic": "Реликвия",
-
   "message.fisch.wizard.spoiled_fish": "§c[Маг] Эта рыба уже была испорчена магией, больше ее не зачаровать!",
   "message.fisch.wizard.not_enough_money": "§c[Маг] У тебя недостаточно денег!",
   "message.fisch.wizard.fail": "§c[Маг] Упс... Чары рассеялись! Магия разбилась вдребезги, и эта рыба больше не выдержит чар.",
   "message.fisch.wizard.success": "§a[Маг] Успех! Твоя рыба получила мутацию: %s",
   "screen.fisch.bait_menu": "Насадка на удочку",
   "screen.fisch.bait": "Приманка",
-
   "itemGroup.fisch.fisch_tab": "Рыбалка и Улов",
   "itemGroup.fisch.rods_tab": "Удочки и Приманки",
-
   "item.fisch.bug_net": "Сачок",
   "item.fisch.fishing_bug": "Рыболовный жук",
   "item.fisch.worm_bait": "Червяк приманка",
@@ -42,7 +39,6 @@
   "item.fisch.swamp_rod": "Болотная удочка",
   "item.fisch.mushroom_rod": "Грибная удочка",
   "item.fisch.relic": "Реликвия",
-
   "item.fisch.seaweed": "Морские водоросли",
   "item.fisch.iron_scrap": "Ржавая железяка",
   "item.fisch.old_boot": "Старый башмак",
@@ -51,7 +47,6 @@
   "item.fisch.bait_blend": "Смесь приманок",
   "item.fisch.crab_claw": "Клешня краба",
   "item.fisch.sea_cucumber": "Морской огурец",
-
   "item.fisch.pharaoh_bass": "Фараонов окунь",
   "item.fisch.sun_serpent": "Солнечный змей",
   "item.fisch.glass_dune_piercer": "Стеклянный дюнный пронзатель",
@@ -128,13 +123,10 @@
   "item.fisch.mooshroom_piranha": "Мухоморная пиранья",
   "item.fisch.fungal_leviathan": "Грибной левиафан",
   "item.fisch.amanita_serpent": "Змей-Аманита",
-
   "fisch.book.name": "Книга Путника",
   "fisch.book.landing_text": "Добро пожаловать! Здесь вы узнаете всё о наживках, торговцах и редких видах рыб.",
-
   "message.fisch.enchant.rod_success": "Удочка зачарована на: %s",
   "message.fisch.enchant.fish_success": "Рыба зачарована на: %s",
-
   "message.fisch.enchant.success": "Успешно! ",
   "message.fisch.enchant_success": "§aУспешно зачаровано!",
   "message.fisch.enchant_fail": "§cНе удалось зачаровать! Чары рассеялись.",
@@ -152,14 +144,11 @@
   "message.fisch.enchant.no_rod": "Поместите удочку в алтарь!",
   "message.fisch.enchant.night_only": "Зачарование работает только ночью!",
   "message.fisch.enchant.no_xp": "Недостаточно опыта! Нужно 400 XP.",
-
   "command.fisch.addcoins.success": "§a[Fisch] Выдано %s C$!",
   "command.fisch.fishprice.empty_hand": "§cВозьми рыбу в руку, чтобы установить на неё цену!",
   "command.fisch.fishprice.success": "§e[Fisch] Цена за %s установлена: %s C$",
-
   "text.fisch.sell_success": "§a[Рыботорговец] Успешно продано на сумму %s C$!",
   "text.fisch.money": "Баланс: %s C$",
-
   "tooltip.fisch.bait_blend.buff": "Рыба клюёт в 2 раза быстрее",
   "tooltip.fisch.crab_claw.buff": "+30% к контролю удилища",
   "tooltip.fisch.crab_claw.debuff": "15% шанс обрыва лески при поклевке",
@@ -167,7 +156,6 @@
   "tooltip.fisch.sea_cucumber.debuff": "Рыба сопротивляется на 20% сильнее",
   "tooltip.fisch.black_fish_eggs.buff": "20% шанс на двойной улов",
   "tooltip.fisch.black_fish_eggs.debuff": "Рыба клюёт в 1.5 раза дольше",
-
   "enchantment.fisch.format": "Зачарование: %s",
   "enchantment.fisch.lucky": "Удача",
   "enchantment.fisch.divine": "Божественность",
@@ -175,7 +163,6 @@
   "enchantment.fisch.controlled": "Контроль",
   "enchantment.fisch.resilient": "Прочность",
   "enchantment.fisch.mystical": "Мистика",
-
   "passive.fisch.swamp.name": "Пассивка: Болотная живучесть",
   "passive.fisch.swamp.desc": "В болотных биомах приманка расходуется на 50% реже",
   "passive.fisch.mushroom.name": "Пассивка: Споровый улов",

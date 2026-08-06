@@ -12,7 +12,7 @@ public class ClientNetwork {
             long money = buf.readLong();
 
             client.execute(() -> {
-                CurrencyHud.clientMoney = money;
+                // Оставили только прямую запись в хранилище, откуда читает HUD
                 ClientMoneyStorage.setBalance(money);
             });
         });

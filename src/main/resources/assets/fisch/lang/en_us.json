@@ -1,4 +1,4 @@
-  {
+{
     "entity.fisch.fish_merchant": "Fish Merchant",
     "container.fisch.fish_merchant": "Fish Merchant",
     "container.fisch.merchant": "Fish Merchant",
@@ -24,13 +24,12 @@
     "gui.fisch.crate.relic": "Relic",
     "screen.fisch.bait_menu": "Bait Selection",
     "screen.fisch.bait": "Bait",
-
     "itemGroup.fisch.fisch_tab": "Fishing & Catch",
     "itemGroup.fisch.rods_tab": "Rods & Baits",
-      "message.fisch.wizard.spoiled_fish": "§c[Wizard] This fish was spoiled by magic, it cannot be enchanted again!",
-      "message.fisch.wizard.not_enough_money": "§c[Wizard] You don't have enough money!",
-      "message.fisch.wizard.fail": "§c[Wizard] Oops... The magic dissipated! The enchantments shattered and this fish can't take any more magic.",
-      "message.fisch.wizard.success": "§a[Wizard] Success! Your fish got the mutation: %s",
+    "message.fisch.wizard.spoiled_fish": "§c[Wizard] This fish was spoiled by magic, it cannot be enchanted again!",
+    "message.fisch.wizard.not_enough_money": "§c[Wizard] You don't have enough money!",
+    "message.fisch.wizard.fail": "§c[Wizard] Oops... The magic dissipated! The enchantments shattered and this fish can't take any more magic.",
+    "message.fisch.wizard.success": "§a[Wizard] Success! Your fish got the mutation: %s",
     "item.fisch.bug_net": "Bug Net",
     "item.fisch.fishing_bug": "Fishing Bug",
     "item.fisch.worm_bait": "Worm Bait",
@@ -41,7 +40,6 @@
     "item.fisch.swamp_rod": "Swamp Rod",
     "item.fisch.mushroom_rod": "Mushroom Rod",
     "item.fisch.relic": "Relic",
-
     "item.fisch.seaweed": "Seaweed",
     "item.fisch.iron_scrap": "Iron Scrap",
     "item.fisch.old_boot": "Old Boot",
@@ -50,7 +48,6 @@
     "item.fisch.bait_blend": "Bait Blend",
     "item.fisch.crab_claw": "Crab Claw",
     "item.fisch.sea_cucumber": "Sea Cucumber",
-
     "item.fisch.pharaoh_bass": "Pharaoh Bass",
     "item.fisch.sun_serpent": "Sun Serpent",
     "item.fisch.glass_dune_piercer": "Glass Dune Piercer",
@@ -127,10 +124,8 @@
     "item.fisch.mooshroom_piranha": "Mooshroom Piranha",
     "item.fisch.fungal_leviathan": "Fungal Leviathan",
     "item.fisch.amanita_serpent": "Amanita Serpent",
-
     "fisch.book.name": "Traveler's Book",
     "fisch.book.landing_text": "Welcome! Here you will learn everything about baits, merchants, and rare fish species.",
-
     "message.fisch.enchant.rod_success": "Rod enchanted with: %s",
     "message.fisch.enchant.fish_success": "Fish enchanted with: %s",
     "message.fisch.enchant_fail": "§cEnchantment failed! Magic dissipated.",
@@ -148,14 +143,11 @@
     "message.fisch.enchant.no_rod": "Place a rod into the altar!",
     "message.fisch.enchant.night_only": "Enchantment works only at night!",
     "message.fisch.enchant.no_xp": "Not enough experience! Needs 400 XP.",
-
     "command.fisch.addcoins.success": "§a[Fisch] Granted %s C$!",
     "command.fisch.fishprice.empty_hand": "§cHold a fish in your hand to set its price!",
     "command.fisch.fishprice.success": "§e[Fisch] Price for %s set to: %s C$",
-
     "text.fisch.sell_success": "§a[Fish Merchant] Successfully sold for %s C$!",
     "text.fisch.money": "Balance: %s C$",
-
     "tooltip.fisch.bait_blend.buff": "Fish bites 2x faster",
     "tooltip.fisch.crab_claw.buff": "+30% Rod Control",
     "tooltip.fisch.crab_claw.debuff": "15% chance to snap line when hooked",
@@ -163,7 +155,6 @@
     "tooltip.fisch.sea_cucumber.debuff": "Fish resists 20% harder",
     "tooltip.fisch.black_fish_eggs.buff": "20% chance for double catch",
     "tooltip.fisch.black_fish_eggs.debuff": "Fish takes 1.5x longer to bite",
-
     "enchantment.fisch.format": "Enchantment: %s",
     "enchantment.fisch.lucky": "Lucky",
     "enchantment.fisch.divine": "Divine",
@@ -171,9 +162,8 @@
     "enchantment.fisch.controlled": "Controlled",
     "enchantment.fisch.resilient": "Resilient",
     "enchantment.fisch.mystical": "Mystical",
-
     "passive.fisch.swamp.name": "Passive: Swamp Vitality",
     "passive.fisch.swamp.desc": "In swamp biomes, bait is consumed 50% less often",
     "passive.fisch.mushroom.name": "Passive: Spore Catch",
     "passive.fisch.mushroom.desc": "25% chance to catch a duplicate fish (double catch)"
-  }
+}

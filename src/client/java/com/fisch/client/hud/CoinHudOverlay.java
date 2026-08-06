@@ -10,31 +10,44 @@ public class CoinHudOverlay implements HudRenderCallback {
     // Твоя текстура
     private static final ResourceLocation COIN_TEXTURE = new ResourceLocation("fisch", "textures/item/monetka.png");
 
+    // Переменная, которая хранит состояние (скрыты монетки или нет)
+    public static boolean isHidden = false;
+
     @Override
     public void onHudRender(GuiGraphics guiGraphics, float tickDelta) {
         Minecraft client = Minecraft.getInstance();
-        if (client == null || client.player == null) return;
+
+        // Если игрока нет или нажат F1 (скрытие интерфейса) - ничего не рисуем
+        if (client == null || client.player == null || client.options.hideGui) return;
 
         int screenWidth = client.getWindow().getGuiScaledWidth();
         int screenHeight = client.getWindow().getGuiScaledHeight();
 
-        long balance = ClientMoneyStorage.getBalance();
-        String balanceText = String.valueOf(balance);
-
-        // Правый нижний угол (с отступом 20 пикселей)
+        // Правый нижний угол
         int coinX = screenWidth - 20;
         int coinY = screenHeight - 20;
 
-        // МАГИЯ ЗДЕСЬ:
-        // Мы говорим игре: "Нарисуй квадрат 16x16 на экране, но впихни в него текстуру размером 24x24"
-        guiGraphics.blit(COIN_TEXTURE, coinX, coinY, 16, 16, 0.0f, 0.0f, 24, 24, 24, 24);
+        if (isHidden) {
+            // Если баланс СКРЫТ: рисуем только серенькую стрелочку
+            guiGraphics.drawString(client.font, ">", coinX + 4, coinY + 4, 0xAAAAAA, true);
+        } else {
+            // Если баланс ОТКРЫТ: рисуем всё как обычно
+            long balance = ClientMoneyStorage.getBalance();
+            String balanceText = String.valueOf(balance);
 
-        // Рисуем текст левее монетки
-        int textWidth = client.font.width(balanceText);
-        int textX = coinX - textWidth - 4; // Отступ 4 пикселя от монетки
-        int textY = coinY + 4; // Центруем по высоте относительно новой сжатой монетки
+            // Монетка
+            guiGraphics.blit(COIN_TEXTURE, coinX, coinY, 16, 16, 0.0f, 0.0f, 24, 24, 24, 24);
 
-        // Выводим золотой баланс
-        guiGraphics.drawString(client.font, balanceText, textX, textY, 0xFFD700, true);
+            // Текст левее монетки
+            int textWidth = client.font.width(balanceText);
+            int textX = coinX - textWidth - 4;
+            int textY = coinY + 4;
+
+            // Выводим золотой баланс
+            guiGraphics.drawString(client.font, balanceText, textX, textY, 0xFFD700, true);
+
+            // Маленькая серая стрелочка сверху монетки, показывающая, что ее можно скрыть
+            guiGraphics.drawString(client.font, "v", coinX + 5, coinY - 8, 0xAAAAAA, true);
+        }
     }
 }

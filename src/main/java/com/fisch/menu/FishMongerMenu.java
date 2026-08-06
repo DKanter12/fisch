@@ -39,7 +39,10 @@ public class FishMongerMenu extends AbstractContainerMenu {
         if (item == ModItems.JUNGLE_ROD) return 10000;
         if (item == ModItems.SWAMP_ROD) return 15000;
         if (item == ModItems.MUSHROOM_ROD) return 25000;
-        return 99999;
+
+        // 99999 убрано. Сюда код дойдет только если произойдет баг,
+        // но меню теперь просто не откроется в пустом биоме.
+        return 0;
     }
 
     public boolean buyRod(ServerPlayer player) {
@@ -49,7 +52,6 @@ public class FishMongerMenu extends AbstractContainerMenu {
         // 1. Сначала проверяем деньги
         if (holder.getMoney() < price) {
             long remaining = price - holder.getMoney();
-            // Используем трансляцию для вывода сообщения
             player.sendSystemMessage(Component.translatable("message.fisch.monger.not_enough_money", remaining));
             return false;
         }
@@ -64,7 +66,6 @@ public class FishMongerMenu extends AbstractContainerMenu {
         holder.setMoney(holder.getMoney() - price);
         player.getInventory().add(new ItemStack(this.rodItem));
 
-        // Получаем переведенное название предмета и отправляем сообщение об успехе
         Component itemName = this.rodItem.getName(new ItemStack(this.rodItem));
         player.sendSystemMessage(Component.translatable("message.fisch.monger.buy_success", itemName, price));
         return true;
