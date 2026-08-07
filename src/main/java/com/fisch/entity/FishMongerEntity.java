@@ -20,6 +20,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
@@ -38,7 +39,13 @@ public class FishMongerEntity extends Villager {
 
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
-        // Обрабатываем клик только один раз (для главной руки), чтобы не было двойного срабатывания
+        ItemStack itemStack = player.getItemInHand(hand);
+
+        // Разрешаем переименовывать жителя биркой или использовать яйцо призыва
+        if (itemStack.is(net.minecraft.world.item.Items.NAME_TAG) || itemStack.getItem() instanceof net.minecraft.world.item.SpawnEggItem) {
+            return super.mobInteract(player, hand);
+        }
+
         if (hand != InteractionHand.MAIN_HAND) {
             return InteractionResult.PASS;
         }
@@ -51,9 +58,9 @@ public class FishMongerEntity extends Villager {
             Holder<Biome> biome = this.level().getBiome(this.blockPosition());
             Item rodToSell = getRodForBiome(biome);
 
-            // ЕСЛИ УДОЧКА НЕ НАЙДЕНА ДЛЯ ЭТОГО БИОМА — ПИШЕМ СООБЩЕНИЕ И ОТМЕНЯЕМ ОТКРЫТИЕ МЕНЮ
+            // ЕСЛИ УДОЧКА НЕ НАЙДЕНА — ПИШЕМ СООБЩЕНИЕ И БЛОКИРУЕМ ОТКРЫТИЕ МЕНЮ
             if (rodToSell == null) {
-                player.sendSystemMessage(Component.translatable("message.fisch.monger.no_items"));
+                serverPlayer.sendSystemMessage(Component.translatable("message.fisch.monger.no_items"));
                 return InteractionResult.SUCCESS;
             }
 
@@ -86,9 +93,8 @@ public class FishMongerEntity extends Villager {
             return InteractionResult.SUCCESS;
         }
 
-        return super.mobInteract(player, hand);
+        return InteractionResult.SUCCESS;
     }
-
 
     private Item getRodForBiome(Holder<Biome> biome) {
         if (!biome.unwrapKey().isPresent()) {
@@ -98,38 +104,35 @@ public class FishMongerEntity extends Villager {
         ResourceKey<Biome> biomeKey = biome.unwrapKey().get();
         String path = biomeKey.location().getPath();
 
-        // 1. ПЕСЧАНАЯ УДОЧКА: Все виды саванн, пустынь и бедлендсов (бадлендс/белые скалы)
-        if (path.contains("savanna") || path.contains("desert") || path.contains("badlands") || biome.is(BiomeTags.IS_BADLANDS)) {
+        // 1. ПЕСЧАНАЯ УДОЧКА: Пустыня, Саванна и Badlands
+        if (biome.is(Biomes.DESERT) || biome.is(BiomeTags.IS_SAVANNA) || biome.is(BiomeTags.IS_BADLANDS)
+                || path.contains("desert") || path.contains("savanna") || path.contains("badlands")) {
             return ModItems.SAND_ROD;
         }
 
         // 2. ДЖУНГЛЕВАЯ УДОЧКА: Все виды джунглей
-        if (path.contains("jungle") || biome.is(BiomeTags.IS_JUNGLE)) {
+        if (biome.is(BiomeTags.IS_JUNGLE) || path.contains("jungle")) {
             return ModItems.JUNGLE_ROD;
         }
 
         // 3. БОЛОТНАЯ УДОЧКА: Болото и мангровые заросли
-        if (path.contains("swamp")) {
+        if (biome.is(Biomes.SWAMP) || biome.is(Biomes.MANGROVE_SWAMP) || path.contains("swamp") || path.contains("mangrove")) {
             return ModItems.SWAMP_ROD;
         }
 
         // 4. ГРИБНАЯ УДОЧКА: Грибные поля
-        if (path.contains("mushroom")) {
+        if (biome.is(Biomes.MUSHROOM_FIELDS) || path.contains("mushroom")) {
             return ModItems.MUSHROOM_ROD;
         }
 
-        // 5. ЛЕДОВАЯ УДОЧКА: Тайга, горы, замерзшие океаны, снежные биомы
-        if (path.contains("taiga") || path.contains("frozen") || path.contains("snowy") || path.contains("ice") || path.contains("peak") || path.contains("grove") || biome.value().getBaseTemperature() < 0.15f) {
+        // 5. ЛЕДЯНАЯ УДОЧКА: Тайга, горы, замерзшие океаны, снежные биомы
+        if (biome.is(BiomeTags.IS_TAIGA) || biome.is(Biomes.SNOWY_PLAINS) || biome.is(Biomes.ICE_SPIKES)
+                || biome.is(Biomes.FROZEN_OCEAN) || biome.is(Biomes.SNOWY_TAIGA) || biome.is(Biomes.SNOWY_SLOPES)
+                || path.contains("taiga") || path.contains("frozen") || path.contains("snow") || path.contains("ice")) {
             return ModItems.ICE_ROD;
         }
 
-        // 6. НЕЙТРАЛЬНЫЕ БИОМЫ (Леса, равнины, река и т.д.)
-        // Если хочешь, чтобы в обычных биомах продавалась, например, стандартная удочка или какая-то базовая из твоего мода:
-        // return ModItems.SOME_BASIC_ROD;
-
-        // Если в нейтральных биомах продавать ничего НЕ нужно (чтобы выводилось сообщение "тут ничего нет"):
+        // Если ни один биом не подошел — возвращаем null
         return null;
     }
-
-        // Возвращаем null, если биом не подходит ни для одной удочк
 }
