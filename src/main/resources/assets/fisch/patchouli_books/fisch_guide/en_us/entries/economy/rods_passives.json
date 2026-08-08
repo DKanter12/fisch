@@ -1,0 +1,15 @@
+{
+  "name": "Rod Passives",
+  "icon": "fisch:mushroom_rod",
+  "category": "fisch:mechanics",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Each specialized fishing rod has a built-in $(l)Passive Ability$() (Biome Affinity).$(br)$(br)Passive effects increase your chance to catch unique and legendary fish belonging to that specific biome!"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Passive Overview:$(br)$(br)• $(l)Ice / Sand Rod$(): Standard stats without biome affinity.$(br)• $(l)Jungle Rod$(): Higher luck.$(br)• $(l)Swamp Rod$(): Swamp biome catch bonus.$(br)• $(l)Mushroom Rod$(): Maximum catch rate for fungal species."
+    }
+  ]
+}

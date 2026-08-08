@@ -4,26 +4,38 @@
   "category": "fisch:economy",
   "pages": [
     {
-      "type": "text",
-      "text": "Once you've saved up some coins, go looking for the Special Merchant. He spawns outside of villages all over the world.$(br)$(br)His stock $(l)directly depends on the biome$() you find him in!"
-    },
-    {
-      "type": "patchouli:spotlight",
-      "item": "fisch:jungle_rod",
-      "title": "Jungle Rod",
-      "text": "Sold only in the Jungle. The most expensive, but also the best rod in the game."
-    },
-    {
-      "type": "patchouli:spotlight",
-      "item": "fisch:sand_rod",
-      "title": "Sand Rod",
-      "text": "Sold in the Desert. A mid-tier rod with an average price."
+      "type": "patchouli:text",
+      "text": "Once you save up enough coins, search for the Special Merchant. He spawns outside villages all across the world.$(br)$(br)His stock $(l)depends directly on the biome$() you find him in!"
     },
     {
       "type": "patchouli:spotlight",
       "item": "fisch:ice_rod",
       "title": "Ice Rod",
-      "text": "Sold in winter biomes. The cheapest and weakest of the custom rods."
+      "text": "Sold in Winter biomes. The most affordable custom rod.$(br)$(br)$(l)Passive:$() No special biome bonus."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "fisch:sand_rod",
+      "title": "Sand Rod",
+      "text": "Sold in Deserts. Mid-tier fishing rod.$(br)$(br)$(l)Passive:$() No special biome bonus."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "fisch:jungle_rod",
+      "title": "Jungle Rod",
+      "text": "Sold in the Jungle.$(br)$(br)$(l)Passive:$() Fast reel speed and increased chance for Jungle treasures."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "fisch:swamp_rod",
+      "title": "Swamp Rod",
+      "text": "Sold exclusively in Swamps.$(br)$(br)$(l)Passive (Swamp):$() Boosts catch rates for toxic fish and swamp dwellers."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "fisch:mushroom_rod",
+      "title": "Mushroom Rod",
+      "text": "Sold in Mushroom Fields. The ultimate fishing rod.$(br)$(br)$(l)Passive (Mushroom):$() Greatly increases catch chances for mycelium and spore fish."
     }
   ]
 }
