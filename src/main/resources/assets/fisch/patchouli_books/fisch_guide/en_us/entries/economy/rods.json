@@ -23,19 +23,19 @@
       "type": "patchouli:spotlight",
       "item": "fisch:jungle_rod",
       "title": "Jungle Rod",
-      "text": "Sold in the Jungle.$(br)$(br)$(l)Passive:$() Fast reel speed and increased chance for Jungle treasures."
+      "text": "Sold in the Jungle.$(br)$(br)$(l)Passive:$() No special biome bonus."
     },
     {
       "type": "patchouli:spotlight",
       "item": "fisch:swamp_rod",
       "title": "Swamp Rod",
-      "text": "Sold exclusively in Swamps.$(br)$(br)$(l)Passive (Swamp):$() Boosts catch rates for toxic fish and swamp dwellers."
+      "text": "Sold exclusively in Swamps.$(br)$(br)$(l)Passive (Swamp):$() In swamp biomes, bait is consumed 50% less often."
     },
     {
       "type": "patchouli:spotlight",
       "item": "fisch:mushroom_rod",
       "title": "Mushroom Rod",
-      "text": "Sold in Mushroom Fields. The ultimate fishing rod.$(br)$(br)$(l)Passive (Mushroom):$() Greatly increases catch chances for mycelium and spore fish."
+      "text": "Sold in Mushroom Fields. The ultimate fishing rod.$(br)$(br)$(l)Passive (Mushroom):$() 25% chance to catch a copy of the fish (double catch)."
     }
   ]
 }
