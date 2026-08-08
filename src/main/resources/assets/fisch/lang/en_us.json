@@ -141,8 +141,10 @@
     "message.fisch.relic.empty": "No Enchantment",
     "message.fisch.enchant.tooltip": "Enchant Item",
     "message.fisch.enchant.no_rod": "Place a rod into the altar!",
+    "message.fisch.enchant.no_relic": "Place a relic into the altar!",
     "message.fisch.enchant.night_only": "Enchantment works only at night!",
     "message.fisch.enchant.no_xp": "Not enough experience! Needs 400 XP.",
+  "message.fisch.enchant.success": "Success! ",
     "command.fisch.addcoins.success": "§a[Fisch] Granted %s C$!",
     "command.fisch.fishprice.empty_hand": "§cHold a fish in your hand to set its price!",
     "command.fisch.fishprice.success": "§e[Fisch] Price for %s set to: %s C$",
@@ -164,6 +166,10 @@
     "enchantment.fisch.mystical": "Mystical",
     "passive.fisch.swamp.name": "Passive: Swamp Vitality",
     "passive.fisch.swamp.desc": "In swamp biomes, bait is consumed 50% less often",
-    "passive.fisch.mushroom.name": "Passive: Spore Catch",
-    "passive.fisch.mushroom.desc": "25% chance to catch a duplicate fish (double catch)"
+"passive.fisch.mushroom.name": "Passive: Spore Catch",
+  "passive.fisch.mushroom.desc": "25% chance to catch a copy of the fish (double catch)",
+
+  "tooltip.fisch.rod.luck": "Luck: %s%%",
+  "tooltip.fisch.rod.control": "Control: %s",
+  "tooltip.fisch.rod.resilience": "Resilience: %s%%"
 }
