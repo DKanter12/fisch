@@ -344,13 +344,13 @@ public class NewFishingRod
         float totalControl = this.control + RodEnchantment.getControlBonus(ench);
         float totalResilience = this.resilience + RodEnchantment.getResilienceBonus(ench);
 
-        tooltip.add(Component.literal("Luck: " + (int) totalLuck + "%")
+        tooltip.add(Component.translatable("tooltip.fisch.rod.luck", (int) totalLuck)
                 .withStyle(ChatFormatting.GOLD));
 
-        tooltip.add(Component.literal("Control: " + totalControl)
+        tooltip.add(Component.translatable("tooltip.fisch.rod.control", totalControl)
                 .withStyle(ChatFormatting.AQUA));
 
-        tooltip.add(Component.literal("Resilience: " + (int) (totalResilience * 100) + "%")
+        tooltip.add(Component.translatable("tooltip.fisch.rod.resilience", (int) (totalResilience * 100))
                 .withStyle(ChatFormatting.GREEN));
 
         if (!this.passive.equals("none")) {

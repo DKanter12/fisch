@@ -142,6 +142,7 @@
   "message.fisch.relic.empty": "Нет зачарования",
   "message.fisch.enchant.tooltip": "Зачаровать предмет",
   "message.fisch.enchant.no_rod": "Поместите удочку в алтарь!",
+  "message.fisch.enchant.no_relic": "Поместите реликвию в алтарь!",
   "message.fisch.enchant.night_only": "Зачарование работает только ночью!",
   "message.fisch.enchant.no_xp": "Недостаточно опыта! Нужно 400 XP.",
   "command.fisch.addcoins.success": "§a[Fisch] Выдано %s C$!",
@@ -166,5 +167,9 @@
   "passive.fisch.swamp.name": "Пассивка: Болотная живучесть",
   "passive.fisch.swamp.desc": "В болотных биомах приманка расходуется на 50% реже",
   "passive.fisch.mushroom.name": "Пассивка: Споровый улов",
-  "passive.fisch.mushroom.desc": "25% шанс поймать копию рыбы (двойной улов)"
+  "passive.fisch.mushroom.desc": "25% шанс поймать копию рыбы (двойной улов)",
+
+  "tooltip.fisch.rod.luck": "Удача: %s%%",
+  "tooltip.fisch.rod.control": "Контроль: %s",
+  "tooltip.fisch.rod.resilience": "Устойчивость: %s%%"
 }

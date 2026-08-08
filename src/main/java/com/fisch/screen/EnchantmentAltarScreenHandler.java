@@ -91,6 +91,12 @@ public class EnchantmentAltarScreenHandler extends AbstractContainerMenu {
             return false;
         }
 
+        if (relicStack.isEmpty() || !(relicStack.getItem() instanceof Relic)) {
+            player.displayClientMessage(Component.translatable("message.fisch.enchant.no_relic").withStyle(ChatFormatting.RED), true);
+            if (player instanceof ServerPlayer sp) sp.closeContainer();
+            return false;
+        }
+
         if (player.level().isClientSide) {
             return false;
         }

@@ -38,6 +38,15 @@ public class ModPackets {
             });
         });
 
+        // Зачарование удочки в алтаре (кнопка на клиенте шлёт ENCHANT_ROD_PACKET_ID)
+        ServerPlayNetworking.registerGlobalReceiver(FischMod.ENCHANT_ROD_PACKET_ID, (server, player, handler, buf, responseSender) -> {
+            server.execute(() -> {
+                if (player.containerMenu instanceof com.fisch.screen.EnchantmentAltarScreenHandler altarMenu) {
+                    altarMenu.enchantRod(player);
+                }
+            });
+        });
+
         // Продажа рыбы
         ServerPlayNetworking.registerGlobalReceiver(SELL_ITEMS_C2S, (server, player, handler, buf, responseSender) -> {
             server.execute(() -> {
