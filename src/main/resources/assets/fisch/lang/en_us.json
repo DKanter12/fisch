@@ -39,6 +39,7 @@
     "item.fisch.jungle_rod": "Jungle Rod",
     "item.fisch.swamp_rod": "Swamp Rod",
     "item.fisch.mushroom_rod": "Mushroom Rod",
+    "item.fisch.hell_rod": "Hell Rod",
     "item.fisch.relic": "Relic",
     "item.fisch.seaweed": "Seaweed",
     "item.fisch.iron_scrap": "Iron Scrap",
@@ -168,6 +169,8 @@
     "passive.fisch.swamp.desc": "In swamp biomes, bait is consumed 50% less often",
 "passive.fisch.mushroom.name": "Passive: Spore Catch",
   "passive.fisch.mushroom.desc": "25% chance to catch a copy of the fish (double catch)",
+"passive.fisch.hell.name": "Passive: Hellfire",
+  "passive.fisch.hell.desc": "20% chance for a double catch, and crates drop 3x more often",
 
   "tooltip.fisch.rod.luck": "Luck: %s%%",
   "tooltip.fisch.rod.control": "Control: %s",

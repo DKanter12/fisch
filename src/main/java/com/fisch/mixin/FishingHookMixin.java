@@ -329,6 +329,15 @@ public abstract class FishingHookMixin implements FishingHookDuck {
                 hook.level().addFreshEntity(sporeFishEntity);
             }
 
+            // -- ПАССИВКА АДСКОЙ УДОЧКИ: "Адский огонь" --
+            // 20% шанс поймать копию рыбы (двойной улов).
+            if (rodPassive.equals("hell") && fisch$RANDOM.nextInt(100) < 20) {
+                ItemEntity hellFireEntity = new ItemEntity(hook.level(), hook.getX(), hook.getY(), hook.getZ(), fishStack.copy());
+                hellFireEntity.setPickUpDelay(10);
+                hellFireEntity.setDeltaMovement(direction.x * 0.35, 0.45, direction.z * 0.35);
+                hook.level().addFreshEntity(hellFireEntity);
+            }
+
             // -- ПАССИВКА БОЛОТНОЙ УДОЧКИ: "Болотная живучесть" --
             // В болотных биомах приманка расходуется на 50% реже.
             boolean isSwampBiome = RodMechanics.getBiomeGroup(hook.level(), hook.blockPosition()).equals("swamp");
@@ -353,6 +362,8 @@ public abstract class FishingHookMixin implements FishingHookDuck {
                 boxChance = 10;
             } else if (rodStack.getItem() == ModItems.ICE_ROD) {
                 boxChance = 8;
+            } else if (rodStack.getItem() == ModItems.HELL_ROD) {
+                boxChance = 40;
             }
 
             if (fisch$RANDOM.nextInt(100) < boxChance) {

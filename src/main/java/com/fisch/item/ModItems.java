@@ -60,6 +60,7 @@ public class ModItems {
     public static final NewFishingRod JUNGLE_ROD = (NewFishingRod) registerItem("jungle_rod", new NewFishingRod(new Item.Properties().stacksTo(1), 35f, 0.05f, 0.3f, "none"));
     public static final NewFishingRod SWAMP_ROD = (NewFishingRod) registerItem("swamp_rod", new NewFishingRod(new Item.Properties().stacksTo(1), 45f, 0.10f, 0.35f, "swamp"));
     public static final NewFishingRod MUSHROOM_ROD = (NewFishingRod) registerItem("mushroom_rod", new NewFishingRod(new Item.Properties().stacksTo(1), 55f, 0.15f, 0.40f, "mushroom"));
+    public static final NewFishingRod HELL_ROD = (NewFishingRod) registerItem("hell_rod", new NewFishingRod(new Item.Properties().stacksTo(1), 75f, 0.25f, 0.50f, "hell"));
 
     private static final List<NewFish> FISH_LIST = new ArrayList<>();
     public static final NewFish[] DESERT_FISH;
