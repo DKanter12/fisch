@@ -64,6 +64,10 @@ public class FischMod implements ModInitializer {
                 ModEntities.FISHERMAN_WIZARD,
                 FishermanWizardEntity.createAttributes()
         );
+        FabricDefaultAttributeRegistry.register(
+                ModEntities.FISH_MONGER_NETHER,
+                com.fisch.entity.FishMongerNetherEntity.createAttributes()
+        );
 
         UseEntityCallback.EVENT.register(
                 (player, level, hand, entity, hitResult) -> {

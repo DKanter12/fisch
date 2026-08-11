@@ -31,6 +31,15 @@ public class ModEntities {
                     .build()
     );
 
+    // Адский Продавец удочек (Fish Monger Nether)
+    public static final EntityType<FishMongerNetherEntity> FISH_MONGER_NETHER = Registry.register(
+            BuiltInRegistries.ENTITY_TYPE,
+            new ResourceLocation(FischMod.MODID, "fish_monger_nether"),
+            FabricEntityTypeBuilder.create(MobCategory.CREATURE, FishMongerNetherEntity::new)
+                    .dimensions(EntityDimensions.fixed(0.6f, 1.95f))
+                    .build()
+    );
+
     public static void registerModEntities() {
         FischMod.LOGGER.info("Регистрируем сущности для " + FischMod.MODID);
     }

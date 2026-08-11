@@ -4,8 +4,10 @@ import com.fisch.FischMod;
 import com.fisch.client.hud.CoinHudOverlay;
 import com.fisch.client.model.FishMerchantModel;
 import com.fisch.client.model.FishMongerModel;
+import com.fisch.client.model.FishMongerNetherModel;
 import com.fisch.client.model.FishermanWizardModel;
 import com.fisch.client.renderer.CustomVillagerRenderer;
+import com.fisch.client.renderer.FishMongerNetherRenderer;
 import com.fisch.client.renderer.FishMongerRenderer;
 import com.fisch.client.renderer.FishermanWizardRenderer;
 import com.fisch.client.screen.BaitScreen;
@@ -124,9 +126,15 @@ public class FischModClient implements ClientModInitializer {
             }
         });
 
+        // Обычный Fish Monger
         EntityRendererRegistry.register(ModEntities.FISH_MONGER, FishMongerRenderer::new);
         EntityModelLayerRegistry.registerModelLayer(FishMongerModel.LAYER_LOCATION, FishMongerModel::createBodyLayer);
 
+        // Адский Fish Monger
+        EntityRendererRegistry.register(ModEntities.FISH_MONGER_NETHER, FishMongerNetherRenderer::new);
+        EntityModelLayerRegistry.registerModelLayer(FishMongerNetherModel.LAYER_LOCATION, FishMongerNetherModel::createBodyLayer);
+
+        // Волшебник
         EntityRendererRegistry.register(ModEntities.FISHERMAN_WIZARD, FishermanWizardRenderer::new);
         EntityModelLayerRegistry.registerModelLayer(FishermanWizardModel.LAYER_LOCATION, FishermanWizardModel::createBodyLayer);
 

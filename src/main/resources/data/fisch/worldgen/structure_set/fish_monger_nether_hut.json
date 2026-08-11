@@ -1,0 +1,14 @@
+{
+  "structures": [
+    {
+      "structure": "fisch:fish_monger_nether_hut",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "spacing": 45,
+    "separation": 20,
+    "salt": 19483729
+  }
+}
