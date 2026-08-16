@@ -72,7 +72,7 @@ public class FishMongerNetherEntity extends PathfinderMob {
         if (!this.level().isClientSide() && hand == InteractionHand.MAIN_HAND) {
 
             // ПРОВЕРКА: Измерение Незер И высота ниже бедрока (127)
-            if (this.level().dimension() == Level.NETHER && this.getY() < 127) {
+            if (this.level().dimension().equals(Level.NETHER) && this.getY() < 127) {
                 this.setTradingPlayer(player);
                 Item rodToSell = ModItems.HELL_ROD;
 

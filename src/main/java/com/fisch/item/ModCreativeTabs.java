@@ -60,6 +60,10 @@ public class ModCreativeTabs { // Переименовали класс, что�
                         for (NewFish fish : ModItems.MUSHROOM_FISH) {
                             output.accept(fish);
                         }
+                        // Адская рыба
+                        for (NewFish fish : ModItems.HELL_FISH) {
+                            output.accept(fish);
+                        }
                         // Пустынные рыбы
                         output.accept(ModItems.SAND_GLIDER);
                         output.accept(ModItems.DUNE_GUPPY);

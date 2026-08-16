@@ -69,6 +69,7 @@ public class ModItems {
     public static final NewFish[] PLAIN_FISH;
     public static final NewFish[] SWAMP_FISH;
     public static final NewFish[] MUSHROOM_FISH;
+    public static final NewFish[] HELL_FISH;
     public static final NewFish[] JUNK_FISH;
     public static NewFish[] ALL_FISH;
 
@@ -175,6 +176,28 @@ public class ModItems {
     public static final NewFish AMANITA_SERPENT = registerFish("amanita_serpent", 1, 1500, 8000, "black_fish_eggs", "raining", "night", "mushroom");
 
     // ==========================================
+    // АДСКИЕ РЫБЫ (17 штук) - "hell"
+    // Ловятся только адской удочкой в лаве Ада
+    // ==========================================
+    public static final NewFish ASH_SKIMMER = registerFish("ash_skimmer", 8, 40, 200, "worm_bait", "clear", "day", "hell");
+    public static final NewFish MAGMA_MINNOW = registerFish("magma_minnow", 8, 60, 300, "none", "clear", "day", "hell");
+    public static final NewFish EMBER_GUPPY = registerFish("ember_guppy", 8, 50, 250, "none", "clear", "night", "hell");
+    public static final NewFish CINDER_LOACH = registerFish("cinder_loach", 8, 100, 500, "worm_bait", "clear", "day", "hell");
+    public static final NewFish BRIMSTONE_BASS = registerFish("brimstone_bass", 7, 200, 900, "fishing_bug", "clear", "day", "hell");
+    public static final NewFish SCORCHED_TETRA = registerFish("scorched_tetra", 7, 150, 700, "fishing_bug", "clear", "night", "hell");
+    public static final NewFish HELLFIRE_EEL = registerFish("hellfire_eel", 7, 300, 1500, "worm_bait", "clear", "night", "hell");
+    public static final NewFish OBSIDIAN_CARP = registerFish("obsidian_carp", 6, 400, 2000, "crab_claw", "clear", "day", "hell");
+    public static final NewFish SOUL_LANTERN_FISH = registerFish("soul_lantern_fish", 6, 250, 1200, "fishing_bug", "clear", "night", "hell");
+    public static final NewFish MOLTEN_SNAPPER = registerFish("molten_snapper", 6, 500, 2500, "bait_blend", "clear", "day", "hell");
+    public static final NewFish BLAZE_FIN = registerFish("blaze_fin", 5, 700, 3500, "fishing_bug", "clear", "night", "hell");
+    public static final NewFish BONE_ASH_LURKER = registerFish("bone_ash_lurker", 5, 600, 3000, "worm_bait", "clear", "day", "hell");
+    public static final NewFish NETHER_LEVIATHAN = registerFish("nether_leviathan", 4, 5000, 25000, "crab_claw", "clear", "day", "hell");
+    public static final NewFish INFERNAL_SERPENT = registerFish("infernal_serpent", 4, 2000, 10000, "sea_cucumber", "clear", "night", "hell");
+    public static final NewFish MAGMA_KAJU = registerFish("magma_kaju", 3, 800, 4000, "black_fish_eggs", "clear", "night", "hell");
+    public static final NewFish WITHER_WYRM = registerFish("wither_wyrm", 2, 10000, 50000, "black_fish_eggs", "clear", "night", "hell");
+    public static final NewFish LORD_OF_INFERNO = registerFish("lord_of_inferno", 1, 15000, 75000, "none", "clear", "night", "hell");
+
+    // ==========================================
     // МУСОР (3 штуки) - "junk" (Редкость 10)
     // ==========================================
     public static final NewFish SEAWEED = registerFish("seaweed", 10, 50, 200, "none", "clear", "day", "junk");
@@ -229,6 +252,15 @@ public class ModItems {
                 AMANITA_SERPENT
         ).toArray(new NewFish[0]);
 
+        HELL_FISH = new NewFish[]{
+                ASH_SKIMMER, MAGMA_MINNOW, EMBER_GUPPY, CINDER_LOACH,
+                BRIMSTONE_BASS, SCORCHED_TETRA, HELLFIRE_EEL,
+                OBSIDIAN_CARP, SOUL_LANTERN_FISH, MOLTEN_SNAPPER,
+                BLAZE_FIN, BONE_ASH_LURKER, NETHER_LEVIATHAN,
+                INFERNAL_SERPENT, MAGMA_KAJU, WITHER_WYRM,
+                LORD_OF_INFERNO
+        };
+
         JUNK_FISH = new NewFish[]{
                 SEAWEED, IRON_SCRAP, OLD_BOOT
         };
@@ -260,6 +292,12 @@ public class ModItems {
                 SPORE_MINNOW, MYCELIUM_CARP, CAP_JELLYFISH, TRUFFLE_LOACH,
                 BIOLUMINESCENT_TETRA, MOOSHROOM_PIRANHA, FUNGAL_LEVIATHAN,
                 AMANITA_SERPENT,
+                ASH_SKIMMER, MAGMA_MINNOW, EMBER_GUPPY, CINDER_LOACH,
+                BRIMSTONE_BASS, SCORCHED_TETRA, HELLFIRE_EEL,
+                OBSIDIAN_CARP, SOUL_LANTERN_FISH, MOLTEN_SNAPPER,
+                BLAZE_FIN, BONE_ASH_LURKER, NETHER_LEVIATHAN,
+                INFERNAL_SERPENT, MAGMA_KAJU, WITHER_WYRM,
+                LORD_OF_INFERNO,
                 SEAWEED, IRON_SCRAP, OLD_BOOT
         };
         FISH_LIST.add(TEST_FISH);

@@ -63,6 +63,7 @@ public class FischModClient implements ClientModInitializer {
         registerCast(ModItems.JUNGLE_ROD);
         registerCast(ModItems.SWAMP_ROD);
         registerCast(ModItems.MUSHROOM_ROD);
+        registerCast(ModItems.HELL_ROD);
 
         // --- РЕГИСТРАЦИЯ ЭКРАНОВ (SCREENS) ---
         MenuScreens.register(ModScreenHandlers.BAIT_MENU, BaitScreen::new);

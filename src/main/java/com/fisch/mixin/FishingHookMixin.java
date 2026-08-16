@@ -2,6 +2,7 @@ package com.fisch.mixin;
 
 import com.fisch.FischMod;
 import com.fisch.FishingHookDuck;
+import com.fisch.HomingItemDuck;
 import com.fisch.fish.FishMutation;
 import com.fisch.fish.NewFish;
 import com.fisch.fish.Relic;
@@ -21,6 +22,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSetActionBarTextPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.FishingHook;
@@ -28,8 +31,10 @@ import net.minecraft.world.item.FishingRodItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,6 +95,27 @@ public abstract class FishingHookMixin implements FishingHookDuck {
             return stack.getItem() instanceof FishingRodItem;
         }
         return stack.is(item);
+    }
+
+    /*
+     * Поплавок тонет в воде только если под ним вода. Чтобы ловить в лаве Ада,
+     * подменяем проверку воды на лаву, но только в измерении Незера.
+     */
+    @Redirect(
+            method = "tick",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/level/material/FluidState;is(Lnet/minecraft/tags/TagKey;)Z"
+            )
+    )
+    private boolean fisch$treatHellLavaAsWater(FluidState state, TagKey<Fluid> tag) {
+        if (tag == FluidTags.WATER && state.is(FluidTags.LAVA)) {
+            FishingHook hook = (FishingHook) (Object) this;
+            if (hook.level().dimension().equals(Level.NETHER)) {
+                return true;
+            }
+        }
+        return state.is(tag);
     }
 
     @Inject(method = "tick", at = @At("HEAD"))
@@ -173,10 +199,24 @@ public abstract class FishingHookMixin implements FishingHookDuck {
         // Теперь рыба выбирается ОДНИМ взвешенным броском: удочка
         // с большей удачей просто сильнее увеличивает вес редких рыб
         // в fishDropPercentage, а экзотика остаётся редкостью.
+
+        // В лаве Ада ловятся только адские рыбы и только адской удочкой.
+        boolean inLava = RodMechanics.isFishingInLava(hook.level(), hook.blockPosition());
+        if (inLava && rodStack.getItem() != ModItems.HELL_ROD) {
+            this.fisch$isBiting = false;
+            if (player instanceof ServerPlayer serverPlayer) {
+                serverPlayer.sendSystemMessage(
+                        Component.translatable("message.fisch.lava_need_hell_rod")
+                                .withStyle(ChatFormatting.RED)
+                );
+            }
+            return;
+        }
+
         this.fisch$customCatch = RodMechanics.determineCatch(
                 hook.level(),
                 hook.blockPosition(),
-                getActiveBestiary(),
+                inLava ? ModItems.HELL_FISH : getActiveBestiary(),
                 bait,
                 totalLuck
         );
@@ -271,6 +311,24 @@ public abstract class FishingHookMixin implements FishingHookDuck {
         return ModItems.PLAIN_FISH;
     }
 
+    /*
+     * Выбрасываем добычу и наводим её на игрока: рыба всегда долетает
+     * до него (сама не горит, см. ItemEntityMixin.fireImmune).
+     */
+    @Unique
+    private void fisch$spawnDrop(FishingHook hook, Player player, ItemStack stack) {
+        boolean inLava = RodMechanics.isFishingInLava(hook.level(), hook.blockPosition());
+        double spawnY = inLava ? hook.getY() + 0.35 : hook.getY();
+
+        ItemEntity entity = new ItemEntity(hook.level(), hook.getX(), spawnY, hook.getZ(), stack);
+        entity.setPickUpDelay(10);
+        hook.level().addFreshEntity(entity);
+
+        if (entity instanceof HomingItemDuck homing) {
+            homing.fisch$enableHoming(player, 100);
+        }
+    }
+
     @Override
     public void finishMiniGame(boolean success) {
         FishingHook hook = (FishingHook) (Object) this;
@@ -298,19 +356,12 @@ public abstract class FishingHookMixin implements FishingHookDuck {
                 FishMutation.applyMutation(fishStack, FishMutation.SPARKLING);
             }
 
-            ItemEntity fishEntity = new ItemEntity(hook.level(), hook.getX(), hook.getY(), hook.getZ(), fishStack);
-            fishEntity.setPickUpDelay(10);
-            Vec3 direction = player.position().add(0, player.getEyeHeight(), 0).subtract(hook.position()).normalize();
-            fishEntity.setDeltaMovement(direction.x * 0.35, 0.45, direction.z * 0.35);
-            hook.level().addFreshEntity(fishEntity);
+            fisch$spawnDrop(hook, player, fishStack);
 
             String bait = getBaitFromPlayer(player);
 
             if (bait.equals("black_fish_eggs") && fisch$RANDOM.nextInt(100) < 20) {
-                ItemEntity extraFishEntity = new ItemEntity(hook.level(), hook.getX(), hook.getY(), hook.getZ(), fishStack.copy());
-                extraFishEntity.setPickUpDelay(10);
-                extraFishEntity.setDeltaMovement(direction.x * 0.35, 0.45, direction.z * 0.35);
-                hook.level().addFreshEntity(extraFishEntity);
+                fisch$spawnDrop(hook, player, fishStack.copy());
             }
 
             ItemStack rodStack = player.getMainHandItem();
@@ -323,19 +374,13 @@ public abstract class FishingHookMixin implements FishingHookDuck {
             }
 
             if (rodPassive.equals("mushroom") && fisch$RANDOM.nextInt(100) < 25) {
-                ItemEntity sporeFishEntity = new ItemEntity(hook.level(), hook.getX(), hook.getY(), hook.getZ(), fishStack.copy());
-                sporeFishEntity.setPickUpDelay(10);
-                sporeFishEntity.setDeltaMovement(direction.x * 0.35, 0.45, direction.z * 0.35);
-                hook.level().addFreshEntity(sporeFishEntity);
+                fisch$spawnDrop(hook, player, fishStack.copy());
             }
 
             // -- ПАССИВКА АДСКОЙ УДОЧКИ: "Адский огонь" --
             // 20% шанс поймать копию рыбы (двойной улов).
             if (rodPassive.equals("hell") && fisch$RANDOM.nextInt(100) < 20) {
-                ItemEntity hellFireEntity = new ItemEntity(hook.level(), hook.getX(), hook.getY(), hook.getZ(), fishStack.copy());
-                hellFireEntity.setPickUpDelay(10);
-                hellFireEntity.setDeltaMovement(direction.x * 0.35, 0.45, direction.z * 0.35);
-                hook.level().addFreshEntity(hellFireEntity);
+                fisch$spawnDrop(hook, player, fishStack.copy());
             }
 
             // -- ПАССИВКА БОЛОТНОЙ УДОЧКИ: "Болотная живучесть" --
@@ -368,13 +413,11 @@ public abstract class FishingHookMixin implements FishingHookDuck {
 
             if (fisch$RANDOM.nextInt(100) < boxChance) {
                 ItemStack boxStack = new ItemStack(ModItems.BAIT_BOX);
-                ItemEntity boxEntity = new ItemEntity(hook.level(), hook.getX(), hook.getY(), hook.getZ(), boxStack);
-                boxEntity.setPickUpDelay(10);
-                boxEntity.setDeltaMovement(direction.x * 0.35, 0.45, direction.z * 0.35);
-                hook.level().addFreshEntity(boxEntity);
+                fisch$spawnDrop(hook, player, boxStack);
             }
 
-            if (!RodMechanics.isValidWaterBody(hook.level(), hook.blockPosition())) {
+            if (!RodMechanics.isFishingInLava(hook.level(), hook.blockPosition())
+                    && !RodMechanics.isValidWaterBody(hook.level(), hook.blockPosition())) {
                 if (player instanceof ServerPlayer serverPlayer) {
                     serverPlayer.connection.send(new ClientboundSetActionBarTextPacket(Component.translatable("message.fisch.small_water")));
                 }

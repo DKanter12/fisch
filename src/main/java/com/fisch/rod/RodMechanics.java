@@ -30,6 +30,26 @@ public class RodMechanics {
         return waterBlocks >= 20;
     }
 
+    public static boolean isValidLavaBody(Level world, BlockPos pos) {
+        int lavaBlocks = 0;
+        for (int x = -1; x <= 1; x++) {
+            for (int z = -1; z <= 1; z++) {
+                for (int y = 0; y >= -2; y--) {
+                    BlockPos checkPos = pos.offset(x, y, z);
+                    if (world.getFluidState(checkPos).is(FluidTags.LAVA)) {
+                        lavaBlocks++;
+                    }
+                }
+            }
+        }
+        return lavaBlocks >= 20;
+    }
+
+    // Рыбалка в лаве Ада (Незер). Только в этой лаве ловятся адские рыбы.
+    public static boolean isFishingInLava(Level world, BlockPos pos) {
+        return world.dimension().equals(Level.NETHER) && isValidLavaBody(world, pos);
+    }
+
     public static String getBiomeGroup(Level world, BlockPos pos) {
         Holder<Biome> biomeHolder = world.getBiome(pos);
 
@@ -70,11 +90,12 @@ public class RodMechanics {
     public static NewFish determineCatch(Level world, BlockPos pos, NewFish[] bestiary, String bait, float luck) {
         if (bestiary == null || bestiary.length == 0) return null;
 
-        if (!isValidWaterBody(world, pos)) {
+        boolean inLava = isFishingInLava(world, pos);
+        if (!inLava && !isValidWaterBody(world, pos)) {
             return ModItems.JUNK_FISH[RANDOM.nextInt(ModItems.JUNK_FISH.length)];
         }
 
-        String currentBiomeGroup = getBiomeGroup(world, pos);
+        String currentBiomeGroup = inLava ? "hell" : getBiomeGroup(world, pos);
         int count = 0;
 
         for (NewFish fish : bestiary) {
